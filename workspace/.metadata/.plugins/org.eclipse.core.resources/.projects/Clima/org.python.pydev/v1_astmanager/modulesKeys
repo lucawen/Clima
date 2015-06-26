@@ -1,0 +1,10 @@
+MODULES_MANAGER_V2
+ImportaDadosEstacao|C:\tv\Clima\workspace\Clima\ImportaDadosEstacao.py
+barra|C:\tv\Clima\workspace\Clima\barra.py
+importaEstacao|C:\tv\Clima\workspace\Clima\importaEstacao.py
+loteDuplicado|C:\tv\Clima\workspace\Clima\loteDuplicado.py
+pacote.__init__|C:\tv\Clima\workspace\Clima\pacote\__init__.py
+pacote.modelos|C:\tv\Clima\workspace\Clima\pacote\modelos.py
+pacote.tools|C:\tv\Clima\workspace\Clima\pacote\tools.py
+ponto|C:\tv\Clima\workspace\Clima\ponto.py
+teste|C:\tv\Clima\workspace\Clima\teste.py
