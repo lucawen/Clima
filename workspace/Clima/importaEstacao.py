@@ -16,7 +16,8 @@ class ItemEstacao:
         self.aberta = _dados['aberta'] 
         self.latitude =_dados['latitude'] 
         self.longitude = _dados['longitude'] 
-        self.altitude = Decimal( _dados['altitude'].replace(',','.')) 
+    	self.altitude = Decimal( _dados['altitude'].replace(',','.')) 
+        self.omm=  _dados['omm']
        
     @staticmethod
     def getRegras():
@@ -27,6 +28,7 @@ class ItemEstacao:
         expressao['latitude'] =  r'<br>Latitude: (.*?)º<br>'.decode('utf-8')
         expressao['longitude'] =  r'<br>Longitude: (.*?)º<br>'.decode('utf-8')
         expressao['altitude'] =  r'<br>Altitude: (.*?) metros</font><\\/div>' 
+        expressao['omm'] =  r'digo OMM:</b> (.*?)<br>'
         return expressao
 
     def InsereDB(self, db):         
@@ -34,8 +36,8 @@ class ItemEstacao:
             cursor = db.cursor()        
             try:              
                 ponto = '[{0},{1}]'.format(self.latitude, self.longitude)
-                sql = 'INSERT INTO  "Clima_estacoes"(codigo, sigla, altitude, ponto, data_abertura)  VALUES (%s, %s, %s, %s, %s);'
-                dados = ( self.codigo, self.sigla, self.altitude, ponto, self.aberta )
+                sql = 'INSERT INTO  "Clima_estacoes"(codigo, sigla, altitude, ponto, data_abertura, omm)  VALUES (%s, %s, %s, %s, %s, %s);'
+                dados = ( self.codigo, self.sigla, self.altitude, ponto, self.aberta, self.omm )
                 cursor.execute(sql, dados)            
                 db.commit()
             except psycopg2.IntegrityError:
@@ -82,6 +84,7 @@ class ImportaEstacao:
         regrasCampos = ItemEstacao.getRegras()
         for linha in linhas:
             registro = self.ExtraiCampos(linha, regrasCampos)  
+	    print regrasCampos
             objEstacao = ItemEstacao()          
             objEstacao.dictToObject(registro)                                
             objEstacao.InsereDB(db)            
@@ -90,7 +93,7 @@ class ImportaEstacao:
 
 if __name__ == "__main__":
     
-    STRING_CONEXAO = "dbname='Terravision' user='postgres' host='localhost' password='wilci5w7'"
+    STRING_CONEXAO = "dbname='clima' user='postgres' host='localhost' password='wilci5w7'"
     db = psycopg2.connect(STRING_CONEXAO) 
     obj = ImportaEstacao()
     obj.processa()

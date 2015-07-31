@@ -6,7 +6,7 @@ import lxml.html
 from lxml import cssselect
 import re
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 
 from pacote.tools import Tools
@@ -169,6 +169,9 @@ class ImportaDadosEstacao:
         for codEstacao in estacoes:
             print "{0}/{1}".format(i, len(estacoes))
             self.__Scrap(codEstacao, inicio, fim)
+
+	    print inicio, fim
+
             col.extend(self.colecao)            
             self.__GravaLog(codEstacao)
             i+=1
@@ -198,23 +201,27 @@ class ImportaDadosEstacao:
         
 if __name__ == "__main__":
             
-    ARQUIVO_LOG = 'C:/tv/Clima/workspace/bases/importadados.log'
-    NOME_ARQUIVO = 'C:/tv/Clima/workspace/bases/saida{0}.json'
+    ARQUIVO_LOG = '/webapps/clima/bases/importadados.log'
+    NOME_ARQUIVO = '/webapps/clima/bases/saida{0}.json'
     QTD_REGISTROS_GRAVAR = 50000
-    STRING_CONEXAO = "dbname='Terravision' user='postgres' host='localhost' password='wilci5w7'"
-    path='C:/tv/Clima/workspace/bases/'    
-    inicio = '30/03/2015'
-    fim = '06/04/2015'
-        
+    STRING_CONEXAO = "dbname='clima' user='postgres' host='localhost' password='wilci5w7'"
+    path='/webapps/clima/bases/'    
+
+    dfim = datetime.today()
+    dinicio = dfim + timedelta(days=-7)
+
+    inicio = dinicio.strftime("%d/%m/%y")
+    fim = dfim.strftime("%d/%m/%y")
+
     logging.basicConfig(filename=ARQUIVO_LOG,level=logging.DEBUG)
     logging.info("Inicio." + datetime.now().strftime("%B %d,:%Y %H:%M:%S "))    
         
     db = psycopg2.connect(STRING_CONEXAO) 
-                
+
     objEstacao = Estacao()
     estacoes = objEstacao.getEstacoes(db)
     del objEstacao
-    
+
     ImportaDadosEstacao().ProcessaImportacao(NOME_ARQUIVO, QTD_REGISTROS_GRAVAR, inicio, fim, estacoes, logging)
        
     objDadadosEstacao = DadosEstacao()    
