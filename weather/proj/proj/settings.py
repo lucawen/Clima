@@ -86,7 +86,7 @@ DATABASES = {
 }
 
 
-LANGUAGE_CODE = 'pt-br'
+LANGUAGE_CODE = 'en-us'
 ugettext = lambda s: s
 LANGUAGES = (
     ('en', ugettext('English')),

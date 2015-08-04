@@ -5,8 +5,7 @@ from . import views
 
 
 urlpatterns = [    
-#    url(r'^$', views.mapa, name='mapa'),
-    url(r'^myreport/$', views.my_report, ),
+    url(r'^$', views.mapa, name='mapa'),
     url(r'^registros/$', views.registros, ),
 ]
 
