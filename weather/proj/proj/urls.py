@@ -20,6 +20,7 @@ from django.contrib import admin
 admin.site.site_header = u'SIMOF - Terravision'
 
 urlpatterns = [
-#    url(r'^admin/', include(admin.site.urls)),
+    url(r'^grappelli/', include('grappelli.urls')),
+    url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('normais.urls')),
 ]

@@ -63,6 +63,8 @@ class Parametro(models.Model):
     nov = models.IntegerField(default=0)
     dez = models.IntegerField(default=0)
     tot = models.IntegerField(default=0)
+    unidade = models.CharField(max_length=15, blank=True, default = '')
+    tipoMapa = models.CharField(max_length=2, blank=True, default = '')
 
     def __unicode__(self):              
         return u'{0}'.format(self.Nome) 

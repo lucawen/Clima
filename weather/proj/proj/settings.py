@@ -15,6 +15,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+print BASE_DIR
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -31,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -67,6 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.core.context_processors.request',
             ],
         },
     },
@@ -86,7 +89,37 @@ DATABASES = {
 }
 
 
-LANGUAGE_CODE = 'en-us'
+STATICFILES_DIRS = (
+    BASE_DIR+ "/normal/static/plugins/",
+    BASE_DIR+ "/normal/static/css/",
+    BASE_DIR+ "/normal/static/js/",
+    BASE_DIR+ "/normal/static/img/",
+    BASE_DIR+ "/normal/static/js//typeahead/",
+    BASE_DIR+ "/normal/static/fonts/",
+    BASE_DIR+ "/normal/static/plugins/bootstrap/",
+    BASE_DIR+ "/normal/static/plugins/bootstrapvalidator/",
+    BASE_DIR+ "/normal/static/plugins/d3/",
+    BASE_DIR+ "/normal/static/plugins/fatatables/",
+    BASE_DIR+ "/normal/static/plugins/fancybox/",
+    BASE_DIR+ "/normal/static/plugins/fineuploader/",
+    BASE_DIR+ "/normal/static/plugins/flot/",
+    BASE_DIR+ "/normal/static/plugins/fullcalendar/",
+    BASE_DIR+ "/normal/static/plugins/jquery/",
+    BASE_DIR+ "/normal/static/plugins/jQuery-Knob/",
+    BASE_DIR+ "/normal/static/plugins/jquery-ui/",
+    BASE_DIR+ "/normal/static/plugins/jquery-ui-timepicker-addon/",
+    BASE_DIR+ "/normal/static/plugins/justified-gallery/",
+    BASE_DIR+ "/normal/static/plugins/moment/",
+    BASE_DIR+ "/normal/static/plugins/morris/",
+    BASE_DIR+ "/normal/static/plugins/raphael/",
+    BASE_DIR+ "/normal/static/plugins/select2/",
+    BASE_DIR+ "/normal/static/plugins/sparkline/",
+    BASE_DIR+ "/normal/static/plugins/tinymce/",
+    BASE_DIR+ "/normal/static/plugins/xcharts/"
+)
+
+
+LANGUAGE_CODE = 'pt-br'
 ugettext = lambda s: s
 LANGUAGES = (
     ('en', ugettext('English')),
@@ -100,5 +133,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+
+GRAPPELLI_ADMIN_TITLE= u'FIRE-MONITOR -  Terravision'
 
 STATIC_URL = '/static/'

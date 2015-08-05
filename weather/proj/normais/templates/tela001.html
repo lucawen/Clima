@@ -1,0 +1,81 @@
+{% extends 'base.html' %} {% load staticfiles %} 
+
+
+{% block cssformat %}
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <section class="panel">
+            <header class="panel-heading"> Licencas </header>
+            <div class="panel-body">
+                <form class="form-horizontal " method="get">
+                    <div class="form-group">
+                        <div id="the-basics">
+                             <input class="typeahead" type="text" placeholder="Estações Climáticas">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <header>
+        </section>
+    </div>
+</div>
+
+{% endblock %}a
+
+
+
+{% block scriptsJava %}
+    <script  type="text/javascript" src="/static/js/typeahead/typeahead.jquery.min.js"></script>
+	<script>
+$(document).ready(function() {
+
+
+    var substringMatcher = function(strs) {
+      return function findMatches(q, cb) {
+        var matches, substringRegex;
+
+        // an array that will be populated with substring matches
+        matches = [];
+
+        // regex used to determine if a string contains the substring `q`
+        substrRegex = new RegExp(q, 'i');
+
+        // iterate through the pool of strings and for any string that
+        // contains the substring `q`, add it to the `matches` array
+        $.each(strs, function(i, str) {
+          if (substrRegex.test(str)) {
+            matches.push(str);
+          }
+        });
+    
+        cb(matches);
+      };
+    };
+    var states = {{ estacoes|safe }};
+    $('#the-basics .typeahead').typeahead({
+      hint: true,
+      highlight: true,
+      minLength: 1
+    },
+    {
+      name: 'states',
+      source: substringMatcher(states)
+    });
+});
+</script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+{% endblock %}a

@@ -6,6 +6,6 @@ from . import views
 
 urlpatterns = [    
     url(r'^$', views.mapa, name='mapa'),
-    url(r'^registros/$', views.registros, ),
+    url(r'^registros/(?P<station>\d+)/(?P<parametro>\d+)/$', views.registros, ),
 ]
 
