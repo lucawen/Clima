@@ -38,7 +38,7 @@ class Station(models.Model):
     LatLong = models.CharField(max_length=100)
      
     def __unicode__(self):              
-        return u'{0}'.format(self.Codigo) 
+        return u'{0}'.format(self.Nome) 
 
 class Classe(models.Model):
     Nome = models.CharField(max_length=100)
@@ -48,7 +48,7 @@ class Classe(models.Model):
 
 class Parametro(models.Model):
     Nome = models.CharField(max_length=100)
-    Classe_FK = models.ForeignKey(Classe, null=True, blank=True, default = None)
+    Classe_FK = models.ForeignKey(Classe, null=True, blank=True, default = None, verbose_name="Classe" )
     Planilha = models.CharField(max_length=200, default='')
     jan = models.IntegerField(default=0)
     fev = models.IntegerField(default=0)
@@ -64,15 +64,14 @@ class Parametro(models.Model):
     dez = models.IntegerField(default=0)
     tot = models.IntegerField(default=0)
     unidade = models.CharField(max_length=15, blank=True, default = '')
-    tipoMapa = models.CharField(max_length=2, blank=True, default = '')
 
     def __unicode__(self):              
         return u'{0}'.format(self.Nome) 
 
 class ResultStr(models.Model):
 
-    Station_FK  = models.ForeignKey(Station)
-    Parametro_FK  = models.ForeignKey(Parametro)
+    Station_FK  = models.ForeignKey(Station, verbose_name="Estação" )
+    Parametro_FK  = models.ForeignKey(Parametro, verbose_name="Parâmetro" )
     jan = models.CharField(max_length=20, default='')
     fev = models.CharField(max_length=20, default='')
     mar = models.CharField(max_length=20, default='')
@@ -93,8 +92,8 @@ class ResultStr(models.Model):
 
 class Resultado(models.Model):
 
-    Station_FK  = models.ForeignKey(Station)
-    Parametro_FK  = models.ForeignKey(Parametro)
+    Station_FK  = models.ForeignKey(Station, verbose_name="Estação" )
+    Parametro_FK  = models.ForeignKey(Parametro, verbose_name="Parâmetro" )
     jan = models.DecimalField(default=0, decimal_places=2, max_digits=16)
     fev = models.DecimalField(default=0, decimal_places=2, max_digits=16)
     mar = models.DecimalField(default=0, decimal_places=2, max_digits=16)

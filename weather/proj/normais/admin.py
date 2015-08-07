@@ -14,10 +14,10 @@ class StationAdmin(admin.ModelAdmin):
                     (None, {'fields': ['Codigo','Nome', 'Estado', 'UF', 'Altitude', 'LatLong', ]}),
                 ]
 class ParametroAdmin(admin.ModelAdmin):
-    list_filter = ('Nome','Classe_FK', 'unidade', 'tipoMapa',  )
-    list_display = ['Nome','Classe_FK', 'unidade', 'tipoMapa',  ]
+    list_filter = ('Nome','Classe_FK', 'unidade', )
+    list_display = ['Nome','Classe_FK', 'unidade',   ]
     fieldsets = [
-                    (None, {'fields': ['Nome','Classe_FK', 'unidade', 'tipoMapa',]  })
+                    (None, {'fields': ['Nome','Classe_FK', 'unidade', ]  })
                 ]
 
 class ResultAdmin(admin.ModelAdmin):

@@ -26,7 +26,9 @@ class PlanilhaExcel:
                 nomeCampo = it[0]
                 col = it[2]
 
+
                 vlr = sheet.cell(row, col).value
+
                 if it[1] == 'N':
                     try:
                         valor =  float(vlr)

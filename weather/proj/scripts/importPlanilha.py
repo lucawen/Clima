@@ -8,8 +8,6 @@ import datetime
 
 def run():
 
-
-
     todos = Resultado.objects.all()
     todos.delete()
 
@@ -67,14 +65,14 @@ def run():
             codstac = r.codigo.replace('*','')
     
             if codstac == '':
-                print 'Pulouuuuu'
-                break
+                print codstac, reg 
+                continue
 
             try:
                 station = Station.objects.get(Codigo =  codstac)
             except:
                 print 'Nao achou estação', codstac  
-                quit()
+                continue
 
 
             parametro = Parametro.objects.get(Nome = arq.Nome)

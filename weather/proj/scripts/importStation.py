@@ -46,7 +46,7 @@ def run():
                 ['NNormais',     'N', 32],
     ]
 
-    plan = {'planilha': '/home/wbeirigo/Clima/dados/Relac_Est_Meteo_NC.xls', 'campos':campos, 'key':'Codigo', 'aba':'Plan1' } 
+    plan = {'planilha': '/home/wbeirigo/Clima/dados/Relac_Est_Meteo_NC.xls', 'campos':campos, 'key':'Codigo', 'aba':'Plan1', 'rowInic': 1 } 
     col = exc.leituraPlanilha(plan)
 
 

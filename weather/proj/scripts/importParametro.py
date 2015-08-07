@@ -30,12 +30,18 @@ def run():
                 ['nov', 'N', 16], 
                 ['dez', 'N', 17], 
                 ['tot', 'N', 18], 
+                ['unidade', 'C', 19] 
     ]
 
-    plan = {'planilha': '/home/wbeirigo/Clima/dados/Planilha.xls', 'campos':campos, 'key':'ID', 'aba':'Folha1', 'rowInic':3  } 
+    plan = {'planilha': '/home/wbeirigo/Clima/dados/Planilha.xls', 'campos':campos, 'key':'ID', 'aba':'Folha1', 'rowInic':2  } 
     col = exc.leituraPlanilha(plan)
 
+
+
     todas= Parametro.objects.all()
+    todas.delete()
+
+    todas= Classe.objects.all()
     todas.delete()
 
     for reg in col:
@@ -51,6 +57,7 @@ def run():
         if r.ID != 99:
             q = Parametro(  Nome = r.Nome, Classe_FK = vr, 
                             Planilha = r.Arquivo,
+                            unidade = r.unidade,
                             jan = r.jan, fev = r.fev, mar = r.mar,
                             abr = r.abr, mai = r.mai, jun = r.jun,
                             jul = r.jul, ago = r.ago, stb = r.stb,
