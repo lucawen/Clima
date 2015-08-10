@@ -1,0 +1,106 @@
+{% extends 'base.html' %} {% load staticfiles %} 
+
+
+{% block content %}
+
+<div class="row">
+    <div id="breadcrumb" class="col-xs-12">
+        <a href="#" class="show-sidebar">
+            <i class="fa fa-bars"></i>
+        </a>
+        <ol class="breadcrumb pull-left">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="#">Forms</a></li>
+            <li><a href="#">Forms elements</a></li>
+        </ol>
+        <div id="social" class="pull-right">
+            <a href="#"><i class="fa fa-google-plus"></i></a>
+            <a href="#"><i class="fa fa-facebook"></i></a>
+            <a href="#"><i class="fa fa-twitter"></i></a>
+            <a href="#"><i class="fa fa-linkedin"></i></a>
+            <a href="#"><i class="fa fa-youtube"></i></a>
+        </div>
+    </div>
+</div>
+
+
+
+{% for item in graficos  %}
+	<div class="col-xs-12 col-sm-6">
+		<div class="box">
+			<div class="box-header">
+				<div class="box-name">
+					<i class="fa fa-bar-chart-o"></i>
+					<span>{{ item.chart_options.title }}</span>
+				</div>
+				<div class="box-icons">
+					<a class="collapse-link">
+						<i class="fa fa-chevron-up"></i>
+					</a>
+					<a class="expand-link">
+						<i class="fa fa-expand"></i>
+					</a>
+					<a class="close-link">
+						<i class="fa fa-times"></i>
+					</a>
+				</div>
+				<div class="no-move"></div>
+			</div>
+			<div class="box-content">
+				<div id="{{ item.chart_element}}" style="min-height: 200px;"></div>
+			</div>
+		</div>
+	</div>
+
+{% endfor %}
+
+
+{% endblock %}
+
+{% block scriptsJava %}
+<script type="text/javascript">
+
+	function DrawAllCharts(){
+		{% for item in graficos  %}
+			var chart_data{{id}} = [ 
+				[ 'mes', 'valor'],
+				{% for reg in item.chart_data %}
+					[  '{{reg.mes}}' , {{ reg.val|safe }} ] ,
+				{% endfor %}
+				];
+
+			var chart{{id}}_options = {
+				title:  '{{ item.chart_options.title }}',
+				hAxis: {title: '{{ item.chart_options.hAxis.title }}', titleTextStyle: {color: 'blue' } } ,
+				backgroundColor: '#fcfcfc',
+				vAxis: {title: '{{ item.chart_options.vAxis.title }}', titleTextStyle: {color:  'red' } },
+			};
+			var chart{{id}}_element = '{{item.chart_element }}'
+			var chart{{id}}_type = {{item.chart_type}}
+
+
+			drawGoogleChart( chart_data{{id}}, chart{{id}}_options, chart{{id}}_element,  chart{{id}}_type); 
+	{% endfor %}
+	};
+</script>
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	// Load Google Chart API and callback to draw test graphs
+	$.getScript('http://www.google.com/jsapi?autoload={%22modules%22%3A[{%22name%22%3A%22visualization%22%2C%22version%22%3A%221%22%2C%22packages%22%3A[%22corechart%22%2C%22geochart%22]%2C%22callback%22%3A%22DrawAllCharts%22}]}');
+	// This need for correct resize charts, when box open or drag
+	var graphxChartsResize;
+	$(".box").resize(function(event){
+		event.preventDefault();
+		clearTimeout(graphxChartsResize);
+		graphxChartsResize = setTimeout(DrawAllCharts, 500);
+	});
+	// Add Drag-n-Drop action for .box
+	WinMove();
+});
+</script>
+
+{% endblock %}
