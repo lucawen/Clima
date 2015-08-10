@@ -3,7 +3,7 @@
 
 import django
 from tools import PlanilhaExcel, ObjectView
-from normais.models import Parametro, Classe
+from normais.models import Parametro, Classe, Resultado
 
 def run():
 
@@ -11,7 +11,7 @@ def run():
 
 
     campos = [
-                ['ID',   'C', 0],
+                ['ID',   'N', 0],
                 ['Classe',   'C', 1],
                 ['Arquivo',   'C', 2],
                 ['Nome',     'C', 3],
@@ -36,7 +36,8 @@ def run():
     plan = {'planilha': '/home/wbeirigo/Clima/dados/Planilha.xls', 'campos':campos, 'key':'ID', 'aba':'Folha1', 'rowInic':2  } 
     col = exc.leituraPlanilha(plan)
 
-
+    todas = Resultado.objects.all()
+    todas.delete()
 
     todas= Parametro.objects.all()
     todas.delete()
@@ -47,21 +48,23 @@ def run():
     for reg in col:
     	r = ObjectView(col[reg])
 
+        r.Classe = r.Classe.strip().upper()
+
         try:
-            vr = Classe.objects.get(Nome = r.Nome)
+            vr = Classe.objects.get(Nome = r.Classe)
         except Classe.DoesNotExist:
             vr = Classe(Nome = r.Classe)
             vr.save()
 
 
-        if r.ID != 99:
-            q = Parametro(  Nome = r.Nome, Classe_FK = vr, 
-                            Planilha = r.Arquivo,
-                            unidade = r.unidade,
-                            jan = r.jan, fev = r.fev, mar = r.mar,
-                            abr = r.abr, mai = r.mai, jun = r.jun,
-                            jul = r.jul, ago = r.ago, stb = r.stb,
-                            out = r.out, nov = r.nov, dez = r.dez,
-                            tot = r.tot) 
-    	    q.save()
+        q = Parametro(  codigo = r.ID,
+                    Nome = r.Nome, Classe_FK = vr, 
+                    Planilha = r.Arquivo,
+                    unidade = r.unidade,
+                    jan = r.jan, fev = r.fev, mar = r.mar,
+                    abr = r.abr, mai = r.mai, jun = r.jun,
+                    jul = r.jul, ago = r.ago, stb = r.stb,
+                    out = r.out, nov = r.nov, dez = r.dez,
+                    tot = r.tot) 
+    	q.save()
 

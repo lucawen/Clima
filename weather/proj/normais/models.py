@@ -36,7 +36,10 @@ class Station(models.Model):
     VentoDirPred = models.CharField(max_length=1)
     NNormais  = models.IntegerField(default=0)
     LatLong = models.CharField(max_length=100)
-     
+    
+    class Meta:
+        ordering = ['Nome',]     
+
     def __unicode__(self):              
         return u'{0}'.format(self.Nome) 
 
@@ -47,6 +50,7 @@ class Classe(models.Model):
         return u'{0}'.format(self.Nome) 
 
 class Parametro(models.Model):
+    codigo =  models.IntegerField(default=0)
     Nome = models.CharField(max_length=100)
     Classe_FK = models.ForeignKey(Classe, null=True, blank=True, default = None, verbose_name="Classe" )
     Planilha = models.CharField(max_length=200, default='')
@@ -64,6 +68,9 @@ class Parametro(models.Model):
     dez = models.IntegerField(default=0)
     tot = models.IntegerField(default=0)
     unidade = models.CharField(max_length=15, blank=True, default = '')
+
+    class Meta:
+        ordering = ['Nome',]
 
     def __unicode__(self):              
         return u'{0}'.format(self.Nome) 

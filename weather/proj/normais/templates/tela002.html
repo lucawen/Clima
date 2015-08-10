@@ -31,7 +31,7 @@
 			<div class="box-header">
 				<div class="box-name">
 					<i class="fa fa-bar-chart-o"></i>
-					<span>{{ item.chart_options.title }}</span>
+					<span>{{ item.options.title }}</span>
 				</div>
 				<div class="box-icons">
 					<a class="collapse-link">
@@ -47,7 +47,7 @@
 				<div class="no-move"></div>
 			</div>
 			<div class="box-content">
-				<div id="{{ item.chart_element}}" style="min-height: 200px;"></div>
+				<div id="{{ item.element|safe}}" style="min-height: 200px;"></div>
 			</div>
 		</div>
 	</div>
@@ -62,24 +62,21 @@
 
 	function DrawAllCharts(){
 		{% for item in graficos  %}
-			var chart_data{{id}} = [ 
-				[ 'mes', 'valor'],
-				{% for reg in item.chart_data %}
-					[  '{{reg.mes}}' , {{ reg.val|safe }} ] ,
-				{% endfor %}
-				];
 
-			var chart{{id}}_options = {
-				title:  '{{ item.chart_options.title }}',
-				hAxis: {title: '{{ item.chart_options.hAxis.title }}', titleTextStyle: {color: 'blue' } } ,
-				backgroundColor: '#fcfcfc',
-				vAxis: {title: '{{ item.chart_options.vAxis.title }}', titleTextStyle: {color:  'red' } },
+            var chart{{item.id}}_data = {{ item.data|safe}} 
+            var chart{{item.id}}_element = '{{ item.element|safe}}' 
+            var chart{{item.id}}_type = {{ item.type|safe}} 
+
+			var chart{{item.id}}_options = {
+				title:  '{{ item.options.title|safe }}',
+				hAxis: {{item.options.hAxis|safe }} ,
+				vAxis: {{item.options.vAxis|safe }} ,
+                legend : {{ item.options.legenda|safe }},
+				backgroundColor: '#fcfcfc'
 			};
-			var chart{{id}}_element = '{{item.chart_element }}'
-			var chart{{id}}_type = {{item.chart_type}}
 
+            drawGoogleChart( chart{{ item.id}}_data , chart{{item.id}}_options, chart{{item.id}}_element,  chart{{item.id}}_type);
 
-			drawGoogleChart( chart_data{{id}}, chart{{id}}_options, chart{{id}}_element,  chart{{id}}_type); 
 	{% endfor %}
 	};
 </script>
