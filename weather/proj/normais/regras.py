@@ -80,7 +80,7 @@ class NormalGraficos():
 
         colGraficos = []
         col = [    { 'id': 1, 'title': 'Precipitação Acumulada',      'tipo': 'CL', 'series' : [99,11,] },  
-                    { 'id': 2, 'title': 'Temperaturas',                'tipo': 'LN', 'series' : [99,1,2,3,] } ,  
+                   { 'id': 2, 'title': 'Temperaturas',                'tipo': 'LN', 'series' : [99,1,2,3,] } ,  
                    { 'id': 3, 'title': 'Precipitação Máxima 24h',     'tipo': 'CL', 'series' : [99,12,] } ,  
                    { 'id': 4, 'title': 'Temperatura Mínima Absoluta', 'tipo': 'LN', 'series' : [99,4,] } ,  
                    { 'id': 5, 'title': 'Temperatura Máxima Absoluta', 'tipo': 'LN', 'series' : [99,5,] } , 
@@ -115,25 +115,26 @@ class NormalGraficos():
 
 
             titulo01 =  u'{0}'.format( eixo[1]['titulo'])
-            hEixo   = ' {title: "(meses)", titleTextStyle: {color: "red"}} '
-            vEixo   = ' {title: "' + titulo01  + '" , titleTextStyle: { color: "red"}} '
+            hEixo   = ' {title: "(meses)", titleTextStyle: {color: "red"}, showTextEvery:1 } '
+            vEixo   = ' {title: "' + titulo01  + '" , titleTextStyle: { color: "red"}, showTextEvery:1 } '
             title   =   item['title']  
             if item['id'] ==  2:
                 legenda = ' { position : "top" } '
             else:
-                legenda = ' { position : "none" } '
+                legenda = ' { position : "labeled" } '
 
             grafico = { 'id'        : item['id'], 
-                        'titulo'    : item['title'],
+                        'titulo'    : '{0}'.format(item['title']),
                         'element'   : 'elemento{0}'.format(item['id']),
                         'type'      : TipoGrafico().getBySigla(item['tipo']),
                         'data'      : self.geraDataTable(eixo), 
                         'vEixo'     : vEixo, 
-                        'options'   : { 'title' : title, 'vAxis': vEixo, 'hAxis': hEixo, 'legenda':legenda },
-                        'legenda'   : legenda,
-                        'views'     : "( [ 0, 1, { type: 'string', role: 'annotation', sourceColumn: 1, calc: 'stringify' }] )"
-                      }
+                        'options'   : { 'title' : '{0}'.format(title), 'vAxis': vEixo, 'hAxis': hEixo, 'legenda':legenda },
+                        'legenda'   : legenda
+                     }
+
             colGraficos.append(grafico)
+            
         
         return colGraficos
 
