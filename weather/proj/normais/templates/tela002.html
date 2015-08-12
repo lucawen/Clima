@@ -10,8 +10,8 @@
         </a>
         <ol class="breadcrumb pull-left">
             <li><a href="index.html">Dashboard</a></li>
-            <li><a href="#">Forms</a></li>
-            <li><a href="#">Forms elements</a></li>
+            <li><a href="/estacoes/">Estacções</a></li>
+            <li><a href="#">{{estacao.Nome}}</a></li>
         </ol>
         <div id="social" class="pull-right">
             <a href="#"><i class="fa fa-google-plus"></i></a>
@@ -23,7 +23,30 @@
     </div>
 </div>
 
-
+<div id="dashboard-header" class="row">
+    <div class="col-xs-12 col-sm-4 col-md-5">
+        <h3>{{estacao.Nome}}</h3>
+    </div>
+    <div class="clearfix visible-xs"></div>
+    <div class="col-xs-12 col-sm-8 col-md-7 pull-right">
+        <div class="row">
+            <div class="col-xs-4">
+                <div class="sparkline-dashboard" id="sparkline-1"></div>
+                <div class="sparkline-dashboard-info">
+                    <span class="txt-primary">Altitude</span>
+                    {{ estacao.Altitude }}
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="sparkline-dashboard" id="sparkline-2"></div>
+                <div class="sparkline-dashboard-info">
+                    <span class="txt-info">UF</span>
+                    {{ estacao.UF }}
+                </div>
+            </div>
+       </div>
+    </div>
+</div>
 
 {% for item in graficos  %}
 	<div class="col-xs-12 col-sm-6">
@@ -64,6 +87,16 @@
 		{% for item in graficos  %}
 
             var chart{{item.id}}_data = {{ item.data|safe}} 
+
+
+            var campo = chart{{item.id}}_data[0];
+            if (campo[2] == 'xx'){
+                chart{{item.id}}_data[0][2] = {role: "annotation" }
+            };
+                
+
+
+
             var chart{{item.id}}_element = '{{ item.element|safe}}' 
             var chart{{item.id}}_type = {{ item.type|safe}} 
 

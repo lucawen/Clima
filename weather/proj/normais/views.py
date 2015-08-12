@@ -8,7 +8,6 @@ import models as db
 from django.core import serializers
 from django.template import RequestContext, loader
 from forms import PesquisaEstacaoFRM
-from normais.modelos import ChartsTypes
 from scripts.tools import ObjectView
 
 from normais.regras import NormalGraficos
@@ -16,10 +15,17 @@ from normais.regras import NormalGraficos
 
 def grafico(request, station):
 
+    estacao = {}
+    try:
+        estacao = db.Station.objects.get(pk=station)
+    except:
+        return redirect('/estacoes/')
+
+
     grf = NormalGraficos(station).getGrafico()
 
     template = loader.get_template('tela002.html')   
-    context = RequestContext(request, { 'graficos': grf });
+    context = RequestContext(request, { 'estacao': estacao, 'graficos': grf });
     return HttpResponse(template.render(context))
 
 

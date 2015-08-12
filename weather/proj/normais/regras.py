@@ -65,15 +65,29 @@ class NormalGraficos():
         qtdRows = len(eixo)
 
         tabela = []
+        
         for col in range(qtdCols):
             colLinha = []
             for linha in range(qtdRows):
-                colLinha.append( eixo[linha]['serie'][col] )                               
+                value = eixo[linha]['serie'][col] 
+                colLinha.append( value) 
 
-            print colLinha 
             tabela.append(colLinha)        
-      
-        return tabela 
+
+        if True:
+            saida = []
+            for item in  tabela:
+                if len(saida) == 0:
+                    val = 'xx'
+                else:
+                    val = item[1]
+            
+                item.append(val)
+                saida.append(item)
+        else:
+            saida = tabela
+
+        return saida 
 
 
     def getGrafico(self):
@@ -95,6 +109,7 @@ class NormalGraficos():
             ]
        
         for item in col: 
+
             series = item['series']
             eixo = []
 
@@ -102,6 +117,8 @@ class NormalGraficos():
 
             for parametro in  series:
                 key = parametro if parametro == 99 else parametro 
+                isAnot = False if parametro == 99 else True 
+
                 linha = self.getEixo(key)
                 
                 if len(linha['serie']) > 0:
@@ -121,7 +138,7 @@ class NormalGraficos():
             if item['id'] ==  2:
                 legenda = ' { position : "top" } '
             else:
-                legenda = ' { position : "labeled" } '
+                legenda = ' { position : "none" } '
 
             grafico = { 'id'        : item['id'], 
                         'titulo'    : '{0}'.format(item['title']),
