@@ -1,19 +1,14 @@
-__author__ = "Misha Seltzer"
 
-import gviz_api
+import  numpy as np
 
-description = {"name": ("string", "Name"),
-               "salary": ("number", "Salary"),
-               "full_time": ("boolean", "Full Time Employee")}
-data = [{"name": "Mike", "salary": (10000, "$10,000"), "full_time": True},
-        {"name": "Jim", "salary": (800, "$800"), "full_time": False},
-        {"name": "Alice", "salary": (12500, "$12,500"), "full_time": True},
-        {"name": "Bob", "salary": (7000, "$7,000"), "full_time": True}]
+t1 = [ [ 'meses', 'preto',  0.01  ,1.01 ,2.01 ,3.01 ,4.01 ,5.01, 6.01, 7.01, 8.01 ] ,
+        [ 'oleo',  'azul' , 10,11,12,13,14,15,16,17,18 ] ,
+        [ 'gas',  'verde' ,  910,911,912,913,914,915,916,917,918 ] 
+      ]
 
-data_table = gviz_api.DataTable(description)
-data_table.LoadData(data)
-print "Content-type: text/plain"
-print
-print data_table.ToJSonResponse(columns_order=("name", "salary", "full_time"),
-                                order_by="salary")
+t2 = np.asarray(t1) 
+
+
+print np.swapaxes(t2, 0, 1)
+
 

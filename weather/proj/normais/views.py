@@ -11,6 +11,7 @@ from forms import PesquisaEstacaoFRM
 from scripts.tools import ObjectView
 
 from normais.regras import NormalGraficos
+from automaticas.regras   import Medicao
 
 
 def grafico(request, station):
@@ -28,9 +29,13 @@ def grafico(request, station):
     context = RequestContext(request, { 'estacao': estacao, 'graficos': grf });
     return HttpResponse(template.render(context))
 
+def grafAutomatica(request, station):
+
+    result = json.dumps( { 'dados' :  Medicao().graficos(station) } )
+
+    return HttpResponse(result,content_type='text/javascript')
 
 def estacoes(request):
-
 
     colEstacoes = db.Station.objects.values_list('Nome', flat=True)
     if request.method == 'POST':
@@ -53,6 +58,28 @@ def estacoes(request):
     template = loader.get_template('tela001.html')   
 
     return HttpResponse(template.render(context))
+
+def graf(request,station):
+    """
+        Página
+    """
+    estacao = {}
+    try:
+        estacao = db.Station.objects.get(pk=station)
+    except:
+        return redirect('/estacoes/')
+
+    credits = {  'text': 'Fonte: INMET Período 1961-1990',
+                 'href': 'http://www.inmet.gov.br/'
+              }
+
+
+    context = RequestContext(request, { 'estacao':  estacao, 'credits' : credits })
+    template = loader.get_template('automatic.html')   
+
+    return HttpResponse(template.render(context))
+
+
 
 
 

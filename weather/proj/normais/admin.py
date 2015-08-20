@@ -1,9 +1,10 @@
 # Register your models here.
 
-from django.contrib import admin 
+from django.contrib.gis import admin 
 from django.template import RequestContext     
 from django.conf.urls import patterns, url, include   
 from django.shortcuts import render_to_response 
+from leaflet.admin import LeafletGeoAdmin
 
 from .models import Station, Parametro, Resultado, Classe
 
@@ -15,9 +16,9 @@ class StationAdmin(admin.ModelAdmin):
                 ]
 class ParametroAdmin(admin.ModelAdmin):
     list_filter = ('Nome','Classe_FK', 'unidade', )
-    list_display = ['Nome','Classe_FK', 'unidade',   ]
+    list_display = ['Nome','Classe_FK', 'unidade',  'codigo',  ]
     fieldsets = [
-                    (None, {'fields': ['Nome','Classe_FK', 'unidade', ]  })
+                    (None, {'fields': ['Nome','Classe_FK', 'unidade', 'corGrafico', 'codigo' ]  })
                 ]
 
 class ResultAdmin(admin.ModelAdmin):
@@ -27,9 +28,9 @@ class ResultAdmin(admin.ModelAdmin):
                     (None, {'fields': ['Station_FK', 'Parametro_FK', 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'stb', 'out', 'nov', 'dez', 'tot', ]  })
                 ]
 
+admin.site.register(Station, LeafletGeoAdmin)
 
-
-admin.site.register(Station, StationAdmin)
+#admin.site.register(Station, StationAdmin)
 admin.site.register(Parametro, ParametroAdmin)
 admin.site.register(Resultado, ResultAdmin)
 admin.site.register(Classe)

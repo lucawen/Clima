@@ -1284,6 +1284,25 @@ function ScreenSaver(){
 	}
 	setInterval(draw, 30);
 }
+
+
+function drawGoogleChartJPG(chart_data, chart_options, element, chart_type) {
+	// Function for visualize Google Chart
+
+    var elemento = document.getElementById(element)
+
+	var data = google.visualization.arrayToDataTable(chart_data);
+	var chart = new chart_type(document.getElementById(element));
+
+    google.visualization.events.addListener(chart, 'ready', function() {
+        elemento.innerHTML = '<img src="' + chart.getImageURI() + '">';
+    });
+
+	chart.draw(data, chart_options);
+}
+
+
+
 //
 // Helper for draw Google Chart
 //
@@ -1291,7 +1310,11 @@ function drawGoogleChart(chart_data, chart_options, element, chart_type) {
 	// Function for visualize Google Chart
 	var data = google.visualization.arrayToDataTable(chart_data);
 	var chart = new chart_type(document.getElementById(element));
+
 	chart.draw(data, chart_options);
+	
+	document.getElementById('png'+element).outerHTML = '<a class="fa fa-save" href="' + chart.getImageURI() + '"></a>'
+
 }
 //
 //  Function for Draw Knob Charts

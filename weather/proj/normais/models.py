@@ -1,42 +1,21 @@
 # -*- coding: utf-8 -*- 
 #!/usr/bin/env python 
 
-from django.db import models
-
+#from django.db import models
+from django.contrib.gis.db import models
+from paintstore.fields import ColorPickerField
 # Create your models. here.
 
 class Station(models.Model):
+    tipo = models.CharField(max_length=1, default='N')
     Codigo = models.CharField(max_length=6)
     Nome = models.CharField(max_length=100)
     Estado = models.CharField(max_length=50)
     UF = models.CharField(max_length=2)
     Altitude = models.DecimalField(default=0, decimal_places=2, max_digits=16) 
-    Tmed = models.CharField(max_length=1)
-    Tmax = models.CharField(max_length=1)
-    Tmin = models.CharField(max_length=1)
-    TmaxAbs = models.CharField(max_length=1)
-    TminAbs = models.CharField(max_length=1)
-    Pres = models.CharField(max_length=1)
-    Inso = models.CharField(max_length=1)
-    Evap = models.CharField(max_length=1)
-    Neb = models.CharField(max_length=1)
-    NebHora = models.CharField(max_length=1)
-    UR = models.CharField(max_length=1)
-    URHora = models.CharField(max_length=1)
-    Prec = models.CharField(max_length=1)
-    PrecMax = models.CharField(max_length=1)
-    PrecNDias = models.CharField(max_length=1)
-    PDec = models.CharField(max_length=1)
-    PdecND = models.CharField(max_length=1)
-    NPSec = models.CharField(max_length=2)
-    VentoInt = models.CharField(max_length=1)
-    Ventou = models.CharField(max_length=1)
-    Ventov = models.CharField(max_length=1)
-    VentoDirRes = models.CharField(max_length=1)
-    VentoDirPred = models.CharField(max_length=1)
-    NNormais  = models.IntegerField(default=0)
     LatLong = models.CharField(max_length=100)
-    
+    posicao = models.PointField()
+
     class Meta:
         ordering = ['Nome',]     
 
@@ -68,6 +47,7 @@ class Parametro(models.Model):
     dez = models.IntegerField(default=0)
     tot = models.IntegerField(default=0)
     unidade = models.CharField(max_length=15, blank=True, default = '')
+    corGrafico = ColorPickerField(help_text="Clique no campo para abrir o colorpicker.", max_length=7)
 
     class Meta:
         ordering = ['Nome',]

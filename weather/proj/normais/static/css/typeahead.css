@@ -48,8 +48,8 @@
 
 .tt-suggestion {
   padding: 3px 20px;
-  font-size: 18px;
-  line-height: 24px;
+  /*font-size: 18px;
+  line-height: 24px;*/
 }
 
 .tt-suggestion:hover {

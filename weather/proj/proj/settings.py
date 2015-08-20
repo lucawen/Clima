@@ -39,10 +39,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'normais',
     'automaticas',
+    'leaflet',
     'django_extensions',
-    
+    'paintstore',    
     
 )
 
@@ -81,9 +83,13 @@ WSGI_APPLICATION = 'proj.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', 
+        #'ENGINE': 'django.db.backends.postgresql_psycopg2', 
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'FireMonitor',                      
         'USER': 'postgres',
         'PASSWORD': 'wilci5w7',
@@ -94,32 +100,33 @@ DATABASES = {
 
 
 STATICFILES_DIRS = (
-    BASE_DIR+ "/normal/static/plugins/",
-    BASE_DIR+ "/normal/static/css/",
-    BASE_DIR+ "/normal/static/js/",
-    BASE_DIR+ "/normal/static/img/",
-    BASE_DIR+ "/normal/static/js//typeahead/",
-    BASE_DIR+ "/normal/static/fonts/",
-    BASE_DIR+ "/normal/static/plugins/bootstrap/",
-    BASE_DIR+ "/normal/static/plugins/bootstrapvalidator/",
-    BASE_DIR+ "/normal/static/plugins/d3/",
-    BASE_DIR+ "/normal/static/plugins/fatatables/",
-    BASE_DIR+ "/normal/static/plugins/fancybox/",
-    BASE_DIR+ "/normal/static/plugins/fineuploader/",
-    BASE_DIR+ "/normal/static/plugins/flot/",
-    BASE_DIR+ "/normal/static/plugins/fullcalendar/",
-    BASE_DIR+ "/normal/static/plugins/jquery/",
-    BASE_DIR+ "/normal/static/plugins/jQuery-Knob/",
-    BASE_DIR+ "/normal/static/plugins/jquery-ui/",
-    BASE_DIR+ "/normal/static/plugins/jquery-ui-timepicker-addon/",
-    BASE_DIR+ "/normal/static/plugins/justified-gallery/",
-    BASE_DIR+ "/normal/static/plugins/moment/",
-    BASE_DIR+ "/normal/static/plugins/morris/",
-    BASE_DIR+ "/normal/static/plugins/raphael/",
-    BASE_DIR+ "/normal/static/plugins/select2/",
-    BASE_DIR+ "/normal/static/plugins/sparkline/",
-    BASE_DIR+ "/normal/static/plugins/tinymce/",
-    BASE_DIR+ "/normal/static/plugins/xcharts/"
+    BASE_DIR+ "/normais/static/plugins/",
+    BASE_DIR+ "/normais/static/css/",
+    BASE_DIR+ "/normais/static/js/",
+    BASE_DIR+ "/normais/static/img/",
+    BASE_DIR+ "/normais/static/js//typeahead/",
+    BASE_DIR+ "/normais/static/fonts/",
+    BASE_DIR+ "/normais/static/plugins/bootstrap/",
+    BASE_DIR+ "/normais/static/plugins/bootstrapvalidator/",
+    BASE_DIR+ "/normais/static/plugins/d3/",
+    BASE_DIR+ "/normais/static/plugins/fatatables/",
+    BASE_DIR+ "/normais/static/plugins/fancybox/",
+    BASE_DIR+ "/normais/static/plugins/fineuploader/",
+    BASE_DIR+ "/normais/static/plugins/flot/",
+    BASE_DIR+ "/normais/static/plugins/fullcalendar/",
+    BASE_DIR+ "/normais/static/plugins/jquery/",
+    BASE_DIR+ "/normais/static/plugins/jQuery-Knob/",
+    BASE_DIR+ "/normais/static/plugins/jquery-ui/",
+    BASE_DIR+ "/normais/static/plugins/jquery-ui-timepicker-addon/",
+    BASE_DIR+ "/normais/static/plugins/justified-gallery/",
+    BASE_DIR+ "/normais/static/plugins/moment/",
+    BASE_DIR+ "/normais/static/plugins/morris/",
+    BASE_DIR+ "/normais/static/plugins/raphael/",
+    BASE_DIR+ "/normais/static/plugins/select2/",
+    BASE_DIR+ "/normais/static/plugins/sparkline/",
+    BASE_DIR+ "/normais/static/plugins/tinymce/",
+    BASE_DIR+ "/normais/static/plugins/xcharts/",
+    BASE_DIR+ "/normais/static/js/highcharts/js/",
 )
 
 
