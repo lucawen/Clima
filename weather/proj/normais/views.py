@@ -69,8 +69,9 @@ def graf(request,station):
     except:
         return redirect('/estacoes/')
 
-    credits = {  'text': 'Fonte: INMET Período 1961-1990',
-                 'href': 'http://www.inmet.gov.br/'
+    credits = {  'text': 'Powered by: Terravision',
+                 'href': 'http://www.terravisiongeo.com.br/'
+
               }
 
 
@@ -81,6 +82,14 @@ def graf(request,station):
 
 
 
+
+
+def graflinha(request, station):
+
+    context = RequestContext(request)
+    template = loader.get_template('graflinha.html')   
+
+    return HttpResponse(template.render(context))
 
 
 

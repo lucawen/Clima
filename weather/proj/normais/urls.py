@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^grafico/(?P<station>\d+)/$', views.grafico ),
     url(r'^grafautomatica/(?P<station>\d+)/$', views.grafAutomatica ),
     url(r'^graf/(?P<station>\d+)/$', views.graf ),
+    url(r'^graflinha/(?P<station>\d+)/$', views.graflinha ),
 ]
 

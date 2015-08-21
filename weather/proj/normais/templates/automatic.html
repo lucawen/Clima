@@ -1,14 +1,57 @@
-<CTYPE HTML>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-        <title>INMET - Temperatura EMA (Highstock)</title>
+{% extends 'base.html' %} {% load staticfiles %} 
 
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js "></script>
-        <script type="text/javascript">
+{% block cssformat %}
+     <style>
+        .bloco
+        {
+        height: 100%; /*Specify Height*/
+        width:  100%; /*Specify Width*/
+        border: 1px solid black; /*Add 1px solid border, use any color you want*/
+        text-align:center; /*Align the text to the center*/
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+
+<div id="grafico">
+    <ul>
+        <li><a href="#grafico01">Temperatura</a></li>
+        <li><a href="#grafico01a">Umidade</a></li>
+        <li><a href="#grafico02">Pressão</a></li>
+        <li><a href="#grafico03">Ponto de Orvalho</a></li>
+        <li><a href="#grafico04">Radiação</a></li>
+        <li><a href="#grafico05">Precipitação</a></li>
+        <li><a href="#grafico06">Direção do Vento</a></li>
+        <li><a href="#grafico07">Velocidade do Vento</a></li>
+    </ul>
+<div id='grafico01' style='height: 550px; max-width: 730px'></div>
+<div id='grafico01a' style='height: 550px; max-width: 730px'></div>
+<div id='grafico02' style='height: 550px; max-width: 730px'></div>
+<div id='grafico03' style='height: 550px; max-width: 730px'></div>
+<div id='grafico04' style='height: 550px; max-width: 730px'></div>
+<div id='grafico05' style='height: 550px; max-width: 730px'></div>
+<div id='grafico06' style='height: 550px; max-width: 730px'></div>
+<div id='grafico07' style='height: 550px; max-width: 730px'></div>
+
+{% endblock %}
+
+{% block scriptsJava %}
+<script type="text/javascript">
 
 $(function() {
+
+    $( "#grafico" ).tabs();
+
+	var graphxChartsResize;
+	$(".box").resize(function(event){
+		event.preventDefault();
+		clearTimeout(graphxChartsResize);
+		graphxChartsResize = setTimeout(DrawAllCharts, 500);
+	});
+	// Add Drag-n-Drop action for .box
+	WinMove();
 
 	vlrEstacaoText = '{{ estacao.Nome|safe }}';
 
@@ -610,50 +653,7 @@ $(function() {
          }); 
         
 });
-
-        </script>
-    </head>
-    <body>
-<script type="text/javascript" src="/static/js/highcharts/js/highstock.js"></script>
-<script type="text/javascript" src="/static/js/highcharts/js/modules/exporting.js"></script>
-<link type="text/css" 
-   href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.20/themes/base/jquery-ui.css" rel="stylesheet" 
-/>
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js "></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.20/jquery-ui.min.js"></script>
-
-<script>
-    $(function() {
-        $( "#grafico" ).tabs();
-    });
 </script>
 
-<div class="demo">
-
-<div id="grafico" style="width:770px">
-    <ul>
-        <li><a href="#grafico01">Temperatura</a></li>
-        <li><a href="#grafico01a">Umidade</a></li>
-        <li><a href="#grafico02">Pressão</a></li>
-        <li><a href="#grafico03">Ponto de Orvalho</a></li>
-        <li><a href="#grafico04">Radiação</a></li>
-        <li><a href="#grafico05">Precipitação</a></li>
-        <li><a href="#grafico06">Direção do Vento</a></li>
-        <li><a href="#grafico07">Velocidade do Vento</a></li>
-    </ul>
-<div id='grafico01' style='height: 550px; max-width: 730px'></div>
-<div id='grafico01a' style='height: 550px; max-width: 730px'></div>
-<div id='grafico02' style='height: 550px; max-width: 730px'></div>
-<div id='grafico03' style='height: 550px; max-width: 730px'></div>
-<div id='grafico04' style='height: 550px; max-width: 730px'></div>
-<div id='grafico05' style='height: 550px; max-width: 730px'></div>
-<div id='grafico06' style='height: 550px; max-width: 730px'></div>
-<div id='grafico07' style='height: 550px; max-width: 730px'></div>
-</div>
-
-</div><!-- End demo -->
-
-    </body>
-</html>
-
+{% endblock %}
 

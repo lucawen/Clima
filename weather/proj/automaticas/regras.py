@@ -7,7 +7,7 @@ import re
 import requests
 import json
 import ast
-from datetime import datetime 
+from datetime import datetime, timedelta 
 import time
 
 
@@ -193,10 +193,91 @@ class Medicao:
         
         return colec 
 
+    def getMedicaoHoraria(self, codEstac, _datainic = null, _datafim = null):
 
-    def getMedicaoDiaria(self, codEstac):
+
+        datainic = _datainic if _datainic else datetime(1900,1,1)
+        datafim  = _datafim  if _datafim  else datetime.today()
+
+        d = datainic - timedelta(days=-1)
 
 
+        campos = [  'data',     'hora',
+                    'tempmed',  'tempmax',  'tempmin',
+                    'umidmed',  'umidmax',  'umidmin',
+                    'pomed',    'pomax',    'pominin',
+                    'pmed',     'pmaax',    'pmin',
+                    'vvelmed',  'vrajmax',
+                    'radiacao', 'vdirmed',
+                    'chuva',a   'datachuva',
+                    'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW',
+                    'vtot']
+
+
+        colec = []
+        
+        sql = ''
+        sql = sql + 'SELECT "Data"         as data,    '
+        sql = sql + '       "Hora"         as hora, '
+        sql = sql + '       "TempInst"     as tempmed, '
+        sql = sql + '       "TempMax"      as tempmax, '
+        sql = sql + '       "TempMin"      as tempmin, '
+        sql = sql + '       "UmidInst"     as umidmed, '
+        sql = sql + '       "UmidMax"      as umidmax, '
+        sql = sql + '       "UmidMin"      as umidmin, '
+        sql = sql + '       "PtoOrvInst"   as pomed,   '
+        sql = sql + '       "PtoOrvMax"    as pomax,   '
+        sql = sql + '       "PtoOrvMin"    as pomin,   '
+        sql = sql + '       "PressInst"    as pmed,    '
+        sql = sql + '       "PressMax"     as pmax,    '
+        sql = sql + '       "PressMin"     as pmin,    '
+        sql = sql + '       "VentVel"      as vvelmed, '
+        sql = sql + '       "VentRaj"      as vrajmax, '
+        sql = sql + '       "Radiacao"     as radiacao,'
+        sql = sql + '       "VentDir"      as vdirmed, '
+        sql = sql + '       "Chuva"        as chuva, '
+        sql = sql + '       "Data"         as datachuva,  '
+        sql = sql + '       CASE WHEN "VentDir"  > 340  or "VentDir" <  21 THEN 1 ELSE NULL END as N,    '
+        sql = sql + '       CASE WHEN "VentDir"  > 22  and "VentDir" <  69 THEN 1 ELSE NULL END as NE,   '
+        sql = sql + '       CASE WHEN "VentDir"  > 70  and "VentDir" < 114 THEN 1 ELSE NULL END as E,    '
+        sql = sql + '       CASE WHEN "VentDir"  > 115 and "VentDir" < 159 THEN 1 ELSE NULL END as SE,   '
+        sql = sql + '       CASE WHEN "VentDir"  > 160 and "VentDir" < 203 THEN 1 ELSE NULL END as S,    '
+        sql = sql + '       CASE WHEN "VentDir"  > 204 and "VentDir" < 248 THEN 1 ELSE NULL END as SW,   '
+        sql = sql + '       CASE WHEN "VentDir"  > 249 and "VentDir" < 293 THEN 1 ELSE NULL END as W,    '
+        sql = sql + '       CASE WHEN "VentDir"  > 294 and "VentDir" < 339 THEN 1 ELSE NULL END as NW,   '
+        sql = sql + '       1                                                                   as vtot  '
+        sql = sql + '       FROM "Clima_dadosestacao" d           '
+        sql = sql + '              LEFT JOIN "Clima_estacoes" e ON d."codEstac" = e.codigo  '
+        sql = sql + '       WHERE e.omm  = %s AND"                                          '
+        sql = sql + '             d."Data" BETWEEN %s AND %s                                '
+        sql = sql + '       ORDER BY "Data", "Hora";                                        '
+
+
+        saida = []
+        try:
+            cursor = self.db.cursor()
+            dados = ( codEstac, datainic, datafim )
+            cursor.execute(sql, dados)
+            for item in  cursor.fetchall():
+                reg = {}
+                indice = 0 
+                for cpo in campos:
+                    reg[cpo] = item[indice]
+                    indice += 1
+                saida.append(reg) 
+        except:
+            raise
+        
+        return saida 
+
+
+
+
+    def getMedicaoDiaria(self, codEstac, _datainic = null, _datafim = null):
+
+
+        datainic = _datainic if _datainic else datetime(1900,1,1)
+        datafim  = _datafim  if _datafim  else datetime.today()
 
         campos = [  'data',
                     'tempmed',  'tempmax',  'tempmin',
@@ -240,7 +321,8 @@ class Medicao:
         sql = sql + '       count(*)            as vtot  '
         sql = sql + '       FROM "Clima_dadosestacao" d           '
         sql = sql + '              LEFT JOIN "Clima_estacoes" e ON d."codEstac" = e.codigo '
-        sql = sql + '       WHERE e.omm  = %s '
+        sql = sql + '       WHERE e.omm  = %s AND"                                          '
+        sql = sql + '             d."Data" BETWEEN %s AND %s                                '
         sql = sql + '       GROUP BY "Data"'
         sql = sql + '       ORDER BY "Data";'
 
@@ -274,21 +356,22 @@ class Medicao:
         dados_vdd =  []
         dados_vvel = []
 
-        objDados = self.getMedicaoDiaria(codEstac)
+        objDados = self.getMedicaoHoraria(codEstac)
         for item in objDados:
-            dt = item['data']
-            dt  = long(time.mktime(dt.timetuple())) * 1000
-    		#seconds += (dt.microsecond / 1000000.0)
-   
+            dt1  = item['data']
+           
+            hora = datetime(dt1.year, dt1.month, dt1.day, int( item['hora']), 0, 0, 0)
 
-            print item['data'], item['tempmed'], dt
+            dt  = long(time.mktime(hora.timetuple())) 
+            dt += (hora.microsecond / 1000000.0)
+            dt *= 1000
  
             dados_temp.append(    [ dt, item['tempmed'] ])
             dados_umi.append(     [ dt, item['umidmed']])
             dados_po.append(      [ dt, item['pomed'] ])
             dados_pres.append(    [ dt, item['pmed']  ])
             dados_rad.append(     [ dt, item['radiacao']])
-            dados_pre.append(     [ dt, 0])
+            dados_pre.append(     [ dt, item['chuva'] ] )
             dados_vdd.append(     [ dt, item['vdirmed']])
             dados_vvel.append(    [ dt, item['vvelmed']])
 

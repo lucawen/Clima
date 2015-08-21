@@ -50,49 +50,10 @@ def default(obj):
 
 def run():
 
-    colAutomaticas = regras.Estacao()
-
     objMedicao = regras.Medicao()
 
-    key = '81996'
-    dados_temp = dados_umi = dados_po = dados_pres   = []
-    dados_rad =  dados_pre =  dados_vdd = dados_vvel = []
-
-    objDados = objMedicao.getMedicaoDiaria(key)
-    for item in objDados:
-        dt = item['data']
-        dt  = long(time.mktime(dt.timetuple()))
-#       seconds += (dt.microsecond / 1000000.0)
-    
- 
-        dados_temp.append(    [ dt, item['tempmed'] ])
-        dados_umi.append(     [ dt, item['umidmed']])
-        dados_po.append(      [ dt, item['pomed'] ])
-        dados_pres.append(    [ dt, item['pmed']  ])
-        dados_rad.append(     [ dt, item['radiacao']])
-        dados_pre.append(     [ dt, 0])
-        dados_vdd.append(     [ dt, 0])
-        dados_vvel.append(    [ dt, item['vvelmed']])
-        
-        saida = {
-                    'dados_temp' :  dados_temp,
-                    'dados_umi'  :  dados_umi,
-                    'dados_po '  :  dados_po,
-                    'dados_pres' :  dados_pres,
-                    'dados_rad'  :  dados_rad,
-                    'dados_pre'  :  dados_pre,
-                    'dados_vdd'  :  dados_vdd,
-                    'dados_vvel' :  dados_vvel
-                }
-
-        response = json.dumps(saida)
-
-        print response
-
-    return response  
-
-
-
+    key = '86865'
+    objMedicao.graficos(key)
 
 
 """
