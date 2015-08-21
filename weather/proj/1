@@ -26,10 +26,11 @@ class GeraGraficos:
 
         if _tipo == 'd':
             faixa = [ int(dia) for dia in calendar.Calendar().itermonthdays(_data.year, _data.month) if dia >0]
-        else:
-            faixa = [ 'jan',  'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
-    
+
         faixa.insert(0,0)
+
+        print faixa
+        print '========================'
 
         return faixa
 
@@ -39,54 +40,32 @@ class GeraGraficos:
 
         sql = '' 
         if _tipo == 'tempdiaria':
-            titulo = u'Temperatura Diária  (Máxima, Média, Mínima)'
+            titulo = u'Temperatura (Diária, Máxima, Média, Mínima)'
             subtitulo = u'Estação: {0}  -  {1}/{2}'.format(_nomeestacao, _data.month, _data.year)
 
-            ytitle = 'Temperatura (°C)'
+            ytitle = u'Temperatura (°C)'.encode('latin1')
 
             campos = ['tempmed',  'tempmax',  'tempmin', ]
            
             tipo = 'line'
  
             sql = sql + 'avg("TempInst")     as tempmed, '
-            sql = sql + 'avg("TempMax")      as tempmax, '
-            sql = sql + 'avg("TempMin")      as tempmin  '
+            sql = sql + 'max("TempMax")      as tempmax, '
+            sql = sql + 'min("TempMin")      as tempmin  '
 
             group =   'GROUP BY "Data"' 
 
             series =  [ 
-                        { 'name' : u'Temperatura Máxima'.encode('latin1'), 'color' : 'orange', 'data' : [] }  ,
-                        { 'name' : u'Temperatura Média'.encode('latin1') , 'color' : 'yellow',    'data' : [] }  ,
-                        { 'name' : u'Temperatura Mínima'.encode('latin1'), 'color' : 'green',   'data' : [] }  
-                      ]
-
-        if _tipo == 'tempmensal':
-            titulo = u'Temperatura Mensal - (Máxima, Mínima)'
-            subtitulo = u'Estação: {0}  -  {1}'.format(_nomeestacao, _data.year)
-
-            ytitle = 'Temperatura (°C)'
-
-            campos = ['tempmax',  'tempmin', ]
-           
-            tipo = 'line'
- 
-            sql = sql + 'max("TempMax")      as tempmax, '
-            sql = sql + 'min("TempMin")      as tempmin  '
-
-            group =   'GROUP BY "month(Data)"' 
-
-            series =  [ 
-                        { 'name' : u'Temperatura Máxima'.encode('latin1'), 'color' : 'orange', 'data' : [] }  ,
-                        { 'name' : u'Temperatura Mínima'.encode('latin1'), 'color' : 'green',  'data' : [] }  
+                        { 'titulo' : 'Temperatura Máxima', 'color' : 'orange', 'data' : [] }  ,
+                        { 'titulo' : 'Temperatura Média' , 'color' : 'orange', 'data' : [] }  ,
+                        { 'titulo' : 'Temperatura Mínima', 'color' : 'orange', 'data' : [] }  
                       ]
 
 
-
- 
 
  
         return {    'titulo'    : titulo,
-                    'ytitle'    : ytitle, 
+                    'yAxistitle': ytitle, 
                     'campos'    : campos, 
                     'sql'       : sql, 
                     'group'     : group, 
@@ -108,10 +87,11 @@ class GeraGraficos:
             dataini = datetime(_data.year, _data.month, 1)
             datafim = datetime(_data.year, _data.month, lastcategoria)
         else:
-            dataini = datetime(_data.year, 1, 1)
-            datafim = datetime(_data.year, 12, 31)
+            dataini = datetime.datetime(_data.year, 1, 1)
+            datafim = datetime.datetime(_data.year, 12, 31)
  
-        data       = [ [ 0 for  dia in categoria ]for i in defgrafico['series'] ]
+        seriedata  = [ 0 for  dia in categoria ]
+        data       = [ seriedata for i in defgrafico['series'] ] 
 
         sql = ''
         sql = sql + 'SELECT "Data",                                 '
@@ -131,19 +111,25 @@ class GeraGraficos:
             dados = ( _codestac, dataini, datafim )
             cursor.execute(sql, dados)
             for item in  cursor.fetchall():
-                indice = 0
-                dia = item[0].day
+                indice = 0 
                 for cpo in defgrafico['campos']:
-                    data[indice][dia] = round( item[indice+1], 2)
+                    if indice == 0:
+                        dia = item[indice].day
+                    else:
+                        print indice, dia, data[indice][dia]
+                        data[indice][dia] = item[indice]
                     indice += 1
         except:
             raise
-    
+     
+        print data 
+
         self.db.close()
+
 
         indice = 0 
         for item in defgrafico['series']:
-            defgrafico['series'][indice]['data'] = data[indice][1:]           
+            defgrafico['series'][indice]['data'] = data[indice]           
             indice += 1
  
         grafico = { 
@@ -151,7 +137,7 @@ class GeraGraficos:
                     'titulo':       defgrafico['titulo'],
                     'subtitulo':    defgrafico['subtitulo'],
                     'categories':   categoria,
-                    'ytitle':        defgrafico['ytitle'] ,
+                    'yAxis':        defgrafico['yAxistitle'] ,
                     'series':       defgrafico['series']
                   }
 

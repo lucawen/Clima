@@ -193,7 +193,7 @@ class Medicao:
         
         return colec 
 
-    def getMedicaoHoraria(self, codEstac, _datainic = null, _datafim = null):
+    def getMedicaoHoraria(self, codEstac, _datainic = datetime(1900,1,1),  _datafim = datetime(2099,12,31)):
 
 
         datainic = _datainic if _datainic else datetime(1900,1,1)
@@ -209,7 +209,7 @@ class Medicao:
                     'pmed',     'pmaax',    'pmin',
                     'vvelmed',  'vrajmax',
                     'radiacao', 'vdirmed',
-                    'chuva',a   'datachuva',
+                    'chuva',  # 'datachuva',
                     'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW',
                     'vtot']
 
@@ -236,7 +236,7 @@ class Medicao:
         sql = sql + '       "Radiacao"     as radiacao,'
         sql = sql + '       "VentDir"      as vdirmed, '
         sql = sql + '       "Chuva"        as chuva, '
-        sql = sql + '       "Data"         as datachuva,  '
+#       sql = sql + '       "Data"         as datachuva,  '
         sql = sql + '       CASE WHEN "VentDir"  > 340  or "VentDir" <  21 THEN 1 ELSE NULL END as N,    '
         sql = sql + '       CASE WHEN "VentDir"  > 22  and "VentDir" <  69 THEN 1 ELSE NULL END as NE,   '
         sql = sql + '       CASE WHEN "VentDir"  > 70  and "VentDir" < 114 THEN 1 ELSE NULL END as E,    '
@@ -248,15 +248,15 @@ class Medicao:
         sql = sql + '       1                                                                   as vtot  '
         sql = sql + '       FROM "Clima_dadosestacao" d           '
         sql = sql + '              LEFT JOIN "Clima_estacoes" e ON d."codEstac" = e.codigo  '
-        sql = sql + '       WHERE e.omm  = %s AND"                                          '
-        sql = sql + '             d."Data" BETWEEN %s AND %s                                '
+        sql = sql + '       WHERE e.omm  = %s                                            '
+#       sql = sql + '             d."Data" BETWEEN %s AND %s                                '
         sql = sql + '       ORDER BY "Data", "Hora";                                        '
 
 
         saida = []
         try:
             cursor = self.db.cursor()
-            dados = ( codEstac, datainic, datafim )
+            dados = ( codEstac,  )
             cursor.execute(sql, dados)
             for item in  cursor.fetchall():
                 reg = {}
@@ -273,7 +273,7 @@ class Medicao:
 
 
 
-    def getMedicaoDiaria(self, codEstac, _datainic = null, _datafim = null):
+    def getMedicaoDiaria(self, codEstac, _datainic = datetime(1980,1,1), _datafim = datetime(2099,12,31)):
 
 
         datainic = _datainic if _datainic else datetime(1900,1,1)
@@ -341,7 +341,11 @@ class Medicao:
                 saida.append(reg) 
         except:
             raise
-        
+       
+
+        print saida
+
+ 
         return saida 
 
 

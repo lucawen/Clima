@@ -11,8 +11,9 @@ from forms import PesquisaEstacaoFRM
 from scripts.tools import ObjectView
 
 from normais.regras import NormalGraficos
-from automaticas.regras   import Medicao
-
+from automaticas.graficos   import GeraGraficos
+from automaticas.regras    import Medicao
+from datetime import datetime
 
 def grafico(request, station):
 
@@ -71,7 +72,6 @@ def graf(request,station):
 
     credits = {  'text': 'Powered by: Terravision',
                  'href': 'http://www.terravisiongeo.com.br/'
-
               }
 
 
@@ -86,7 +86,10 @@ def graf(request,station):
 
 def graflinha(request, station):
 
-    context = RequestContext(request)
+    obj = GeraGraficos()
+    result = obj.processa( '86801', datetime(2015,01,01),'tempdiaria', 'Teste de Estacao')
+
+    context = RequestContext(request, { 'grafico' : result} )
     template = loader.get_template('graflinha.html')   
 
     return HttpResponse(template.render(context))
