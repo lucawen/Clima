@@ -69,10 +69,11 @@ class NormalGraficos:
 
     
 
-    def __init__(self, _idStation):
+    def __init__(self, _idStation, _texto):
         self.idStation = _idStation
         self.yAxis = ''
         self.meses = ['jan','fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago','stb', 'out', 'nov', 'dez']
+        self.texto = _texto.replace('_', ' ')
 
 
     def getEixo(self, idSerie):
@@ -114,8 +115,8 @@ class NormalGraficos:
 
         xAxis = { 'categories'  :  self.meses, 'crosshair': 'true'  }
 
-        credito = {  'text': 'Fonte: INMET Período 1961-1990',
-                     'href': 'http://www.inmet.gov.br/'
+        credito = {  'text': 'Fonte: INMET 1961-1990 -  Powered by Terravision',
+                     'href': 'http://www.terravisiongeo.br/'
                   }
 
         colGrafico = []
@@ -235,7 +236,7 @@ class NormalGraficos:
                                      item['legend'],
                                      colSeries,
                                      item['id'],
-                                     'Estação 0000' )
+                                     self.texto )
 
 
                 colGrafico.append(itemGrafico)
@@ -245,7 +246,6 @@ class NormalGraficos:
 """        
 http://jsfiddle.net/5m4djL4b/
 http://jsfiddle.net/5r3ffoky/
-
 http://jsfiddle.net/w172sc4t/
 
 """

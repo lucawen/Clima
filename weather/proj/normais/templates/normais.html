@@ -2,7 +2,7 @@
 
 
 {% block cssformat %}
-	<link href="/static/css/typeahead.css" rel="stylesheet">
+	<link href="/static/css/typeahead.css" rel="stylesheet">  
 {% endblock %}
 
 
@@ -33,7 +33,7 @@
             <div class="box-header">
                 <div class="box-name">
                     <i class="fa fa-cloud"></i>
-                    <span>Estações</span>
+                    <span>Normais Climatológicas</span>
                 </div>
                 <div class="box-icons">
                     <a class="collapse-link">
@@ -50,22 +50,33 @@
             </div>
             <div class="box-content">
             
-                <form  method="POST">
-                    {% csrf_token %}
-                    <div class="row form-group">
-                        <div class="col-sm-6">
-                            <h4 class="page-header">{{ form.nomeEstacao.label }}</h4>	
-                            {{ form.nomeEstacao}}
-                        </div>
-                        <div class="col-sm-6">
-                                <button class="btn btn-default" type="submit" ><i class="fa fa-cog"></i> Processar</button>
-                        <div>
+            <form  method="POST">
+                {% csrf_token %}
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <h4 class="page-header">{{ form.nomeEstacao.label }}</h4>	
+                        {{ form.nomeEstacao}}
                     </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <h4 class="page-header">{{ form.nomeTexto.label }}</h4>	
+                        {{ form.nomeTexto}}
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <button class="btn btn-default" type="submit" ><i class="fa fa-cog"></i> Processar</button>                                                 
+                    <div>
+                </div> 
                 </form>
            </div>
         </div>
     </div>
 </div>
+
+
+
 {% endblock %}a
 
 
@@ -81,8 +92,8 @@ function Select2Test(){
 
 $(document).ready(function() {
     // Load script of Select2 and run this
-    LoadSelect2Script(Select2Test);
-    WinMove();
+    //LoadSelect2Script(Select2Test);
+    //WinMove();
 
     var substringMatcher = function(strs) {
       return function findMatches(q, cb) {
@@ -108,7 +119,7 @@ $(document).ready(function() {
     var states = {{ estacoes|safe }};
     $('#id_nomeEstacao').typeahead({
       hint: true,
-      highlight: true,
+      highlight: false,
       minLength: 1
     },
     {

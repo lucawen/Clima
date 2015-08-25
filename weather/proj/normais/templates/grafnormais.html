@@ -22,7 +22,7 @@
         </a>
         <ol class="breadcrumb pull-left">
             <li><a href="index.html">Dashboard</a></li>
-            <li><a href="/estacoes/">Estacções</a></li>
+            <li><a href="/normais/">Estacções</a></li>
             <li><a href="#">{{estacao.Nome}}</a></li>
         </ol>
         <div id="social" class="pull-right">
@@ -105,7 +105,7 @@
                                 }       
                         },                    
                 title: { text : '{{ item.title.text|safe }}'    } ,
-                subtitle: { text : '{{  estacao.Nome }} - {{ estacao.UF}}  '  } ,
+                subtitle: { text : '{{  item.subtitle.text|safe }} '  } ,
                 xAxis: {{ item.xAxis|safe }} , 
                 yAxis: {{ item.yAxis|safe  }},
                 plotOptions: {{ item.plotOptions|safe }},
