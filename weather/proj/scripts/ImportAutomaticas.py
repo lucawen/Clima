@@ -8,10 +8,11 @@ import json
 from  automaticas import regras
 from datetime import datetime 
 import time
-def imortAutomaticas():
+def importAutomaticas():
     todas = Station.objects.filter(tipo= 'A')
-    todas.delete()
+    #todas.delete()
 
+    indice = 0
 
     with open('/home/wbeirigo/Clima/weather/proj/scripts/Automaticas.json') as data_file:    
         data = json.load(data_file)
@@ -31,8 +32,16 @@ def imortAutomaticas():
         	            LatLong = u'({0},{1})'.format(r.longi, r.lati)  
             		   )
             q.save()
+            indice += 1
+
+            print r.Nome
         else:
-            print estacao[0].Nome, r.Nome
+            #print estacao[0].Nome, r.Nome
+            pass
+
+
+    print indice
+
 
 def default(obj):
 
@@ -50,14 +59,6 @@ def default(obj):
 
 def run():
 
-    objMedicao = regras.Medicao()
-
-    key = '86865'
-    objMedicao.graficos(key)
-
-
-"""
-http://jsfiddle.net/w172sc4t/2/
-"""
+    importAutomaticas()
 
 

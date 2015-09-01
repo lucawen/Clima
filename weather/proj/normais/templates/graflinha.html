@@ -169,10 +169,35 @@
             max: 360,
             labels: {                
                 formatter: function () {
-                    return this.value + '°';
+                    label = '';
+                    if (this.value == 0 ){
+                        label = 'N';
+                    }
+                    if (this.value == 45) {
+                        label = 'NE';
+                    }
+                    if (this.value == 90) {
+                        label = 'E';
+                    }
+                    if (this.value == 135 ){
+                        label = 'SE';
+                    }
+                    if (this.value == 180 ){
+                        label = 'S';
+                    }
+                    if (this.value == 225) {
+                        label = 'SW';
+                    }
+                    if (this.value == 270) {
+                        label = 'W';
+                    }
+                    if (this.value == 315) {
+                        label = 'NW';
+                    }
+                    return label + ' ' + this.value + '°';
                 }
             }
-        },
+       },
 
         yAxis: {
             min: 0
