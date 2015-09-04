@@ -14,7 +14,7 @@ from normais.regras import NormalGraficos
 from automaticas.graficos   import GeraGraficos
 from automaticas.regras    import Medicao
 from datetime import datetime
-
+from django.utils import http
 
 def normais(request):
 
@@ -27,6 +27,9 @@ def normais(request):
 
             if texto.strip() == '':
                 texto = estacao[0].Nome
+            
+            texto = texto.replace('-',' ').replace('.',' ').replace('(',' ').replace(')',' ')
+            texto = http.urlquote(texto)
 
             if estacao:
                 return redirect('/grafnormais/{0}/{1}'.format(estacao[0].id, texto.replace(' ', '_')) ) 
@@ -45,9 +48,7 @@ def normais(request):
 
 def grafnormais(request, station, texto):
 
-
-    texto = texto.replace('_', ' ')
-
+    texto = http.urlunquote(texto)
     estacao = {}
     try:
         estacao = db.Station.objects.get(pk=station)
@@ -77,8 +78,8 @@ def automaticas(request):
             if texto.strip() == '':
                 texto = estacao[0].Nome
 
-            texto = texto.replace('-',' ').replace(' ','_')
-
+            texto = texto.replace('-',' ').replace('.',' ').replace('(',' ').replace(')',' ')
+            texto = http.urlquote(texto)
 
             if estacao:
                 if mes == '99':
@@ -159,5 +160,11 @@ def grafAutomaticaTotal(request, station, texto):
 
     return HttpResponse(template.render(context))
 
+def mapaestacoes(request):
+    context = RequestContext(request)
+    template = loader.get_template('mapaestacoes.html')   
 
+    return HttpResponse(template.render(context))
+
+   
 

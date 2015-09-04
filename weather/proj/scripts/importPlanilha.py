@@ -107,26 +107,28 @@ def run():
 
         param19 = Parametro.objects.get(codigo=19)
         ccol8 = Resultado.objects.filter(Parametro_FK__codigo = 8, Station_FK__id = reg.id)
-        ccol9 = Resultado.objects.filter(Parametro_FK__codigo = 9, Station_FK__id = reg.id)
-        if len(ccol8) > 0 and len(ccol9) > 0:
-            col8 = ccol8[0]
-            col9 = ccol9[0]
+        ccol11 = Resultado.objects.filter(Parametro_FK__codigo = 11, Station_FK__id = reg.id)
+        if len(ccol8) > 0 and len(ccol11) >0:
 
+            # Precipitação
+            col8 = ccol8[0]
+
+            #Evaporação
+            col11 = ccol11[0]
 
             result = Resultado( Station_FK = reg, Parametro_FK = param19,
-                                jan =   (col9.jan - col8.jan), 
-                                fev=    (col9.fev - col8.fev), 
-                                mar =   (col9.mar - col8.mar), 
-                                abr =   (col9.abr - col8.abr), 
-                                mai=    (col9.mai - col8.mai), 
-                                jun =   (col9.jun - col8.jun), 
-                                jul =   (col9.jul - col8.jul), 
-                                ago=    (col9.ago - col8.ago), 
-                                stb =   (col9.stb - col8.stb), 
-                                out =   (col9.out - col8.out), 
-                                nov=    (col9.nov - col8.nov), 
-                                dez =   (col9.dez - col8.dez), 
-                                tot =   (col9.tot - col8.tot),  )                                        
-            
+                                jan =   (col11.jan - col8.jan), 
+                                fev=    (col11.fev - col8.fev), 
+                                mar =   (col11.mar - col8.mar), 
+                                abr =   (col11.abr - col8.abr), 
+                                mai=    (col11.mai - col8.mai), 
+                                jun =   (col11.jun - col8.jun), 
+                                jul =   (col11.jul - col8.jul), 
+                                ago=    (col11.ago - col8.ago), 
+                                stb =   (col11.stb - col8.stb), 
+                                out =   (col11.out - col8.out), 
+                                nov=    (col11.nov - col8.nov), 
+                                dez =   (col11.dez - col8.dez), 
+                                tot =   (col11.tot - col8.tot),  )                                        
             result.save()
 

@@ -1,5 +1,4 @@
-{% extends 'base.html' %} {% load staticfiles %} 
-
+:{% extends 'base.html' %} {% load staticfiles %} 
 
 {% block cssformat %}
 	<link href="/static/css/typeahead.css" rel="stylesheet">  
@@ -14,16 +13,9 @@
             <i class="fa fa-bars"></i>
         </a>
         <ol class="breadcrumb pull-left">
-            <li><a href="index.html">Dashboard</a></li>
-            <li><a href="/automaticas/">Estações</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/automaticas/">Estações Automáticas</a></li>
         </ol>
-        <div id="social" class="pull-right">
-            <a href="#"><i class="fa fa-google-plus"></i></a>
-            <a href="#"><i class="fa fa-facebook"></i></a>
-            <a href="#"><i class="fa fa-twitter"></i></a>
-            <a href="#"><i class="fa fa-linkedin"></i></a>
-            <a href="#"><i class="fa fa-youtube"></i></a>
-        </div>
     </div>
 </div>
 
@@ -66,7 +58,7 @@
                             {{ form.ano}}
                         </div>
                     </div>
-                     <div class="row form-group">
+                   <div class="row form-group">
                         <div class="col-sm-3">
                             <h4 class="page-header">{{ form.nomeTexto.label }}</h4>	
                             {{ form.nomeTexto}}
@@ -83,9 +75,7 @@
     </div>
 </div>
 
-
-
-{% endblock %}a
+{% endblock %}
 
 
 
@@ -97,7 +87,6 @@
 function Select2Test(){
     $("#el2").select2();
 }
-
 $(document).ready(function() {
     // Load script of Select2 and run this
     //LoadSelect2Script(Select2Test);

@@ -16,6 +16,12 @@ class Station(models.Model):
     LatLong = models.CharField(max_length=100)
     posicao = models.PointField()
 
+    objects = models.GeoManager()
+
+    @property
+    def geom(self):
+        return self.posicao
+
     class Meta:
         ordering = ['Nome',]     
 

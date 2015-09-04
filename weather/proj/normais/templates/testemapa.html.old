@@ -1,0 +1,57 @@
+{% load leaflet_tags %}
+<html>
+  <head>
+    {% leaflet_js %}
+    {% leaflet_css %}
+
+    <link rel="stylesheet" href="/static/js/leaflet/MarkerCluster.css" />
+    <link rel="stylesheet" href="/static/js/leaflet/MarkerCluster.Default.css" />
+    <script src="/static/js/leaflet/leaflet.markercluster-src.js"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+    <style>
+        .leaflet-container { height: 100%; }
+    </style>
+  </head>
+  <body>
+    {% leaflet_map "main" callback="main_map_init" %}
+    <script type="text/javascript">
+        function main_map_init (map, options) {
+
+            map.options.maxZoom = 15;
+            map.setView([-19.52,-43.384], 11);
+
+            var markers = L.markerClusterGroup();
+            //var dataurl = '{% url "data" %}';
+            var dataurl = '/data.geojson';
+            // Download GeoJSON via Ajax
+            $.getJSON(dataurl, function (data) {
+
+
+                var markers = L.markerClusterGroup();
+                var points_rand = L.geoJson(data, {
+                    onEachFeature: function (feature, layer) //functionality on click on feature
+                    {
+                        urlcall1 = 'http://firemonitor.terravisiongeo.com.br/grafautomaticatotal/' + feature.properties.id + '/ddfd/'
+                        urlcall2 = 'http://firemonitor.terravisiongeo.com.br/grafautomatica/' + feature.properties.Codigo + '/0/2015/ddfd/'
+                        var texto = '';
+                        texto = texto + '<h3>' + feature.properties.Nome + '</h3><br>';
+                        texto = texto + '<b>Altitude:</b> ' + feature.properties.Altitude + 'm<br>';
+                        texto = texto + '<b>Código  :</b> ' + feature.properties.Codigo + '<br>';
+                        texto = texto + '<a target="_blank"  href="' + urlcall1 + '">Gráfico Geral</a><br>'; 
+                        texto = texto + '<a target="_blank"  href="' + urlcall2 + '">Gráfico Anual</a><br>'; 
+                        layer.bindPopup(texto);
+                    }
+                });
+                markers.addLayer(points_rand); // add it to the cluster group
+                map.addLayer(markers);      // add it to the map
+                map.fitBounds(markers.getBounds()); //set view on the cluster extend
+            });
+        }
+    </script>
+    
+  </body>
+</html>
+
+

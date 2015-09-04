@@ -63,9 +63,9 @@ class GeraGraficos:
             group =   'GROUP BY "Data"' 
 
             series =  [ 
-                        { 'name' : u'Temperatura Máxima'.encode('latin1'), 'color' : 'orange', 'data' : [] }  ,
-                        { 'name' : u'Temperatura Média'.encode('latin1') , 'color' : 'yellow',    'data' : [] },  
-                        { 'name' : u'Temperatura Mínima'.encode('latin1'), 'color' : 'green',   'data' : [] }  
+                        { 'name' : u'Temperatura Máxima'.encode('latin1'), 'color' : 'red', 'data' : [] }  ,
+                        { 'name' : u'Temperatura Média'.encode('latin1') , 'color' : 'orange',    'data' : [] },  
+                        { 'name' : u'Temperatura Mínima'.encode('latin1'), 'color' : 'blue',   'data' : [] }  
                       ]
         if _tipo == 'temp_media_mensal':
             titulo = u'Temperatura Mensal  (Máxima, Média, Mínima)'
@@ -81,9 +81,9 @@ class GeraGraficos:
             group =   'GROUP BY "Data"' 
 
             series =  [ 
-                        { 'name' : u'Temperatura Máxima'.encode('latin1'), 'color' : 'orange', 'data' : [] }  ,
-                        { 'name' : u'Temperatura Média'.encode('latin1') , 'color' : 'yellow',    'data' : [] }  ,
-                        { 'name' : u'Temperatura Mínima'.encode('latin1'), 'color' : 'green',   'data' : [] }  
+                        { 'name' : u'Temperatura Máxima'.encode('latin1'), 'color' : 'red', 'data' : [] }  ,
+                        { 'name' : u'Temperatura Média'.encode('latin1') , 'color' : 'orange',    'data' : [] }  ,
+                        { 'name' : u'Temperatura Mínima'.encode('latin1'), 'color' : 'blue',   'data' : [] }  
                       ]
 
         if _tipo == 'temp_absoluta_mensal':
@@ -101,8 +101,8 @@ class GeraGraficos:
             group =   'GROUP BY "Data"' 
 
             series =  [ 
-                        { 'name' : u'Temperatura Máxima'.encode('latin1'), 'color' : 'orange', 'data' : [] }  ,
-                        { 'name' : u'Temperatura Mínima'.encode('latin1'), 'color' : 'green',   'data' : [] }  
+                        { 'name' : u'Temperatura Máxima'.encode('latin1'), 'color' : 'red', 'data' : [] }  ,
+                        { 'name' : u'Temperatura Mínima'.encode('latin1'), 'color' : 'blue',   'data' : [] }  
                       ]
 
 
@@ -264,8 +264,8 @@ class GeraGraficos:
             group =   'GROUP BY "Data"' 
 
             series =  [ 
-                        { 'name' : u'Velocidade Média'.encode('latin1') , 'color' : 'blue',    'data' : [] }  ,
-                        { 'name' : u'Rajada Máxima'.encode('latin1')    , 'color' : 'green',    'data' : [] }  ,
+                        { 'name' : u'Velocidade Média'.encode('latin1') , 'color' : 'cyan',    'data' : [] }  ,
+                        { 'name' : u'Rajada Máxima'.encode('latin1')    , 'color' : 'blue',    'data' : [] }  ,
                       ]
 
         if _tipo == 'vento_media_mensal':
@@ -281,7 +281,7 @@ class GeraGraficos:
             group =   'GROUP BY "Data"' 
 
             series =  [ 
-                        { 'name' : u'Velocidade Média'.encode('latin1') , 'color' : 'blue',    'data' : [] }  ,
+                        { 'name' : u'Velocidade Média'.encode('latin1') , 'color' : 'cyan',    'data' : [] }  ,
                         { 'name' : u'Rajada Máxima'.encode('latin1')    , 'color' : 'blue',    'data' : [] }  ,
                       ]
 
@@ -310,7 +310,7 @@ class GeraGraficos:
 
         if _tipo  == 'radiacao_mensal':
             titulo = u'Radiação Mensal'
-            ytitle = 'horas'
+            ytitle = 'total de horas mensal'
             campos = ['radiacao' ]
             tipo = 'column'
  

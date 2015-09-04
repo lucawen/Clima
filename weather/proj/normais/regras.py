@@ -93,6 +93,8 @@ class NormalGraficos:
                          'title': {  'text': resultParam.unidade.encode('latin-1')}
                       }
 
+
+
         saida =  {'name' : resultParam.Nome.encode('latin-1') , 'color': resultParam.corGrafico.encode('latin-1'), 'data' : data   } 
 
         return saida
@@ -148,14 +150,14 @@ class NormalGraficos:
                         'categ'     : 99,   
                         'credito'   : 0,   
                         'legend'    : False, 
-                        'series'    : [4,] } ,  
+                        'series'    : [5,] } ,  
                    {    'id'        : 5, 
                         'title'     : 'Temperatura Máxima Absoluta',   
                         'tipo'      : 'line',     
                         'categ'     : 99,   
                         'credito'   : 0,   
                         'legend'    : False, 
-                        'series'    : [5,] } , 
+                        'series'    : [4,] } , 
                    {    'id'        : 6, 
                         'title'     : 'Deficit e Superávit Hídrico',   
                         'tipo'      : 'area',     
@@ -172,7 +174,7 @@ class NormalGraficos:
                         'series'    : [10,] } ,  
                    {    'id'        : 8, 
                         'title'     : 'Nebulosidade',                  
-                        'tipo'      : 'line',     
+                        'tipo'      : 'area',     
                         'categ'     : 99,   
                         'credito'   : 0,   
                         'legend'    : False, 
@@ -192,7 +194,7 @@ class NormalGraficos:
                         'legend'    : False, 
                         'series'    : [7,] } ,  
                    {    'id'        : 11, 
-                        'title'     : 'Dias sem Chuva',                
+                        'title'     : 'Dias com Chuva',                
                         'tipo'      : 'column',   
                         'categ'     : 99,   
                         'credito'   : 0,   
@@ -223,6 +225,10 @@ class NormalGraficos:
                     continue
 
                 linha = self.getEixo(parametro)
+                if item['tipo'] == 'area':
+                    linha['negativeColor'] = 'red'
+
+
                 if len(linha['data']) > 0:
                     colSeries.append(  linha )
 
