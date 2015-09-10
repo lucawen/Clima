@@ -41,12 +41,15 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'normais',
+    'monitor',
+    'projetos',
+    'param',
     'automaticas',
     'djgeojson',
     'leaflet',
     'django_extensions',
     'paintstore',    
-    
+    'mptt',    
 )
 
 MIDDLEWARE_CLASSES = (

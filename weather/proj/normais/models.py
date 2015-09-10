@@ -28,6 +28,42 @@ class Station(models.Model):
     def __unicode__(self):              
         return u'{0}'.format(self.Nome) 
 
+class Foco(models.Model):
+
+    dataUTC     = models.DateTimeField()
+    dataregUTC  = models.DateTimeField()
+    arquivo     = models.CharField(max_length=100)
+    
+    class Meta:
+        ordering = ['dataUTC',]     
+
+    def __unicode__(self):              
+        return u'{0}'.format(self.dataUTC) 
+
+class FocoItem(models.Model):
+
+    foco_FK     = models.ForeignKey(Foco, verbose_name="Foco" )
+    posicao     = models.PointField()
+    Satzen      = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    PixSize     = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    T4          = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    T11         = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    FireSize    = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    Temp        = models.IntegerField(default=0)
+    FRP         = models.IntegerField(default=0)
+    Ecosystem   = models.IntegerField(default=0)
+    FireFlag    = models.IntegerField(default=0)
+    objects = models.GeoManager()
+
+    @property
+    def geom(self):
+        return self.posicao
+
+    def __unicode__(self):              
+        return u'{0}'.format(self.T4) 
+
+
+
 class Classe(models.Model):
     Nome = models.CharField(max_length=100)
 

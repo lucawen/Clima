@@ -1,14 +1,31 @@
+# -*- coding: utf-8 -*- 
+#!/usr/bin/env python 
 
-import  numpy as np
+from django.contrib.gis.gdal import DataSource
+import os
+import sys
+from os import walk
 
-t1 = [ [ 'meses', 'preto',  0.01  ,1.01 ,2.01 ,3.01 ,4.01 ,5.01, 6.01, 7.01, 8.01 ] ,
-        [ 'oleo',  'azul' , 10,11,12,13,14,15,16,17,18 ] ,
-        [ 'gas',  'verde' ,  910,911,912,913,914,915,916,917,918 ] 
-      ]
+path = '/home/wbeirigo/Clima/dados/cemig'
+f = []
+for (dirpath, dirnames, filenames) in walk(path):
+    f.extend(filenames)
+    break
 
-t2 = np.asarray(t1) 
-
-
-print np.swapaxes(t2, 0, 1)
+pm = []
 
 
+for itFile in f:
+    ds = DataSource(path + '/' + itFile)
+    layer = ds[0]
+
+    campos =  layer.get_fields('Name')
+    pontos =  [pt.tuple for pt in layer.get_geoms()]
+
+    for indice in range(len(pontos)):
+        pm.append( [ campos[indice].encode('ascii', 'ignore'), str(pontos[indice][0]), str(pontos[indice][1]) ] )
+             
+
+
+for pt in pm:
+    print u'{0};{1};{2};'.format(pt[0], pt[1].replace('.',','), pt[2].replace('.',','))

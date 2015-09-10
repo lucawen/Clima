@@ -166,5 +166,27 @@ def mapaestacoes(request):
 
     return HttpResponse(template.render(context))
 
-   
+def mapafocoincendio(request):
+    context = RequestContext(request)
+    template = loader.get_template('mapafocoincendio.html')   
+
+    return HttpResponse(template.render(context))
+
+  
+def focoCalor(request, id):
+
+    print id
+
+    reg =  db.FocoItem.objects.get(id=id)
+
+    saida = { 'Temp' :  reg.Temp, 'FireFlag' : reg.FireFlag, 'Data' : reg.foco_FK.dataUTC, 'id' : reg.id }  
+    context = RequestContext(request, { 'foco': saida } )
+
+    template = loader.get_template('focoCalor.html')
+
+    return HttpResponse(template.render(context))
+
+
+
+
 
