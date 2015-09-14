@@ -1,4 +1,4 @@
-#!/home/wbeirigo/Clima/weather/bin/python
+#!/home/wbeirigo/Clima/weather/bin/python2
 
 # -*- coding: utf-8 -*-
 import re

@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     'djgeojson',
     'leaflet',
     'django_extensions',
+    'django_mptt_admin',
     'paintstore',    
     'mptt',    
 )

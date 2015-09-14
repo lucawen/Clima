@@ -1,7 +1,0 @@
-Django==1.8.3
-argparse==1.2.1
-django-extensions==1.5.5
-gviz-api.py==1.8.2
-six==1.9.0
-wsgiref==0.1.2
-xlrd==0.9.4

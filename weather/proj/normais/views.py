@@ -2,7 +2,6 @@
 #!/usr/bin/env python
 
 from django.shortcuts import render, redirect
-import simplejson as json
 from django.http import HttpResponse
 import models as db
 from django.core import serializers
