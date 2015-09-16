@@ -5,6 +5,8 @@ from django.template import RequestContext
 from django.conf.urls import patterns, url, include  
 from django.shortcuts import render_to_response
 
+from mptt.admin import MPTTModelAdmin
+from django_mptt_admin.admin import DjangoMpttAdmin
 
 from .models import Projeto, Layer
 from .models import PtoMonit, Medicao
@@ -36,7 +38,7 @@ class CampanhaAdmin(admin.ModelAdmin):
 
 	list_display = ('nome', 'Projeto_FK', 'mes', 'ano', )
 	
-class PtoMonitAdmin(admin.ModelAdmin):
+class PtoMonitAdmin(DjangoMpttAdmin):
 	list_filter = ('Projeto_FK__nome',  'ObjectID', )
 
 	list_display = ('Projeto_FK', 'nome', 'ObjectID',  )

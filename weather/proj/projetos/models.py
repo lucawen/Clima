@@ -4,7 +4,7 @@
 from django.db import models
 from paintstore.fields import ColorPickerField
 from param.models import Param
-
+from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime
 
 
@@ -40,21 +40,24 @@ class Layer(models.Model):
 
 
 
-class PtoMonit(models.Model):
+class PtoMonit(MPTTModel):
 
     Projeto_FK  = models.ForeignKey(Projeto, verbose_name="Projeto" )
     Layer_FK    = models.ForeignKey(Layer, verbose_name="Layer" )
     sigla       = models.CharField(max_length=15, default='', verbose_name='Codigo do Ponto.')
-    nome        = models.CharField(max_length=100, default='', verbose_name='Pto.Monit.')
+    nome        = models.CharField(max_length=2200, default='', verbose_name='Pto.Monit.')
     ObjectID    = models.IntegerField(default=0)
-
-    class Meta:
+    parent      = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    created     = models.DateTimeField(auto_now_add=True)
+    
+    class MPTTMeta:
+        order_insertion_by = ['created']
         verbose_name = 'Ponto de Monitoramento'
         verbose_name_plural = 'Pontos de Monitoramento'
         ordering = ['nome',]     
 
     def __unicode__(self):              
-        return u'{0}'.format(self.nome) 
+        return u'{0}i-{1}'.format(self.sigla, self.nome) 
 
 class Campanha(models.Model):
 
