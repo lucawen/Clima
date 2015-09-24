@@ -9,7 +9,7 @@ class Unidade(models.Model):
     class Meta:
         verbose_name = 'Unidade'
         verbose_name_plural = 'Unidades'
-        ordering = ['sigla',]     
+        ordering = ['descricao',]     
 
     sigla     = models.CharField(max_length=20)
     descricao = models.CharField(max_length=50)
@@ -23,7 +23,7 @@ class Param(MPTTModel):
     class Meta:
         verbose_name = u'Parâmetro'
         verbose_name_plural = u'Parâmetros'
-        ordering = ['created',]     
+        ordering = ['nome',]     
 
     TipoParam  = ( ('0','valor'),
                    ('1','texto'), 
@@ -42,13 +42,14 @@ class Param(MPTTModel):
     monitorado      = models.CharField(max_length=1, choices=MONITORADO)
     vlrTeto         = models.DecimalField(default=0, decimal_places=2, max_digits=16)
     vlrPiso         = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    intervalo       = models.DecimalField(default=0, decimal_places=2, max_digits=16)
     tipoParametro   = models.CharField(max_length=1, choices=TipoParam)
     parent          = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     created         = models.DateTimeField(auto_now_add=True)
     texto           = models.TextField(null=True, blank=True)
 
     class MPTTMeta:
-        order_insertion_by = ['created']
+        order_insertion_by = ['nome']
 
     def __unicode__(self):              
         return u'{0}'.format(self.nome) 

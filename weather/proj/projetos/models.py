@@ -44,20 +44,20 @@ class PtoMonit(MPTTModel):
 
     Projeto_FK  = models.ForeignKey(Projeto, verbose_name="Projeto" )
     Layer_FK    = models.ForeignKey(Layer, verbose_name="Layer" )
-    sigla       = models.CharField(max_length=15, default='', verbose_name='Codigo do Ponto.')
+    sigla       = models.CharField(max_length=15, default='', verbose_name='Codigo do Ponto.', unique=True, db_index=True)
     nome        = models.CharField(max_length=2200, default='', verbose_name='Pto.Monit.')
     ObjectID    = models.IntegerField(default=0)
     parent      = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     created     = models.DateTimeField(auto_now_add=True)
     
     class MPTTMeta:
-        order_insertion_by = ['created']
+        order_insertion_by = ['sigla']
         verbose_name = 'Ponto de Monitoramento'
         verbose_name_plural = 'Pontos de Monitoramento'
-        ordering = ['nome',]     
+        ordering = ['sigla',]     
 
     def __unicode__(self):              
-        return u'{0}i-{1}'.format(self.sigla, self.nome) 
+        return u'{0}-{1}'.format(self.sigla, self.nome) 
 
 class Campanha(models.Model):
 
@@ -84,6 +84,7 @@ class Medicao(models.Model):
     data        = models.DateField()
     dataInc     = models.DateField(default=datetime.now, blank=True)
     vlr         = models.DecimalField(default=0, decimal_places=2, max_digits=16)    
+    vlrLbl      = models.CharField(default='',  max_length=36, blank=True)    
  
     class Meta:
         verbose_name = u'Medicao'

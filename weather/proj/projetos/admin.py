@@ -57,9 +57,9 @@ class TextoDetailInline(admin.TabularInline):
     extra = 0
 
 class MedicaoAdmin(admin.ModelAdmin):
-	list_filter = ('Campanha_FK__Projeto_FK__nome', 'Campanha_FK__nome', 'Parametro_FK__nome'   )
+	list_filter = ('Campanha_FK__Projeto_FK__nome', 'Campanha_FK__nome', 'Parametro_FK__nome', 'PtoMonit_FK__sigla',   )
 
-	list_display = ('Campanha_FK', 'PtoMonit_FK', 'Parametro_FK', 'data',  )
+	list_display = ('Campanha_FK', 'PtoMonit_FK', 'Parametro_FK', 'data', 'vlr',   )
 	
 	inlines = [MidiaDetailInline, TextoDetailInline,]
 

@@ -1,0 +1,71 @@
+{% extends 'base.html' %} {% load staticfiles %} 
+
+{% block cssformat %}
+	<link href="/static/css/typeahead.css" rel="stylesheet">  
+{% endblock %}
+
+
+
+{% block content %}
+<div class="row">
+    <div id="breadcrumb" class="col-xs-12">
+        <a href="#" class="show-sidebar">
+            <i class="fa fa-bars"></i>
+        </a>
+        <ol class="breadcrumb pull-left">
+            <li><a href="/">Home</a></li>
+            <li><a href="/automaticas/">Graficos</a></li>
+        </ol>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-6">
+        <div class="box">
+            <div class="box-header">
+                <div class="box-name">
+                    <i class="fa fa-cloud"></i>
+                    <span>Grafico</span>
+                </div>
+                <div class="box-icons">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="expand-link">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+                <div class="no-move"></div>
+            </div>
+            <div class="box-content">
+		<form action="/grafico/" method="post">
+			{% csrf_token %}
+			{{ form.as_p }}
+			<input type="submit" value="Enviar" />
+
+			<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+	
+
+		</form>            
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scriptsJava %}
+	<script type='text/javascript'>//<![CDATA[
+
+		$(function () {
+		    $('#container').highcharts({{grafJson|safe}});
+		});
+	</script>
+{% endblock %}
+
+
+
