@@ -25,12 +25,9 @@ def dms2dec(dms_str):
     -2.34330555556F
     
     """
-   
 
-    print dms_str, '--------------------'
- 
     dms_str = re.sub(r'\s', '', dms_str)
-    
+
     if re.match('[swSW]', dms_str):
         sign = -1
     else:
