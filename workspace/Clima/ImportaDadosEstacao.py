@@ -13,13 +13,35 @@ import json
 from pacote.tools import Tools
 from pacote.modelos import Estacao, DadosEstacao
 import psycopg2  
+import smtplib
 
 __author__ = "Wilson Beirigo Duarte"
 __maintainer__ = "Wilson Beirigo Duarte"
 __version__ = "0.1"
 __script_name__ = "estacao.py"
         
-                               
+           
+def sendmail():
+    fromaddr = 'wilson@solvecorp.com.br'
+    toaddrs  = 'wbeirigo@terravisiongeo.com.br'
+
+    message = """From: Sistema FIREMONITOR <wilson@solvecorp.com.br>
+To: Wilson Beirigo Duarte <iwbeirigo@iterravisiongeo.com.br>
+Subject: Estacoes Climaticas 
+
+Estacoes climaticas processadas
+                """
+
+    username = 'wilson@solvecorp.com.br'
+    password = 'wilci5w7'
+
+    server = smtplib.SMTP('smtp.gmail.com:587')
+    server.starttls()
+    server.login(username,password)
+    server.sendmail(fromaddr, toaddrs, message)
+    server.quit()
+
+
 class ImportaDadosEstacao:
     
     HEADER = {'content-type': 'application/json', 'Accept-Language': 'pt-BR'}
@@ -200,7 +222,8 @@ class ImportaDadosEstacao:
 
         
 if __name__ == "__main__":
-            
+    
+
     ARQUIVO_LOG = 'bases/importadados.log'
     NOME_ARQUIVO = 'bases/saida{0}.json'
     QTD_REGISTROS_GRAVAR = 50000
@@ -242,3 +265,5 @@ if __name__ == "__main__":
     logging.info("FIM." + datetime.now().strftime("%B %d,:%Y %H:%M:%S "))
         
     print('Fim')
+
+    sendmail()
