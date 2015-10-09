@@ -27,7 +27,7 @@ class Estacao:
 
     def __init__(self):
         try:
-            connstring = "host='10.3.0.29' dbname='clima' user='postgres' password='wilci5w7'"
+            connstring = "host='10.3.0.26' dbname='Clima' user='postgres' password='wilci5w7'"
             self.db  = psycopg2.connect(connstring)
         except:
              raise
@@ -60,12 +60,9 @@ class Estacao:
         return saida
 
 
+
     def __del(self):
         self.db.close()
-
-
-
-
 
 
 

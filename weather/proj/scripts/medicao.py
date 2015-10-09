@@ -121,11 +121,11 @@ def run():
 	if '<' in str(_valor):
 	    float_vlr = float(0)
 	else:
-            _vl = _valor.replace('<','').replace(',','.')
+       _vl = _valor.replace('<','').replace(',','.')
 	    try:
 	        float_vlr = float(_vl) 
 	    except:
-		print _valor, _vl
+	    	print _valor, _vl
 	        float_vlr = float(0)
 	
 	indice += 1
@@ -151,6 +151,6 @@ def run():
 
 
     for item in ptoNotFound:
-	a = item.encode('ascii', 'ignore')
+    	a = item.encode('ascii', 'ignore')
         print a
 

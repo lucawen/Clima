@@ -7,6 +7,7 @@ from lxml import cssselect
 import re
 import logging
 from datetime import datetime, timedelta
+import time
 import json
 
 from pacote.tools import Tools
@@ -22,7 +23,8 @@ __script_name__ = "estacao.py"
 class ImportaDadosEstacao:
     
     HEADER = {'content-type': 'application/json', 'Accept-Language': 'pt-BR'}
-    MAX_INTERACOES = 10 
+    MAX_INTERACOES = 3
+    TIME_SLEEP = 4
     
     def __init__(self):
         self.colecao = []
@@ -32,6 +34,8 @@ class ImportaDadosEstacao:
         self.segundos = 0
         self.registros = 0
         self.logging  = None
+        self.falhas = []
+
 
     def __decrypt(self, chave):
         """ Decifra o codigo passado no formulario
@@ -50,7 +54,6 @@ class ImportaDadosEstacao:
 
             resp = '{0}{1}{2}{3}'.format(milhar[nMil], centena[nCent], dezena[nDez], unidade[nUnid])
         except:
-            print chave
             self.logging.error('Erro ao decodficar Captcha:{0}'.format(chave))   
             
             
@@ -116,6 +119,7 @@ class ImportaDadosEstacao:
     def __Scrap(self, codEstacao, strtInicio, strtFim):
                         
         sessao = Session()
+        sessao.proxies = { "http"  : "http://54.207.45.19:3333", }
         self.inter = 0
         while True:              
             self.inter += 1
@@ -130,8 +134,9 @@ class ImportaDadosEstacao:
                 pass
             if len(tabela)>0 or self.inter > self.MAX_INTERACOES:                
                 break                
-            
         sessao.close()
+
+        #time.sleep(self.TIME_SLEEP)
                     
         if len(tabela) > 0:
             for reg in tabela:
@@ -140,6 +145,7 @@ class ImportaDadosEstacao:
                 self.colecao.append(registro.__dict__)                 
         else:
             msg  = 'Falhou pesquisa estação {}'.format(codEstacao)
+            self.falhas.append(codEstacao)
             print(msg)
             self.logging.info(msg)
                         
@@ -170,7 +176,6 @@ class ImportaDadosEstacao:
             print "{0}/{1}".format(i, len(estacoes))
             self.__Scrap(codEstacao, inicio, fim)
 
-	    print inicio, fim
 
             col.extend(self.colecao)            
             self.__GravaLog(codEstacao)
@@ -190,25 +195,20 @@ class ImportaDadosEstacao:
         inter += 1
 
 
-
-
-
-
-        
         arquivo = NOME_ARQUIVO.format(inter)
         Tools.gravaArquivo(arquivo, dados)
 
         
 if __name__ == "__main__":
             
-    ARQUIVO_LOG = '/webapps/clima/bases/importadados.log'
-    NOME_ARQUIVO = '/webapps/clima/bases/saida{0}.json'
+    ARQUIVO_LOG = 'bases/importadados.log'
+    NOME_ARQUIVO = 'bases/saida{0}.json'
     QTD_REGISTROS_GRAVAR = 50000
-    STRING_CONEXAO = "dbname='clima' user='postgres' host='localhost' password='wilci5w7'"
-    path='/webapps/clima/bases/'    
+    STRING_CONEXAO = "dbname='clima' user='postgres' host='10.3.0.26' password='wilci5w7'"
+    path='bases/'    
 
     dfim = datetime.today()
-    dinicio = dfim + timedelta(days=-7)
+    dinicio = dfim + timedelta(days=-2)
 
     inicio = dinicio.strftime("%d/%m/%y")
     fim = dfim.strftime("%d/%m/%y")
@@ -219,15 +219,25 @@ if __name__ == "__main__":
     db = psycopg2.connect(STRING_CONEXAO) 
 
     objEstacao = Estacao()
-    estacoes = objEstacao.getEstacoes(db)
-    del objEstacao
 
-    ImportaDadosEstacao().ProcessaImportacao(NOME_ARQUIVO, QTD_REGISTROS_GRAVAR, inicio, fim, estacoes, logging)
-       
-    objDadadosEstacao = DadosEstacao()    
-    objDadadosEstacao.InsereDB(db, path)
-    
-    del db    
+    print "Processando" 
+    estacoes = objEstacao.getEstacoes(db)
+    obj = ImportaDadosEstacao()
+    obj.ProcessaImportacao(NOME_ARQUIVO, QTD_REGISTROS_GRAVAR, \
+                            inicio, fim, estacoes, logging)
+    col = obj.falhas
+    del obj
+
+
+    print "Processando Falhas" 
+    NOME_ARQUIVO = 'bases/saida_falha{0}.json'
+    obj = ImportaDadosEstacao()
+    obj.ProcessaImportacao( NOME_ARQUIVO,\
+                            QTD_REGISTROS_GRAVAR, \
+                            inicio, fim, col, logging)
+
+    objDB = DadosEstacao()
+    objDB.InsereDB(db, path)
         
     logging.info("FIM." + datetime.now().strftime("%B %d,:%Y %H:%M:%S "))
         

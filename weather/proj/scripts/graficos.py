@@ -2,129 +2,208 @@
 #!/usr/bin/env python
 
 import django
-from projetos.models import Medicao, PtoMonit, Campanha
-from param.models import  Param
+import psycopg2
 import datetime
+import math
 
-import requests
-import base64
-import json
+class Estacao:
 
-class Grafico:
+    def __init__(self):
+        try:
+            connstring = "host='10.3.0.26' dbname='clima' user='postgres' password='wilci5w7'"
+            self.db  = psycopg2.connect(connstring)
+        except:
+             raise
 
-        class Serie:
-            def __init__():
-                type = ""
-                name = ""
-                data = []
+    def getDiasSemChuva(self, codigo, mmChuva):
+        
+        saida = ''
+        try:
+            sql = ' SELECT  date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) ), sum("Chuva")\
+                    FROM "Clima_dadosestacao"\
+                    WHERE "codEstac"=\'{0}\'\
+                    group by date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) )\
+                    having sum("Chuva") >= {1}\
+                    order by date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) ) DESC\
+                    LIMIT 1; '.format(codigo, mmChuva)
 
-        def __init__(self, _titulo, _subtitulo, _unidade, _categorias, _series, _interval, _arquivo):
-            self.titulo = _titulo
-            self.subtitulo = _subtitulo
-            self.unidade = _unidade
-            self.categorias = str(_categorias)
-            self.series = _series
-            self.interval = _interval
-            self.arquivo = _arquivo
-            self.__getGrafico()
+            cursor = self.db.cursor()
+            cursor.execute(sql)
+            saida = cursor.fetchone()
+        except:
+            raise
+
+        return saida
+
+    def getPrecitacao(self, codigo, data):
+        
+        saida = ''
+        try:
+            sql = ' SELECT  date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) ), sum("Chuva") \
+                    FROM "Clima_dadosestacao" \
+                    WHERE "codEstac"=\'{0}\'  and date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) ) >= \'{1}\' \
+                    group by date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) ) \
+                    order by date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) )'.format(codigo, data)
+            cursor = self.db.cursor()
+            cursor.execute(sql)
+            saida = cursor.fetchall()
+        except:
+            raise
+
+        return saida
 
 
-        def __getGrafico(self):
-           option = {"infile":self.__getJson(),"constr":"Chart"}
-           url = 'http://tvbhdesenv.terravision.local:3003/'
-           headers = {"Content-Type": "application/json" }
-           r = requests.post(url, headers=headers, data= json.dumps(option)  )
-           imgdata = base64.b64decode(r.content)
-           with open(self.arquivo, 'wb') as f:
-               f.write(imgdata)
+
+    def getHistorico(self, codigo, data, hora):
+        
+        saida = ''
+        try:
+            if hora == 99:
+                sql = 'SELECT "Data","UmidInst", "VentVel", "VentDir", "TempInst", "PressInst" \
+                       FROM "Clima_dadosestacao" \
+                       WHERE "codEstac"=\'{0}\' and "Data" >= \'{1}\' ORDER BY "Data"'.format(codigo, data)
+            else:
+                sql = 'SELECT "Data","UmidInst", "VentVel", "VentDir", "TempInst", "PressInst" \
+                       FROM "Clima_dadosestacao" \
+                       WHERE "codEstac"=\'{0}\' and "Data" >= \'{1}\' and "Hora"={2} ORDER BY "Data" '.format(codigo, data, hora)
+
+            cursor = self.db.cursor()
+            cursor.execute(sql)
+            saida = cursor.fetchall()
+        except:
+            raise
+
+        return saida
+
+    def __del(self):
+        self.db.close()
 
 
-        def __getJson(self):
-            cfg = "{ title: { text: '" + self.titulo +"' } ,\
-                     subtitle: { text: '" + self.subtitulo + "' },\
-                     credits : { enabled : true, text : 'powered by: Brandt Meio Ambiente'},\
-                     xAxis: { categories: " + self.categorias + " },\
-                     yAxis: { min: 0, title: { text: '" + self.unidade + "' }, tickInterval:"  + self.interval + "},\
-                     series:" + self.series + " }"
-            return cfg
+    def RestricoesChuva(self, mm, mmChuva):
+
+        tabela = [ [ 0.00,  2.49, 1.00],\
+                [ 2.50,  4.99, 0.30],\
+                [ 5.00,  9.99, 0.60],\
+                [10.00, mmChuva, 0.80],\
+                ]
+        
+        saida = -99
+        for faixa in tabela:
+            if mm >= faixa[0] and mm <= faixa[1]:
+                saida = faixa[2]
+                break
+
+        if saida == -99:
+            raise ValueError('Valor errado "mm" em calculo de restricao fma.')
+
+        return saida
+
+
+    def Resultado(self, indice):
+        tabela = [ [    0,   1.09, u'Nulo'],
+                   [  1.1,   3.09, u'Pequeno'],
+                   [  3.1,   8.09, u'Medio' ], 
+                   [  8.1,  20.09, u'Alto'], 
+                   [ 20.1,9999.09, u'Muito Alto'], 
+                ]
+        saida = "" 
+        for faixa in tabela:
+            if indice >= faixa[0] and indice <= faixa[1]:
+                saida = faixa[2]
+                break
+
+        if saida == "":
+            raise ValueError('Erro no resultado da FMA.')
+
+        return saida
 
 
 
 
 def run():
 
+    MM_CHUVA     = 13
+    HORA_MEDICAO =  13
+    K_FMA        = float(100)
+    LN_E         = float(2.718282)
+    K_VENTO      = float(0.04)
 
-    idParametro = 120
-    #pontos = [310, 311, 312, 313, 315, 316, ]
-    pontos = []
-    campanhas = []
+    teste  = Estacao()
 
-    mat = []
+    codigo = 'QTU1NQ'
 
-    MESES = ('---', 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov',' dez')
+    data = teste.getDiasSemChuva(codigo, MM_CHUVA)[0] + datetime.timedelta(days=1)
+    dataStr =  data.strftime('%d/%m/%Y') 
 
+    medicoes = []
+    precipit = []
 
-    colMedicao = Medicao.objects.filter(Parametro_FK_id = idParametro).all()
-    if len(pontos) > 0:
-	colMedicao = colMedicao.filter(PtoMonit_FK_id__in=pontos).all()
-    if len(campanhas) > 0:
-	colMedicao = colMedicao.filter(Campanha_FK_id__in=campanhas).all()
+    for item in teste.getHistorico(codigo, dataStr, HORA_MEDICAO):
+       medicoes.append(item)
 
-    col =[] 
-    acamp = []
-    aptos = []
-    for item in colMedicao:
-	idCamp  = item.Campanha_FK_id 
-        idPonto = item.PtoMonit_FK_id
-	
-	if idCamp not in acamp:
-	    acamp.append(idCamp)
+    for item in teste.getPrecitacao(codigo, dataStr):
+        precipit.append(item[1])
 
-	if idPonto not in aptos:
-	    aptos.append(idPonto)
-
-        col.append( [idCamp ,idPonto , float(item.vlr) ])	
-
-    for y in acamp:
-	for x in aptos:
-		z = [ vlr for  vlr in col if vlr[0] == y and vlr[1] == x]
-		if len(z) == 0:
-		    col.append( [y, x, -1] )
-
-
-    objParam  = Param.objects.get(pk=idParametro)
-    resultParametro = u'{0} - {0} '.format(objParam.nome, objParam.unidade_FK.sigla) 
-
-    aValores  = []
-    colCampanha = [ '{0}/{1}'.format(MESES[mes],+ano) for ano,mes  in  Campanha.objects.filter(id__in=acamp).values_list('ano', 'mes')]
-    acamp.append('VMP')
+    fmap = float(0)
+    fma = float(0)
     indice = 0
-    for itcamp in acamp:
-	 if itcamp == 'VMP':
-   	     linha = ([ 'VMP', [ float(objParam.vlrTeto) for x in pontos ] ])
-	 else:
-   	     linha = ([ colCampanha[indice], [ float(x[2]) for x in col if  x[0] == itcamp  ] ])
-         aValores.append(linha) 
-         indice += 1
+    print   'fma-ANT;fmap-ANT;data;diaschuva;precipt;\
+            fma;velVento;calcVelVento;fmap;restricao;\
+            umid;umidCalc;fma,fmac;'
 
-    resultPontos  = [ str(sigla.encode('ascii', 'ignore')) for sigla in PtoMonit.objects.filter(id__in=aptos).values_list('sigla', flat=True) ]
+    for item in medicoes:
+
+        fmaAnt = fma
+        fmaPAnt = fmap
+
+        data = item[0]
+        umidade = float(item[1])
+        velVento = float(item[2])
+        mmPrecipt = precipit[indice]
+
+        if fma > 0:
+            restricao = teste.RestricoesChuva(mmPrecipt, MM_CHUVA )
+        else:
+            restricao = 1
+
+        calcItem = float(K_FMA/ umidade  )
+        fma = (fma * restricao)  + calcItem 
+
+        calcVelVento  = K_VENTO * velVento  
+        calcItemFMAP =  math.pow(LN_E, calcVelVento) 
+        fmap += calcItemFMAP
+
+        print '{0};{1};{2};{3};{4};{5};\
+               {6};{7};{8};{9};{10};{11};\
+               {12};{13};{14};'.\
+                format(
+                    fmaAnt,
+                    fmaPAnt,
+                    data,
+                    indice,
+                    mmPrecipt,
+                    fma,
+                    velVento,
+                    calcVelVento,
+                    fmap,
+                    restricao,
+                    umidade,
+                    calcItem,
+                    str(teste.Resultado(fma)),
+                    str(teste.Resultado(fma)),
+                    '-'
+                    ).replace('.',',')
+        indice += 1
 
 
-    series = "[" 
-    for item in aValores:
-	tipo = 'line'  if  item[0] == 'VMP' else  'column'
-	itemSeries = "{ type:'" + tipo + "' , name:'" +  item[0] + "',  data:" + str(item[1]) + "},"
-	series += itemSeries
-    series = series[0:-1] +  "]"
 
-    t = datetime.datetime.now()
-    arquivo = str((t-datetime.datetime(1970,1,1)).total_seconds()) + '.jpeg'
 
-    Grafico(    '',\
-		'',\
-		objParam.nome + '-' + objParam.unidade_FK.sigla,\
-		resultPontos,\
-		series,\
-		'100',\
-		arquivo)
+
+
+
+
+
+
+
+
 
