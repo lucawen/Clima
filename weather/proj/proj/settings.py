@@ -156,3 +156,9 @@ USE_TZ = True
 GRAPPELLI_ADMIN_TITLE= u'FIRE-MONITOR -  Terravision'
 
 STATIC_URL = '/static/'
+
+IGAM_PATH   = BASE_DIR + "/dados/IGAM" 
+WFABBA_PATH = BASE_DIR + '/dados/WFABBA'
+FIRMS_PATH  = BASE_DIR + '/dados/FIRMS'
+
+

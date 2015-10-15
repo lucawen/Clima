@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('normais.urls')),
     url(r'^', include('projetos.urls')),
+    url(r'^', include('igam.urls')),
 ]

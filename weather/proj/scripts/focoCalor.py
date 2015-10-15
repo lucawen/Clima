@@ -2,76 +2,83 @@
 #!/usr/bin/env python 
 
 import django
-from normais.models import Foco, FocoItem
+from monitor.models import FocoWFABBA
 from datetime import datetime, timedelta
 from ftplib import FTP
 import sys
 from os import path, walk
 import shutil
 from normais.models import Station
-
+from proj import settings
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal import OGRGeometry
 
-class FireFtp():
+class WFABBA:
 
-    def diretorio(self):
-        return '{0}{1}'.format(datetime.utcnow().year,  datetime.utcnow().timetuple().tm_yday)
+    class FireFtp():
 
-    def processa(self):
+        def diretorio(self):
+            return '{0}{1}'.format( datetime.utcnow().year,\
+                                    datetime.utcnow().timetuple().tm_yday)
 
-        url = 'ftp.ssec.wisc.edu'
-        caminho = 'pub/abba/v65/goes-13/text/' + self.diretorio()
-        entrada =  '/home/wbeirigo/fire/entrada/'
-        saida  =  '/home/wbeirigo/fire/saida/'
+        def processa(self):
 
-        ftp = FTP(url)
-        ftp.login()
-        ftp.cwd (caminho)
+            url = 'ftp.ssec.wisc.edu'
+            caminho = 'pub/abba/v65/goes-13/text/' + self.diretorio()
+            entrada = settings.WFABBA_PATH + '/entrada/'
+            saida  =  settings.WFABBA_PATH + '/saida/'
 
-        try:
-            files = ftp.nlst()
-        except ftplib.error_perm, resp:
-            if str(resp) == "550 No files found":
-                print "No files in this directory"
-            else:
-                raise
+            ftp = FTP(url)
+            ftp.login()
+            ftp.cwd (caminho)
 
-        for arquivo in files:
+            try:
+                files = ftp.nlst()
+            except ftplib.error_perm, resp:
+                if str(resp) == "550 No files found":
+                    print "No files in this directory"
+                else:
+                    raise
 
-            print 'Arquivo', arquivo
+            for arquivo in files:
 
-            naoExisteEntrada = not path.exists(entrada + arquivo)
-            naoExisteSaida = not path.exists(saida + arquivo)
+                print 'Arquivo', arquivo
 
-            if  naoExisteSaida and naoExisteEntrada:
-                gravar = entrada + arquivo
-                ftp.retrbinary('RETR ' +  arquivo, open(gravar, 'wb').write) 
-                
-                print 'Enviou', arquivo
+                naoExisteEntrada = not path.exists(entrada + arquivo)
+                naoExisteSaida = not path.exists(saida + arquivo)
 
-        ftp.quit()
+                if  naoExisteSaida and naoExisteEntrada:
+                    gravar = entrada + arquivo
+                    ftp.retrbinary('RETR ' +  arquivo, open(gravar, 'wb').write) 
+                    
+                    print 'Enviou', arquivo
+
+            ftp.quit()
 
 
-
-
-class Processa:
 
 
     def __init__(self):
-        url = 'http://10.2.8.239/geoserver/wfs?srsName=EPSG%3A4326&typename=geonode%3Aamericadosul&outputFormat=json&version=1.0.0&service=WFS&request=GetFeature'
+
+        f = self.FireFtp()
+        f.processa()
+
+        url = 'http://geonode.brandt.local/geoserver/geonode/ows?service=WFS&version=1.0.0\
+&request=GetFeature&typeName=geonode:brasil&CQL_FILTER=UF%20=%20%27MG%27&\
+outputFormat=application/json'
         ds = DataSource(url)
         self.layer = ds[0]
 
     def getArquivos(self):
 
-        entrada =  '/home/wbeirigo/fire/entrada/'
-        saida  =  '/home/wbeirigo/fire/saida/'
+        entrada = settings.WFABBA_PATH + '/entrada/'
+        saida  =  settings.WFABBA_PATH + '/saida/'
         arquivos = []
 
         for dirpath, dirs, files in walk(entrada):  
             for file in files:
-                caminho = [  '{0}{1}'.format(dirpath, file), '{0}{1}'.format(saida, file) ] 
+                caminho = [  '{0}{1}'.format(dirpath, file),\
+                             '{0}{1}'.format(saida, file) ] 
                 arquivos.append(caminho)
 
         return arquivos
@@ -100,9 +107,6 @@ class Processa:
 
             datareg = datetime.utcnow()
 
-            regFoco = Foco(dataUTC = datahora, dataregUTC = datareg, arquivo = arquivo)
-            regFoco.save()
- 
             for reg in dados[5:]:
                 _posicao = 'SRID=4326;POINT({0} {1})'.format(reg[0], reg[1])
                 _Satzen      = float(reg[2] ) 
@@ -120,17 +124,19 @@ class Processa:
                 ponto = OGRGeometry('POINT ({0} {1})'.format(reg[0], reg[1]))
                 self.layer.spatial_filter = ponto.extent
                 if len(self.layer) > 0 :
-                    regFocoItem = FocoItem( foco_FK     = regFoco,
-                                            posicao     = _posicao,
-                                            Satzen      = _Satzen,
-                                            PixSize     = _PixSize,
-                                            T4          = _T4,
-                                            T11         = _T11,
-                                            FireSize    = _FireSize,
-                                            Temp        = _Temp,
-                                            FRP         = _FRP,
-                                            Ecosystem   = _Ecosystem,
-                                            FireFlag    = _FireFlag )
+                    regFocoItem = FocoWFABBA( dataUTC     = datahora,
+                                              dataregUTC  = datareg,
+                                              arquivo     = arquivo,
+                                              posicao     = _posicao,
+                                              Satzen      = _Satzen,
+                                              PixSize     = _PixSize,
+                                              T4          = _T4,
+                                              T11         = _T11,
+                                              FireSize    = _FireSize,
+                                              Temp        = _Temp,
+                                              FRP         = _FRP,
+                                              Ecosystem   = _Ecosystem,
+                                              FireFlag    = _FireFlag )
                     regFocoItem.save()
 
         	    self.layer.spatial_filter = None 
@@ -138,15 +144,15 @@ class Processa:
             shutil.move(arquivo, arqsaida)
 
 
-
-
 def run():
+    obj = WFABBA()
+    obj.processa()
 
-    f = FireFtp()
-    f.processa()
 
-    p = Processa()
-    p.processa()
+if __name__ == "__main__":
+    obj = WFABBA()
+    obj.processa()
+
 
 
 

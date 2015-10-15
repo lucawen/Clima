@@ -7,13 +7,15 @@ from projetos.models import Medicao, PtoMonit, Projeto, Campanha
 import datetime
 import xlrd
 import chardet
-
+import mptt
 
 def run():
 
     toRemove = []
     fromTo = {} 
     dePara = [] 
+
+    NODE_LIXO = 780
 
     workbook = xlrd.open_workbook(\
             '/home/wbeirigo/Clima/weather/proj/scripts/Parametros_ajustes.xls')
@@ -26,15 +28,16 @@ def run():
         idReg    = int(sheet.cell(row,0).value)
         desc    =  u'{0}'.format((sheet.cell(row,1).value)).strip()
 
-        isDelete = sheet.cell(row,2).value
-
         vlr = '0{0}'.format(sheet.cell(row,3).value)\
               .replace('.0','')\
               .replace('(NITRATO)', '').replace('(NITRITO)','')
 
         idFrom = int(vlr)
+
+        if sheet.cell(row,2).value == 'x' :
+            toRemove.append(idReg)
+
         if idFrom > 0:
-            toRemove.append(idFrom)
             fromTo[desc] = idReg
             dePara.append([idFrom, idReg])
 
@@ -47,17 +50,13 @@ def run():
     print '=================================='
     print dePara
 
-    for item in dePara: 
-        query = Medicao.objects.filter(Parametro_FK_id = item[0])
-        for it in query:
-            it.Parametro_FK = Param.objects.get(id = item[1])
-            it.save()
 
+    paramLixo = Param.objects.get(id=NODE_LIXO)
 
     for item in toRemove:
         query = Param.objects.filter(id = item)
         for reg in query: 
-            reg.delete()
+            reg.move_to(paramLixo)
             reg.save()
 
 

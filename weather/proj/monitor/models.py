@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.gis.db import models
+
 
 # Create your models here.
 class Projeto(models.Model):
@@ -48,5 +50,57 @@ class Equipe(models.Model):
 
     def __unicode__(self):              
         return u'{0}'.format(self.nome) 
+
+class FocoWFABBA(models.Model):
+    dataUTC     = models.DateTimeField()
+    dataregUTC  = models.DateTimeField()
+    arquivo     = models.CharField(max_length=100)
+    posicao     = models.PointField()
+    Satzen      = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    PixSize     = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    T4          = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    T11         = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    FireSize    = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    Temp        = models.IntegerField(default=0)
+    FRP         = models.IntegerField(default=0)
+    Ecosystem   = models.IntegerField(default=0)
+    FireFlag    = models.IntegerField(default=0)
+    objects = models.GeoManager()
+
+    @property
+    def geom(self):
+        return self.posicao
+
+    class Meta:
+        ordering = ['dataUTC',]     
+
+    def __unicode__(self):              
+        return u'{0}'.format(self.dataUTC) 
+
+class FocoFIRMS(models.Model):
+    #https://earthdata.nasa.gov/files/README_TXT.pdf
+
+    dataregUTC = models.DateTimeField()
+    posicao    = models.PointField()
+    bright     = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    scan       = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    track      = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    dataUTC    = models.DateTimeField()
+    satellite  = models.CharField(max_length=1)
+    confidence = models.DecimalField(default=0, decimal_places=2, max_digits=6)
+    version    = models.CharField(max_length=5)
+    brightT31  = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    frp        = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    objects = models.GeoManager()
+
+    @property
+    def geom(self):
+        return self.posicao
+
+    class Meta:
+        ordering = ['dataUTC',]     
+
+    def __unicode__(self):              
+        return u'{0}'.format(self.dataUTC) 
 
 

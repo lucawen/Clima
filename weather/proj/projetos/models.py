@@ -88,7 +88,7 @@ class Medicao(models.Model):
  
     class Meta:
         verbose_name = u'Medicao'
-        verbose_name_plural = u'Medições'
+        verbose_name_plural = u'Medicoes'
         ordering = ['data',]     
 
     def __unicode__(self):              
