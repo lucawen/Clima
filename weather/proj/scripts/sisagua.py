@@ -13,24 +13,27 @@ from dateutil import parser
 def pesquisa(ponto):
 
 
-    descartar = ( 'IG130', 'IG140', 'DR001', 'DR002',\ 
-    			  'DR003', 'TM001', 'TM002', 'TM014',\ 
-    			  'TM015', 'C05', 'C08', 'TM001 \xbdZF',\ 
-    			  'TM001 F', 'IG120 S' )
-         
-    dePara = (  ('SMA002', 'SM002'), ('SMA003','SM003),\
-    			('CG004', 'CM004), ('CG001', 'CM001S),\
-    			('CG002', 'CM002S),('SMA 001', 'SM001),\
-    			('SMA002 S','SM002),('ML002','MA001'),\
-    			('ML001','MA002') 
-    			)
-    
+    descartar = ( u'IG130',   u'IG140', u'DR001', u'DR002',\
+    			  u'DR003',   u'TM001', u'TM002', u'TM014',\
+    			  u'TM015',   u'C05',   u'C08', u'TM001 \xbdZF',\
+    			  u'TM001 F', u'IG120 S' )
+
+   
     if ponto in descartar:
         return ([], "XXXX")
-        
-    for item in dePara:
-        if ponto == dePara[0]:
-            query = PtoMonit.objects.filter(sigla = dePara[1])
+ 
+ 
+    dePara = (  (u'SMA002',  u'SM002'), (u'SMA003',u'SM003'),\
+                (u'CG004',   u'CM004'), (u'CG001', u'CM001S'),\
+                (u'CG002',   u'CM002S'),(u'SMA 001', u'SM001'),\
+                (u'SMA002 S',u'SM002'), (u'ML002',u'MA001'),\
+                (u'ML001',   u'MA002'), (u'CG001', u'CM001S'),\
+                (u'CG002',   u'CM002S')
+             )
+
+    for de, para in dePara:
+        if ponto == de:
+            query = PtoMonit.objects.filter(sigla = para)
             return (query, dePara[1])
         
 
@@ -79,7 +82,7 @@ def pesquisa(ponto):
 
 
 
-def chacaPontos():
+def checaPontos():
 
     ROW_INICIAL = 4
 
@@ -151,6 +154,9 @@ def convert_excel_time(t, hour24=True):
 
 def run():
 
+    query = Medicao.objects.all()
+    query.delete()
+    query.update()
 
     qtdErros = 0
     colPtosErrados = []
@@ -214,7 +220,6 @@ def run():
             qtdErros += 1
             continue
 
-        """
         for coluna in objMatriz:
             keyParam = objMatriz[coluna]
             if '-' in str(keyParam) or str(keyParam).strip() == '':
@@ -248,13 +253,14 @@ def run():
                                 vlr          = vlr,
                                 vlrLbl       = '{0}{1}'.format(sinal, vlr) )
                 #obj.save()
-        """
 
     print qtdErros
     print colPtosErrados
+
+    """
     print '-------------------------------------'
     for item in colPontos:
         print u'linha[{0}] de:[{1}] para:[{2}]'\
             .format(item[0], item[1], item[2])
-
+    """
 

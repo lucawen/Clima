@@ -7,7 +7,7 @@ import models as db
 from django.core import serializers
 from django.template import RequestContext, loader
 from forms import PesquisaEstacaoFRM, PesquisaAutomaticasFRM
-from scripts.tools import ObjectView
+from toolbox.tools import ObjectView
 
 from normais.regras import NormalGraficos
 from automaticas.graficos   import GeraGraficos

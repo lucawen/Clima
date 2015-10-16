@@ -51,7 +51,8 @@ INSTALLED_APPS = (
     'django_mptt_admin',
     'paintstore',    
     'mptt',    
-    'igam',    
+    'igam',   
+    'toolbox',
 )
 
 MIDDLEWARE_CLASSES = (
