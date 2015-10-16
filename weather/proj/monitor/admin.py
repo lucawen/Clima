@@ -11,7 +11,7 @@ class EquipeDetailInline(admin.TabularInline):
 
 class CamadaDetailInline(admin.TabularInline):        
     model = Camada
-    fields = ['nome','url', ]    
+    fields = ['nome','url', 'coefic', ]    
     show_change_link = True           
     extra = 0
 

@@ -3,29 +3,37 @@
 
 import django
 import psycopg2
-import datetime
+from   datetime import datetime, timedelta
 import math
 
 class Estacao:
 
     def __init__(self):
         try:
-            connstring = "host='10.3.0.26' dbname='clima' user='postgres' password='wilci5w7'"
+            connstring =\
+            "host='10.3.0.26' dbname='clima' user='postgres' password='wilci5w7'"
             self.db  = psycopg2.connect(connstring)
         except:
              raise
 
-    def getDiasSemChuva(self, codigo, mmChuva):
+    def getDiasSemChuva(self, codigo, mmChuva, dataBase):
         
         saida = ''
         try:
-            sql = ' SELECT  date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) ), sum("Chuva")\
-                    FROM "Clima_dadosestacao"\
-                    WHERE "codEstac"=\'{0}\'\
-                    group by date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) )\
-                    having sum("Chuva") >= {1}\
-                    order by date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) ) DESC\
-                    LIMIT 1; '.format(codigo, mmChuva)
+            sql = """ 
+SELECT  date_trunc(\'day\',"Data" + interval \'1h\' *
+        ( CAST("Hora" AS integer) - 5) ),
+        sum("Chuva") 
+FROM "Clima_dadosestacao"
+WHERE "codEstac"=\'{0}\' and "Data" <= \'{1}\' 
+group by 
+date_trunc(\'day\',"Data" + interval \'1h\' * 
+( CAST("Hora" AS integer) - 5) )
+having sum("Chuva") >= {2}\
+order by 
+date_trunc(\'day\',"Data" + interval \'1h\' * 
+( CAST("Hora" AS integer) - 5) ) DESC 
+LIMIT 1; """.format(codigo, dataBase.strftime('%d/%m/%Y'), mmChuva)
 
             cursor = self.db.cursor()
             cursor.execute(sql)
@@ -33,17 +41,28 @@ class Estacao:
         except:
             raise
 
+
         return saida
 
-    def getPrecitacao(self, codigo, data):
+    def getPrecitacao(self, codigo, data, dataFim):
         
         saida = ''
         try:
-            sql = ' SELECT  date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) ), sum("Chuva") \
-                    FROM "Clima_dadosestacao" \
-                    WHERE "codEstac"=\'{0}\'  and date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) ) >= \'{1}\' \
-                    group by date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) ) \
-                    order by date_trunc(\'day\',"Data" + interval \'1h\' * ( CAST("Hora" AS integer) - 5) )'.format(codigo, data)
+            sql = """
+SELECT  
+date_trunc(\'day\',"Data" + interval \'1h\' *
+( CAST("Hora" AS integer) - 5) ), 
+sum("Chuva") 
+FROM    "Clima_dadosestacao" 
+WHERE
+"codEstac"=\'{0}\'  and 
+date_trunc(\'day\',"Data" + interval \'1h\' *
+        ( CAST("Hora" AS integer) - 5)) >= \'{1}\' and  
+        "Data" <=  \'{2}\'  
+GROUP BY date_trunc(\'day\',"Data" + interval \'1h\' *
+         ( CAST("Hora" AS integer) - 5) ) \
+ORDER BY date_trunc(\'day\',"Data" + interval \'1h\' *
+        ( CAST("Hora" AS integer) - 5) )""".format(codigo, data, dataFim)
             cursor = self.db.cursor()
             cursor.execute(sql)
             saida = cursor.fetchall()
@@ -54,18 +73,28 @@ class Estacao:
 
 
 
-    def getHistorico(self, codigo, data, hora):
+    def getHistorico(self, codigo, data, dataBase, hora=99):
         
         saida = ''
         try:
             if hora == 99:
-                sql = 'SELECT "Data","UmidInst", "VentVel", "VentDir", "TempInst", "PressInst" \
-                       FROM "Clima_dadosestacao" \
-                       WHERE "codEstac"=\'{0}\' and "Data" >= \'{1}\' ORDER BY "Data"'.format(codigo, data)
+                sql = """ 
+SELECT "Data","UmidInst", "VentVel", "VentDir", "TempInst", "PressInst",
+        "Hora" 
+FROM "Clima_dadosestacao" 
+WHERE "codEstac"=\'{0}\' and
+       "Data" = \'{1}\' 
+ORDER BY "Hora" DESC LIMIT 1 """.format(codigo, dataBase )
             else:
-                sql = 'SELECT "Data","UmidInst", "VentVel", "VentDir", "TempInst", "PressInst" \
-                       FROM "Clima_dadosestacao" \
-                       WHERE "codEstac"=\'{0}\' and "Data" >= \'{1}\' and "Hora"={2} ORDER BY "Data" '.format(codigo, data, hora)
+                sql = """
+SELECT "Data","UmidInst", "VentVel", "VentDir", "TempInst", "PressInst", 
+        "Hora" 
+FROM   "Clima_dadosestacao" 
+WHERE  "codEstac"=\'{0}\' and 
+       "Data" >= \'{1}\' and 
+       "Data" <= \'{2}\' and 
+       "Hora"={3} 
+ORDER BY "Data" """.format(codigo, data, dataBase, hora)
 
             cursor = self.db.cursor()
             cursor.execute(sql)
@@ -119,38 +148,52 @@ class Estacao:
 
 
 
-
-def run():
+def formula(wmoAutomatica, dataBase=datetime.now()):
 
     MM_CHUVA     = 13
-    HORA_MEDICAO =  13
+    HORA_MEDICAO = 13 + 3 # 13 + UTC
     K_FMA        = float(100)
     LN_E         = float(2.718282)
     K_VENTO      = float(0.04)
 
-    teste  = Estacao()
+    objEstacao  = Estacao()
+    data = objEstacao.getDiasSemChuva(wmoAutomatica, MM_CHUVA,dataBase)[0] 
 
-    codigo = 'QTU1NQ'
+    # O sistema retorna o dia em que ocorreu a chuva       
+    # temos que remover um dia
+    data += timedelta(days=1)
 
-    data = teste.getDiasSemChuva(codigo, MM_CHUVA)[0] + datetime.timedelta(days=1)
     dataStr =  data.strftime('%d/%m/%Y') 
 
     medicoes = []
     precipit = []
 
-    for item in teste.getHistorico(codigo, dataStr, HORA_MEDICAO):
+    for item in objEstacao.getHistorico(wmoAutomatica,\
+                                        dataStr, \
+                                        dataBase,
+                                        HORA_MEDICAO):
        medicoes.append(item)
 
-    for item in teste.getPrecitacao(codigo, dataStr):
+    for item in objEstacao.getPrecitacao(wmoAutomatica, \
+                                         dataStr, 
+                                         dataBase):
         precipit.append(item[1])
+
+
+    if len(medicoes) + 1 ==  len(precipit):
+        obj = objEstacao.getHistorico(wmoAutomatica,\
+                                        dataStr, \
+                                        dataBase)   
+        medicoes.append(obj[0])
+
 
     fmap = float(0)
     fma = float(0)
     indice = 0
     print   'fma-ANT;fmap-ANT;data;diaschuva;precipt;\
             fma;velVento;calcVelVento;fmap;restricao;\
-            umid;umidCalc;fma,fmac;'
-
+            horaUmid;umid;umidCalc;fma;fmac;'
+    
     for item in medicoes:
 
         fmaAnt = fma
@@ -162,9 +205,11 @@ def run():
         mmPrecipt = precipit[indice]
 
         if fma > 0:
-            restricao = teste.RestricoesChuva(mmPrecipt, MM_CHUVA )
+            restricao = objEstacao.RestricoesChuva(mmPrecipt, MM_CHUVA )
         else:
             restricao = 1
+
+        horaUmid = item[6]
 
         calcItem = float(K_FMA/ umidade  )
         fma = (fma * restricao)  + calcItem 
@@ -175,7 +220,7 @@ def run():
 
         print '{0};{1};{2};{3};{4};{5};\
                {6};{7};{8};{9};{10};{11};\
-               {12};{13};{14};'.\
+               {12};{13};{14};{15}'.\
                 format(
                     fmaAnt,
                     fmaPAnt,
@@ -187,10 +232,11 @@ def run():
                     calcVelVento,
                     fmap,
                     restricao,
+                    horaUmid,
                     umidade,
                     calcItem,
-                    str(teste.Resultado(fma)),
-                    str(teste.Resultado(fma)),
+                    str(objEstacao.Resultado(fma)),
+                    str(objEstacao.Resultado(fma)),
                     '-'
                     ).replace('.',',')
         indice += 1
@@ -198,6 +244,10 @@ def run():
 
 
 
+def run():
+    codigo = 'QTU1NQ'
+    dataBase = datetime(2015,1,1)
+    formula(codigo, dataBase)
 
 
 

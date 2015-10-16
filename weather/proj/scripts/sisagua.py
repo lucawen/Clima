@@ -23,18 +23,20 @@ def pesquisa(ponto):
         return ([], "XXXX")
  
  
-    dePara = (  (u'SMA002',  u'SM002'), (u'SMA003',u'SM003'),\
-                (u'CG004',   u'CM004'), (u'CG001', u'CM001S'),\
-                (u'CG002',   u'CM002S'),(u'SMA 001', u'SM001'),\
+    dePara = (  (u'SMA002 \xbdZF',  u'SM002'), (u'SMA003',u'SM003'),\
+                (u'CG004',   u'CM004'), (u'CG001 \xbdZF', u'CM001S'), \
+                (u'SMA 001', u'SM001'), (u'CG001', u'CM001S'),\
                 (u'SMA002 S',u'SM002'), (u'ML002',u'MA001'),\
-                (u'ML001',   u'MA002'), (u'CG001', u'CM001S'),\
-                (u'CG002',   u'CM002S')
+                (u'ML001',   u'MA002'), (u'CG001 F', u'CM001S'),\
+                (u'CG002',   u'CM002'), (u'CG005',  u'CM005'),
+                (u'P\xc7001',u'PC001'), (u'P\xc7002', u'PC002'),\
+                (u'SMA002',  u'SM002')\
              )
 
     for de, para in dePara:
         if ponto == de:
             query = PtoMonit.objects.filter(sigla = para)
-            return (query, dePara[1])
+            return (query, para)
         
 
     ponto = ponto.replace('1/2','')
@@ -59,10 +61,6 @@ def pesquisa(ponto):
 
     if ponto[-1:] == 'S':
         ponto = ponto[:-1]
-
-    if ponto[-1:] == 'S':
-        ponto = ponto[:-1]
-
 
 
     key = ponto
@@ -209,11 +207,9 @@ def run():
         """
         keyPto = u'{0}'.format(sheet.cell(linha,1).value)
         objPonto, keyPto1 = pesquisa(keyPto)
+        
         if keyPto1 == 'XXXX':
             continue
-        if keyPto != keyPto1 and keyPto not in col:
-            col.append(keyPto)
-            colPontos.append([linha, keyPto, keyPto1])
         if len(objPonto) == 0:
             if keyPto not in colPtosErrados:
                 colPtosErrados.append(keyPto)
@@ -229,6 +225,8 @@ def run():
                 print 'não achou parametro', keyParam 
                 qtdErros += 1
                 continue
+
+
 
             #Verifica sinal 
             sinal = ''
@@ -252,7 +250,7 @@ def run():
                                 data         = dataHora,
                                 vlr          = vlr,
                                 vlrLbl       = '{0}{1}'.format(sinal, vlr) )
-                #obj.save()
+                obj.save()
 
     print qtdErros
     print colPtosErrados

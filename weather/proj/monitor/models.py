@@ -24,6 +24,7 @@ class Camada(models.Model):
     Projeto_FK  = models.ForeignKey(Projeto, verbose_name="Projeto" )
     nome        = models.CharField(max_length=100, verbose_name='Layer')
     url         = models.URLField(max_length=300, verbose_name='URL Layer')
+    coefic      = models.DecimalField(default=0, decimal_places=2, max_digits=16)
     
     class Meta:
         verbose_name = 'Camada'

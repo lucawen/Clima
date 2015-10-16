@@ -10,7 +10,7 @@ def sendmail():
     toaddrs  = 'wbeirigo@terravisiongeo.com.br'
 
     message = """From: Sistema FIREMONITOR <wilson@solvecorp.com.br>
-To: Wilson Beirigo Duarte <iwbeirigo@iterravisiongeo.com.br>
+To: Wilson Beirigo Duarte <wbeirigo@iterravisiongeo.com.br>
 Subject: Focos de Incendio 
 Focos de incedio FIRMS e WAFBBA processados
     """
