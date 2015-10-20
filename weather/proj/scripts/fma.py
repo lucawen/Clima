@@ -5,16 +5,52 @@ import django
 import psycopg2
 from   datetime import datetime, timedelta
 import math
+from toolbox.tools import  Struct
+from toolbox.maillib import Email
 
-class Estacao:
+
+HOST_CLIMA   = "host='10.3.0.26' \
+                dbname='clima'\
+                user='postgres'\
+                password='wilci5w7'"
+
+MM_CHUVA     = 13
+HORA_MEDICAO = 13 + 3 # 13 + UTC
+K_FMA        = float(100)
+LN_E         = float(2.718282)
+K_VENTO      = float(0.04)
+FLOAT_ROUD_PLACES = 4
+
+
+class FMA:
 
     def __init__(self):
+
+        self.colecao = []
+
         try:
-            connstring =\
-            "host='10.3.0.26' dbname='clima' user='postgres' password='wilci5w7'"
+            connstring = HOST_CLIMA
             self.db  = psycopg2.connect(connstring)
         except:
              raise
+
+    def getCodigoByOMM(self, omm):
+
+        saida = ''
+        try:
+            sql = """
+SELECT codigo
+FROM "Clima_estacoes"
+WHERE omm = '{0}'
+            """.format(omm)
+            cursor = self.db.cursor()
+            cursor.execute(sql)
+            saida = cursor.fetchone()
+        except:
+            raise
+
+        return saida[0].encode('ascii')
+
 
     def getDiasSemChuva(self, codigo, mmChuva, dataBase):
         
@@ -146,109 +182,126 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
 
         return saida
 
+    def criaResultado(self,values):
+
+        labels = 'fmaANT;fmapANT;data;diaschuva;precipt;\
+                    fma;velVento;calcVelVento;fmap;restricao;\
+                    horaUmid;umid;umidCalc;fma;fmac'.split(';')
+
+        linha = {}
+        for item in range(len(labels)):
+            if type(values[item]) == float:
+                values[item] = round(values[item], FLOAT_ROUD_PLACES)
+            linha[labels[item]] = values[item] 
+      
+        self.colecao.append(Struct(linha))
+ 
 
 
-def formula(wmoAutomatica, dataBase=datetime.now()):
+    def formula(self, codigo, dataBase=datetime.now()):
 
-    MM_CHUVA     = 13
-    HORA_MEDICAO = 13 + 3 # 13 + UTC
-    K_FMA        = float(100)
-    LN_E         = float(2.718282)
-    K_VENTO      = float(0.04)
+        
+        wmoAutomatica = self.getCodigoByOMM(codigo)
 
-    objEstacao  = Estacao()
-    data = objEstacao.getDiasSemChuva(wmoAutomatica, MM_CHUVA,dataBase)[0] 
+        data = self.getDiasSemChuva(wmoAutomatica, MM_CHUVA,dataBase)[0] 
 
-    # O sistema retorna o dia em que ocorreu a chuva       
-    # temos que remover um dia
-    data += timedelta(days=1)
+        # O sistema retorna o dia em que ocorreu a chuva       
+        # temos que remover um dia
+        data += timedelta(days=1)
 
-    dataStr =  data.strftime('%d/%m/%Y') 
+        dataStr =  data.strftime('%d/%m/%Y') 
 
-    medicoes = []
-    precipit = []
+        medicoes = []
+        precipit = []
 
-    for item in objEstacao.getHistorico(wmoAutomatica,\
-                                        dataStr, \
-                                        dataBase,
-                                        HORA_MEDICAO):
-       medicoes.append(item)
+        indice = 0
+        for item in self.getHistorico(wmoAutomatica,\
+                                            dataStr, \
+                                            dataBase,
+                                            HORA_MEDICAO):
+            medicoes.append(item)
 
-    for item in objEstacao.getPrecitacao(wmoAutomatica, \
-                                         dataStr, 
-                                         dataBase):
-        precipit.append(item[1])
+        for item in self.getPrecitacao(wmoAutomatica, \
+                                            dataStr, 
+                                            dataBase):
+            precipit.append(item[1])
 
 
-    if len(medicoes) + 1 ==  len(precipit):
-        obj = objEstacao.getHistorico(wmoAutomatica,\
-                                        dataStr, \
-                                        dataBase)   
-        medicoes.append(obj[0])
+        if len(medicoes) + 1 ==  len(precipit):
+            obj = self.getHistorico(wmoAutomatica,\
+                                            dataStr, \
+                                            dataBase)   
+            medicoes.append(obj[0])
 
 
-    fmap = float(0)
-    fma = float(0)
-    indice = 0
-    print   'fma-ANT;fmap-ANT;data;diaschuva;precipt;\
-            fma;velVento;calcVelVento;fmap;restricao;\
-            horaUmid;umid;umidCalc;fma;fmac;'
-    
-    for item in medicoes:
+        fmap = float(0)
+        fma = float(0)
 
-        fmaAnt = fma
-        fmaPAnt = fmap
+        colecao = []
+        for item in medicoes:
 
-        data = item[0]
-        umidade = float(item[1])
-        velVento = float(item[2])
-        mmPrecipt = precipit[indice]
+            fmaAnt = fma
+            fmaPAnt = fmap
 
-        if fma > 0:
-            restricao = objEstacao.RestricoesChuva(mmPrecipt, MM_CHUVA )
-        else:
-            restricao = 1
+            data = item[0]
+            umidade = float(item[1])
+            velVento = float(item[2])
+            mmPrecipt = precipit[indice]
 
-        horaUmid = item[6]
+            if fma > 0:
+                restricao = self.RestricoesChuva(mmPrecipt, MM_CHUVA )
+            else:
+                restricao = 1
 
-        calcItem = float(K_FMA/ umidade  )
-        fma = (fma * restricao)  + calcItem 
+            horaUmid = item[6]
 
-        calcVelVento  = K_VENTO * velVento  
-        calcItemFMAP =  math.pow(LN_E, calcVelVento) 
-        fmap += calcItemFMAP
+            calcItem = float(K_FMA/ umidade  )
+            fma = (fma * restricao)  + calcItem 
 
-        print '{0};{1};{2};{3};{4};{5};\
-               {6};{7};{8};{9};{10};{11};\
-               {12};{13};{14};{15}'.\
-                format(
-                    fmaAnt,
-                    fmaPAnt,
-                    data,
-                    indice,
-                    mmPrecipt,
-                    fma,
-                    velVento,
-                    calcVelVento,
-                    fmap,
-                    restricao,
-                    horaUmid,
-                    umidade,
-                    calcItem,
-                    str(objEstacao.Resultado(fma)),
-                    str(objEstacao.Resultado(fma)),
-                    '-'
-                    ).replace('.',',')
-        indice += 1
+            calcVelVento  = K_VENTO * velVento  
+            calcItemFMAP =  math.pow(LN_E, calcVelVento) 
+            fmap += calcItemFMAP
 
+            values =[ fmaAnt,
+                      fmaPAnt,
+                      data,
+                      indice,
+                      mmPrecipt,
+                      fma,
+                      velVento,
+                      calcVelVento,
+                      fmap,
+                      restricao,
+                      horaUmid,
+                      umidade,
+                      calcItem,
+                      str(self.Resultado(fma)),
+                      str(self.Resultado(fma)),
+                   ]
+            self.criaResultado(values)
+           
+            indice += 1
 
+        return  self.colecao
 
 
 def run():
-    codigo = 'QTU1NQ'
+    codigo = '86821'
     dataBase = datetime(2015,1,1)
-    formula(codigo, dataBase)
 
+    objMail = Email()
+    objMail.EnviaMSG('Testes', 
+                    'Este e um teste de msg',
+                    ['wbeirigo@gmail.com',
+                     'wilson@solvecorp.com.br', 
+                     'wbeirigo@terravisiongeo.com.br', ]
+                     )
+    quit()
+
+    objFMA = FMA()
+    colecao = objFMA.formula(codigo)
+    for i in  colecao:
+        print  i.fmap
 
 
 

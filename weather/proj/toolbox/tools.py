@@ -4,6 +4,24 @@
 import xlrd
 
 
+def KelvinToCelcius(t):
+    return t-273.15
+
+
+
+class Struct(object):
+    """Comment removed"""
+    def __init__(self, data):
+        for name, value in data.iteritems():
+            setattr(self, name, self._wrap(value))
+
+    def _wrap(self, value):
+        if isinstance(value, (tuple, list, set, frozenset)): 
+            return type(value)([self._wrap(v) for v in value])
+        else:
+            return Struct(value) if isinstance(value, dict) else value
+
+
 class ObjectView(object):
     def __init__(self, d):
         self.__dict__ = d

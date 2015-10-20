@@ -105,3 +105,13 @@ class FocoFIRMS(models.Model):
         return u'{0}'.format(self.dataUTC) 
 
 
+class Alarme(models.Model):
+    
+    isenviado    = models.IntegerField(default=0)
+    algoritimo   = models.CharField(max_length=6)
+    foco_id      = models.IntegerField(default=0)
+    msg          = models.TextField(default='',blank=True)
+
+    def __unicode__(self):              
+        return u'{0}'.format(self.msg) 
+

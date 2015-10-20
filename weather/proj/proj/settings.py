@@ -15,7 +15,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-print BASE_DIR
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -54,6 +53,11 @@ INSTALLED_APPS = (
     'igam',   
     'toolbox',
 )
+
+
+MEDIA_ROOT = BASE_DIR + '/static/midia/'
+MEDIA_URL = '/static/midia/'
+
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -157,6 +161,7 @@ USE_TZ = True
 GRAPPELLI_ADMIN_TITLE= u'FIRE-MONITOR -  Terravision'
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR +'/static'
 
 IGAM_PATH   = BASE_DIR + "/dados/IGAM" 
 WFABBA_PATH = BASE_DIR + '/dados/WFABBA'

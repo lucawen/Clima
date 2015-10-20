@@ -1,0 +1,9 @@
+NOAA/NESDIS/ORA  University of Wisconsin-Madison/CIMSS
+GOES-13 WF_ABBA (vs 6.5.008) Experimental Fire Product
+Note: This product is preliminary and has not been quality controlled
+Date: 2015292   Time: 0500 UTC
+Longitude  Latitude  Satzen(deg)  Pix Size(km2)  T4(K)  T11(K)  Fire Size(km2)  Temp(K)  FRP(MW)  Ecosystem  Fire Flag
+ -63.72      9.61       17.30        17.1445     300.0   292.1      0.0200        565.       73.      43          0
+ -63.61      9.61       17.40        17.1546     306.2   287.5     -9.0000         -9.      140.      33          3
+ -63.72      9.57       17.30        17.1415     298.6   290.2     -9.0000         -9.       -9.      43          5
+ -79.03      9.17       11.70        16.5794     301.0   292.6     -9.0000         -9.       71.      24          3
