@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^', include('normais.urls')),
     url(r'^', include('projetos.urls')),
     url(r'^', include('igam.urls')),
+    url(r'^', include('monitor.urls')),
 ]

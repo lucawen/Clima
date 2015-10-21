@@ -40,9 +40,10 @@ www.firemonitor.com.br <br>\
 "
 
 
-    def EnviaMSG(self, titulo, message, destinatarios  ):
+    def EnviaMSG(self, titulo, message, destinatarios, mask=None  ):
 
-        message = self.mask().format(message)
+        if mask == None:
+            message = self.mask().format(message)
 
         msg = MIMEText(message, 'html')
         msg['Subject']  = titulo

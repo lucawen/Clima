@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*- 
+#!/usr/bin/env python 
+
 from django.db import models
 from django.contrib.gis.db import models
 
@@ -24,7 +27,7 @@ class Camada(models.Model):
     Projeto_FK  = models.ForeignKey(Projeto, verbose_name="Projeto" )
     nome        = models.CharField(max_length=100, verbose_name='Layer')
     url         = models.URLField(max_length=300, verbose_name='URL Layer')
-    coefic      = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    isExtent    = models.BooleanField(default = False)
     
     class Meta:
         verbose_name = 'Camada'
@@ -39,7 +42,7 @@ class Equipe(models.Model):
 
     Projeto_FK    = models.ForeignKey(Projeto, verbose_name="Projeto" )
     nome          = models.CharField(max_length=100)
-    email         = models.URLField(max_length=120)
+    email         = models.EmailField(max_length=120)
     foneFixo      = models.CharField(max_length=20 )
     foneCel       = models.CharField(max_length=20)
 
@@ -107,9 +110,11 @@ class FocoFIRMS(models.Model):
 
 class Alarme(models.Model):
     
+    Projeto_FK  = models.ForeignKey(Projeto, verbose_name="Projeto" )
     isenviado    = models.IntegerField(default=0)
     algoritimo   = models.CharField(max_length=6)
     foco_id      = models.IntegerField(default=0)
+    figura       = models.CharField(default='',blank=True, max_length=200)
     msg          = models.TextField(default='',blank=True)
 
     def __unicode__(self):              

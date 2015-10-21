@@ -21,18 +21,18 @@ class StaticMap:
     def processa(self, center,\
                  size='800x600',\
                  type='hybrid',\
-                 zoom=13 ):
+                 zoom=15 ):
 
 
         arquivo  ='{0}.{1}'.format(uuid.uuidstr(), FORMATO)
 
         strmark=''
         for pos in self.markers:
-            strmark += 'markers={0},{1}&'.format(pos[0], pos[1]) 
+            strmark += 'markers={0},{1}&'.format(pos[1], pos[0]) 
 
         mask= 'center={0},{1}&zoom={2}&size={3}&maptype={4}&{5} key={6}'
 
-        url_postfix = mask.format(center[0], center[1],\
+        url_postfix = mask.format(center[1], center[0],\
                                   zoom,\
                                   size,\
                                   type,\

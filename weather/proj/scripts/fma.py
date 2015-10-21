@@ -284,25 +284,16 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
 
         return  self.colecao
 
-
+"""
 def run():
     codigo = '86821'
     dataBase = datetime(2015,1,1)
-
-    objMail = Email()
-    objMail.EnviaMSG('Testes', 
-                    'Este e um teste de msg',
-                    ['wbeirigo@gmail.com',
-                     'wilson@solvecorp.com.br', 
-                     'wbeirigo@terravisiongeo.com.br', ]
-                     )
-    quit()
 
     objFMA = FMA()
     colecao = objFMA.formula(codigo)
     for i in  colecao:
         print  i.fmap
-
+"""
 
 
 

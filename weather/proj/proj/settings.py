@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'y@bzrocszm8#r_cyt@gsof+#29kcufqv6@z#l*7z@_e!5m8boj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True 
 
 ALLOWED_HOSTS = []
 
@@ -111,6 +111,7 @@ DATABASES = {
 
 
 STATICFILES_DIRS = (
+    BASE_DIR+ "/static/midia/",
     BASE_DIR+ "/static/plugins/",
     BASE_DIR+ "/static/css/",
     BASE_DIR+ "/static/js/",
@@ -160,8 +161,7 @@ USE_TZ = True
 
 GRAPPELLI_ADMIN_TITLE= u'FIRE-MONITOR -  Terravision'
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR +'/static'
+STATIC_URL  = '/static/'
 
 IGAM_PATH   = BASE_DIR + "/dados/IGAM" 
 WFABBA_PATH = BASE_DIR + '/dados/WFABBA'
