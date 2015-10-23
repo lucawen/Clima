@@ -3,7 +3,6 @@
 
 import requests
 from proj import settings
-from toolbox import uuid
 import shutil
 
 #GOOGLE STATIC API KEY
@@ -17,14 +16,15 @@ class StaticMap:
 
     def __init__(self):
         self.markers = []
+        self.filename = None
 
     def processa(self, center,\
                  size='800x600',\
                  type='hybrid',\
-                 zoom=15 ):
+                 zoom=10101010101010101010 ):
 
 
-        arquivo  ='{0}.{1}'.format(uuid.uuidstr(), FORMATO)
+        arquivo  ='{0}.{1}'.format(self.filename, FORMATO)
 
         strmark=''
         for pos in self.markers:

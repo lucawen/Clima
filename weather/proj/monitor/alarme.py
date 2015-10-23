@@ -2,92 +2,128 @@
 #!/usr/bin/env python 
 
 import django
+import requests
 from toolbox.staticmap import StaticMap
 from new import  classobj
-from monitor.models import Projeto, Camada, Equipe, FocoFIRMS, FocoWFABBA, Alarme
+from monitor.models import Projeto, Camada, Equipe, FocoWFABBA
+from monitor.models import Alarme, ItemAlarme, FocoFIRMS
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal import OGRGeometry
 from django.contrib.gis.geos import GEOSGeometry, Polygon
+from  toolbox.maillib import Email
+
+
+def KelvinToCelcius(t):
+    if t <0:
+        return t
+    return float(t)- float(273.15)
+
 
 class AlarmeProc:
 
+    def __init__(self):
+        self.__Alarme = None
+        self.__Projeto = None
 
-    def addAlarme(self, _alg, _id, _msg, pos, idProj):
-        query = Alarme.objects.filter(  algoritimo = _alg,\
-                                        Projeto_FK_id = idProj,\
-                                        foco_id = _id)
-        if len(query) == 0:
+    def __addAlarme(self):
 
-            #Gera Mapa
-            center = [pos[0],pos[1]]
+        obj = Alarme(Projeto_FK = self.__Projeto)
+        obj.save()
+        self.__Alarme = obj
 
-            mapa = StaticMap()
-            mapa.markers = [ center, ] 
-            path = mapa.processa(center)
-            obj = Alarme(algoritimo = _alg,\
-                        foco_id       = _id,\
-                        figura        = path,\
-                        Projeto_FK_id = idProj)
-            obj.save()
-
-
-
-    def _processaProjeto(self, idProjeto, url):
+    def __getPolygon(self, url):
 
         ds = DataSource(url)
         layer = ds[0]
         col = layer.get_geoms()
-        poly = col[0][0]
-        
-        for item in FocoFIRMS.objects.all():
-            layer.spatial_filter = item.posicao.extent
-            if len(layer) > 0:
-                self.addAlarme( 'FIRMS',\
-                        item.id,\
-                        '',\
-                        item.posicao,\
-                        idProjeto)
+        self.__centroid = ( col[0][0].centroid.x,\
+                            col[0][0].centroid.y  )
+        self.__poly = layer
 
-        for item in FocoWFABBA.objects.all():
-            layer.spatial_filter = item.posicao.extent
-            if len(layer) > 0:
-                self.addAlarme( 'WFABBA',\
-                        item.id,\
-                        '',\
-                        item.posicao,\
-                        idProjeto)
-    
+    def __addItemAlarme(self, record):
+
+        query = ItemAlarme.objects.filter( foco_id = record.id)
+        self.__poly.spatial_filter = record.posicao.extent
+
+        if len(query) == 0 and len(self.__poly) > 0:
+
+            if not self.__Alarme :
+                self.__addAlarme()
+
+            objRegra = ItemAlarme() 
+            objRegra.Alarme_FK = self.__Alarme
+            objRegra = FocoToItemAlarme().\
+                       getMixin(record,objRegra)
+            objRegra.save()
+
+            self.__poly.spatial_filter = None
+
+    def __processaProjeto(self, table):
+
+        for record in table:
+            self.__addItemAlarme(record)
+
     def processa(self):
         for record in Projeto.objects.all():
-            objcamada = Camada.objects.filter( Projeto_FK__id = record.id)[0]
-            self._processaProjeto(record.id, objcamada[0].url) 
+            objcamada = Camada.objects.filter( Projeto_FK__id = record.id,\
+                                               isExtent = True )[0]
+            self.__getPolygon( objcamada.url) 
+            self.__Projeto = record 
+
+            self.__processaProjeto(FocoFIRMS.objects.all())
+            self.__processaProjeto(FocoWFABBA.objects.all())
+
+            markers = []
+            for item in ItemAlarme.objects.filter(Alarme_FK = self.__Alarme):
+                markers.append( [ item.posicao[0], item.posicao[1] ] ) 
+
+            if len(markers) > 0:
+                mapa = StaticMap()
+                mapa.markers = markers 
+                mapa.filename = 'mapaAlarme{0}'.format(self.__Alarme.id)
+                path = mapa.processa( self.__centroid) 
+
+                url = 'http://10.3.0.29:8080/mailalertafoco/{0}/'.\
+                    format(self.__Alarme.id)
+                r = requests.get(url)
+
+                for item in Equipe.\
+                            objects.\
+                            filter(Projeto_FK_id = self.__Projeto.id): 
+                        
+                            destinatario = '{0} <{1}>'.\
+                                        format(item.nome,\
+                                                item.email)
+
+                            objMail = Email()
+                            objMail.EnviaMSG('Fire Monitor - Alerta de Foco de Incêndio',
+                                            r.content,
+                                            [ destinatario, ],
+                                            True )
+
+ 
 
 
-
-class Alrm:
+class FocoToItemAlarme:
    
-    def confidencialidade_wfabba(self, flag):
+    def __confidencialidade_wfabba(self, flag):
 
         percent = [100,90,85,70,60, 20]
-
         return percent[flag]
 
-
-    def __init__(self, _id ): 
+    def getMixin(self, record, objItemAlarme ): 
           
-        record       = self.__getrecordbytable(_id)
+        modelo = (  'dataregUTC', 'dataUTC', 'posicao', \
+                    'temp', 'confianca', 'satellite',\
+                    'pixsize', 'firesize', 'foco_id', 'alg' )
 
-        modelo = ('dataregUTC', 'dataUTC', 'posicao', \
-                'temp', 'probabilidade', 'satellite',\
-                'pixsize', 'firesize' )
+        firms  = (  'dataregUTC', 'dataUTC', 'posicao', \
+                    'bright', 'confidence',   'satellite',\
+                    'scan', 'track', 'id', 'FIRMS')
 
-        firms  = ('dataregUTC', 'dataUTC', 'posicao', \
-                'bright', 'confidence',   'satellite',\
-                'scan', 'track')
-
-        wfabba = ('dataregUTC', 'dataUTC', 'posicao',\
-                'Temp', 'FireFlag',       'id',  \
-                'PixSize', 'FireSize')
+        wfabba = (  'dataregUTC', 'dataUTC', 'posicao',\
+                    'Temp', 'FireFlag', 'satellite',\
+                    'PixSize', 'FireSize', 'id', 'WAFBBA')
 
         table = firms if type(record) == FocoFIRMS else wfabba
 
@@ -95,29 +131,29 @@ class Alrm:
         indice = 0 
         for cpo in table:
             key = modelo[indice]
-            value = getattr(record,cpo)
+            value = None
+            if key == 'alg':
+                value = cpo
             if key == 'satellite': 
                 if table == firms:
-                    value = 'Goes-13'
-                else:
                     value = 'AQUA' if value == 'A' else 'TERRA' 
-            if key == 'probabilidade':
-                if table == wfabba:
-                    value = self.confidencialidade_wfabba(value)
+                else:
+                    value = 'Goes-13'
 
-            objInstance[key]  = value
+            if not value:
+                value = getattr(record,cpo)
+    
+            if key == 'temp':
+                value = KelvinToCelcius(value)
+
+            if key == 'confianca':
+                if table == wfabba:
+                    value = self.__confidencialidade_wfabba(value)
+
+
+            setattr(objItemAlarme, key, value)
             indice += 1
 
-        obj = classobj('VAlarme', (object,), objInstance )
-
-        self.record = obj
-
-    def __getrecordbytable(self, _id):
-
-        self.alarme_registro = Alarme.objects.get(id = _id)
-        alg = self.alarme_registro.algoritimo
-        idModelo = self.alarme_registro.foco_id
-
-        modelo = FocoFIRMS if alg == 'FIRMS' else  FocoWFABBA
-        return modelo.objects.get(id = idModelo)
+        return  objItemAlarme
+ 
 

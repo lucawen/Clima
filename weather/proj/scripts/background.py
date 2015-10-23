@@ -20,7 +20,8 @@ def run():
 
     objMail = Email()
     objMail.EnviaMSG('Fire Monitor',
-                'Focos de Incendio Processados com SUCESSO, FIRMS e WAFBBA',
+                'Focos de Incendio Processados com SUCESSO, FIRMS e WAFBBA,
+                Alarmes processados com sucesso',
                 [ 'wbeirigo@terravisiongeo.com.br', ])
 
 

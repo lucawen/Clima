@@ -3,7 +3,8 @@
 
 from django.db import models
 from django.contrib.gis.db import models
-
+from datetime import datetime
+from django.utils import timezone
 
 # Create your models here.
 class Projeto(models.Model):
@@ -111,12 +112,34 @@ class FocoFIRMS(models.Model):
 class Alarme(models.Model):
     
     Projeto_FK  = models.ForeignKey(Projeto, verbose_name="Projeto" )
-    isenviado    = models.IntegerField(default=0)
-    algoritimo   = models.CharField(max_length=6)
-    foco_id      = models.IntegerField(default=0)
-    figura       = models.CharField(default='',blank=True, max_length=200)
-    msg          = models.TextField(default='',blank=True)
+    isenviado   = models.IntegerField(default=0)
+    data        = models.DateTimeField(default=timezone.now)
+    msg         = models.TextField(default='',blank=True)
 
     def __unicode__(self):              
         return u'{0}'.format(self.msg) 
+
+class ItemAlarme(models.Model):
+
+    Alarme_FK   = models.ForeignKey(Alarme, verbose_name="Alarme" )
+    alg         = models.CharField(max_length=6)
+    foco_id     = models.IntegerField(default=0)
+    dataUTC     = models.DateTimeField()
+    dataregUTC  = models.DateTimeField()
+    posicao     = models.PointField()
+    temp        = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    satellite   = models.CharField(max_length=10)
+    pixsize     = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    firesize    = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    confianca   = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+
+    def __unicode__(self):              
+        return u'{0}'.format(self.id) 
+
+    class Meta:
+        ordering = ['dataUTC',]     
+
+
+
+
 

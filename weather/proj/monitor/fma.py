@@ -24,17 +24,23 @@ FLOAT_ROUD_PLACES = 4
 
 class FMA:
 
+
+    def __conn(self):
+        try:
+            connstring = HOST_CLIMA
+            db  = psycopg2.connect(connstring)
+            return db
+        except:
+             raise
+
+
+
     def __init__(self):
 
         self.colecao = []
 
-        try:
-            connstring = HOST_CLIMA
-            self.db  = psycopg2.connect(connstring)
-        except:
-             raise
 
-    def getCodigoByOMM(self, omm):
+    def getCodigoByOMM(self, omm, db):
 
         saida = ''
         try:
@@ -43,7 +49,7 @@ SELECT codigo
 FROM "Clima_estacoes"
 WHERE omm = '{0}'
             """.format(omm)
-            cursor = self.db.cursor()
+            cursor = db.cursor()
             cursor.execute(sql)
             saida = cursor.fetchone()
         except:
@@ -52,7 +58,7 @@ WHERE omm = '{0}'
         return saida[0].encode('ascii')
 
 
-    def getDiasSemChuva(self, codigo, mmChuva, dataBase):
+    def getDiasSemChuva(self, codigo, mmChuva, dataBase, db):
         
         saida = ''
         try:
@@ -71,7 +77,7 @@ date_trunc(\'day\',"Data" + interval \'1h\' *
 ( CAST("Hora" AS integer) - 5) ) DESC 
 LIMIT 1; """.format(codigo, dataBase.strftime('%d/%m/%Y'), mmChuva)
 
-            cursor = self.db.cursor()
+            cursor = db.cursor()
             cursor.execute(sql)
             saida = cursor.fetchone()
         except:
@@ -80,9 +86,9 @@ LIMIT 1; """.format(codigo, dataBase.strftime('%d/%m/%Y'), mmChuva)
 
         return saida
 
-    def getPrecitacao(self, codigo, data, dataFim):
+    def getPrecitacao(self, codigo, data, dataFim, db):
         
-        saida = ''
+        saida = None
         try:
             sql = """
 SELECT  
@@ -99,7 +105,7 @@ GROUP BY date_trunc(\'day\',"Data" + interval \'1h\' *
          ( CAST("Hora" AS integer) - 5) ) \
 ORDER BY date_trunc(\'day\',"Data" + interval \'1h\' *
         ( CAST("Hora" AS integer) - 5) )""".format(codigo, data, dataFim)
-            cursor = self.db.cursor()
+            cursor = db.cursor()
             cursor.execute(sql)
             saida = cursor.fetchall()
         except:
@@ -109,14 +115,14 @@ ORDER BY date_trunc(\'day\',"Data" + interval \'1h\' *
 
 
 
-    def getHistorico(self, codigo, data, dataBase, hora=99):
+    def getHistorico(self, codigo, data, dataBase,db, hora=99):
         
         saida = ''
         try:
             if hora == 99:
                 sql = """ 
 SELECT "Data","UmidInst", "VentVel", "VentDir", "TempInst", "PressInst",
-        "Hora" 
+        "Hora", id 
 FROM "Clima_dadosestacao" 
 WHERE "codEstac"=\'{0}\' and
        "Data" = \'{1}\' 
@@ -124,7 +130,7 @@ ORDER BY "Hora" DESC LIMIT 1 """.format(codigo, dataBase )
             else:
                 sql = """
 SELECT "Data","UmidInst", "VentVel", "VentDir", "TempInst", "PressInst", 
-        "Hora" 
+        "Hora" , id
 FROM   "Clima_dadosestacao" 
 WHERE  "codEstac"=\'{0}\' and 
        "Data" >= \'{1}\' and 
@@ -132,7 +138,7 @@ WHERE  "codEstac"=\'{0}\' and
        "Hora"={3} 
 ORDER BY "Data" """.format(codigo, data, dataBase, hora)
 
-            cursor = self.db.cursor()
+            cursor = db.cursor()
             cursor.execute(sql)
             saida = cursor.fetchall()
         except:
@@ -140,8 +146,6 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
 
         return saida
 
-    def __del(self):
-        self.db.close()
 
 
     def RestricoesChuva(self, mm, mmChuva):
@@ -199,12 +203,14 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
  
 
 
-    def formula(self, codigo, dataBase=datetime.now()):
+    def formula(self, codigo, dataBase=datetime.today().date()):
 
-        
-        wmoAutomatica = self.getCodigoByOMM(codigo)
 
-        data = self.getDiasSemChuva(wmoAutomatica, MM_CHUVA,dataBase)[0] 
+        objDB =self. __conn()
+
+        wmoAutomatica = self.getCodigoByOMM(codigo, objDB)
+
+        data = self.getDiasSemChuva(wmoAutomatica, MM_CHUVA,dataBase, objDB)[0] 
 
         # O sistema retorna o dia em que ocorreu a chuva       
         # temos que remover um dia
@@ -219,21 +225,26 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
         for item in self.getHistorico(wmoAutomatica,\
                                             dataStr, \
                                             dataBase,
+                                            objDB,\
                                             HORA_MEDICAO):
             medicoes.append(item)
 
+        
+        if len(medicoes) + 1 ==  len(precipit):
+            obj = self.getHistorico(wmoAutomatica,\
+                                    dataStr, \
+                                    dataBase,\
+                                    objDB)
+            medicoes.append(obj[0])
+
         for item in self.getPrecitacao(wmoAutomatica, \
                                             dataStr, 
-                                            dataBase):
+                                            dataBase,\
+                                            objDB):
             precipit.append(item[1])
 
 
-        if len(medicoes) + 1 ==  len(precipit):
-            obj = self.getHistorico(wmoAutomatica,\
-                                            dataStr, \
-                                            dataBase)   
-            medicoes.append(obj[0])
-
+        del objDB
 
         fmap = float(0)
         fma = float(0)
@@ -287,6 +298,7 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
             self.criaResultado(values)
            
             indice += 1
+
 
         return  self.colecao
 
