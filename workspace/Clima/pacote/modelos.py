@@ -53,7 +53,17 @@ class DadosEstacao:
         self.Radiacao = Tools.tryFloat(_tabela[17])
         self.Chuva = Tools.tryFloat(_tabela[18])      
         
-        
+       
+    def getResult(self, db):
+        sql = 'SELECT "Data", count(*) FROM "Clima_dadosestacao" GROUP BY "Data" ORDER BY "Data" DESC LIMIT 20;'
+        cursor = db.cursor()
+        cursor.execute(sql)
+        registros = cursor.fetchall()
+
+        return registros
+
+
+
     def __gravaRegistros(self, db, dados):    
         cursor = db.cursor()        
         for ln in dados:                            

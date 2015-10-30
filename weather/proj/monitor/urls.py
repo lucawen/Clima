@@ -8,5 +8,6 @@ from monitor import views
 
 urlpatterns = [    
     url(r'^mailalertafoco/(?P<idAlarme>\d+)/$', views.mailalertafoco),
+    url(r'^dashboard/(?P<idProjeto>\d+)/$', views.dashboard),
 ]
 

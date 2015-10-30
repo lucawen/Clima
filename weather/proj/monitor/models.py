@@ -9,10 +9,11 @@ from django.utils import timezone
 # Create your models here.
 class Projeto(models.Model):
 
-    codigo = models.CharField(max_length=6)
-    nome = models.CharField(max_length=100, verbose_name='Projeto')
-    wmo_normais = models.CharField(max_length=6)
+    codigo         = models.CharField(max_length=6)
+    nome           = models.CharField(max_length=100, verbose_name='Projeto')
+    wmo_normais    = models.CharField(max_length=6)
     wmo_automatica = models.CharField(max_length=6)
+    codIBGE        = models.CharField(max_length=10, default='', blank=True)
 
     class Meta:
         verbose_name = 'Projeto'
@@ -138,6 +139,38 @@ class ItemAlarme(models.Model):
 
     class Meta:
         ordering = ['dataUTC',]     
+
+class KPI(models.Model):
+
+    ordem       = models.IntegerField(default=0)
+    nome        = models.CharField(max_length=50)
+    unidade     = models.CharField(max_length=6)
+    icone       = models.CharField(max_length=15)
+    msg         = models.TextField(default='',blank=True)
+
+    def __unicode__(self):              
+        return u'{0}'.format(self.nome) 
+
+    class Meta:
+        ordering = ['ordem',]     
+
+
+class KPI_Nivel(models.Model):
+
+    KPI_FK  = models.ForeignKey(KPI, verbose_name="KPI" )
+    v1      = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    v2      = models.DecimalField(default=0, decimal_places=4, max_digits=16)
+    texto   = models.CharField(max_length=20)
+    cor     = models.CharField(max_length=10)
+
+    def __unicode__(self):              
+        return u'{0}'.format(self.texto) 
+
+    class Meta:
+        ordering = ['KPI_FK','v1',]     
+
+
+
 
 
 

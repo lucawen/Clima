@@ -4,6 +4,7 @@
 import django
 import psycopg2
 from   datetime import datetime, timedelta
+from   monitor.models import KPI, KPI_Nivel, Projeto
 import math
 from toolbox.tools import  Struct
 from toolbox.maillib import Email
@@ -22,25 +23,22 @@ K_VENTO      = float(0.04)
 FLOAT_ROUD_PLACES = 4
 
 
+
 class FMA:
 
-
-    def __conn(self):
-        try:
-            connstring = HOST_CLIMA
-            db  = psycopg2.connect(connstring)
-            return db
-        except:
-             raise
 
 
 
     def __init__(self):
-
+        try:
+            connstring = HOST_CLIMA
+            self.db  = psycopg2.connect(connstring)
+        except:
+             raise
         self.colecao = []
 
 
-    def getCodigoByOMM(self, omm, db):
+    def getCodigoByOMM(self, omm):
 
         saida = ''
         try:
@@ -49,7 +47,7 @@ SELECT codigo
 FROM "Clima_estacoes"
 WHERE omm = '{0}'
             """.format(omm)
-            cursor = db.cursor()
+            cursor = self.db.cursor()
             cursor.execute(sql)
             saida = cursor.fetchone()
         except:
@@ -58,7 +56,34 @@ WHERE omm = '{0}'
         return saida[0].encode('ascii')
 
 
-    def getDiasSemChuva(self, codigo, mmChuva, dataBase, db):
+    def getEstacaoByOMM(self, omm):
+
+        saida = ''
+        try:
+            sql = """
+SELECT * 
+FROM "Clima_estacoes"
+WHERE omm = '{0}'
+            """.format(omm)
+            cursor = self.db.cursor()
+            cursor.execute(sql)
+            saida = cursor.fetchone()
+        except:
+            raise
+
+
+        return { 'nome'     : saida[2],\
+                 'altitude' : saida[3],\
+                 'posicao'  : saida[4],\
+                 'cadastro' : saida[5],\
+                 'wmo'      : saida[6] \
+               }
+
+
+
+
+
+    def getDiasSemChuva(self, codigo, mmChuva, dataBase):
         
         saida = ''
         try:
@@ -77,7 +102,7 @@ date_trunc(\'day\',"Data" + interval \'1h\' *
 ( CAST("Hora" AS integer) - 5) ) DESC 
 LIMIT 1; """.format(codigo, dataBase.strftime('%d/%m/%Y'), mmChuva)
 
-            cursor = db.cursor()
+            cursor = self.db.cursor()
             cursor.execute(sql)
             saida = cursor.fetchone()
         except:
@@ -86,9 +111,8 @@ LIMIT 1; """.format(codigo, dataBase.strftime('%d/%m/%Y'), mmChuva)
 
         return saida
 
-    def getPrecitacao(self, codigo, data, dataFim, db):
+    def getPrecitacao(self, codigo, data, dataFim):
         
-        saida = None
         try:
             sql = """
 SELECT  
@@ -105,7 +129,7 @@ GROUP BY date_trunc(\'day\',"Data" + interval \'1h\' *
          ( CAST("Hora" AS integer) - 5) ) \
 ORDER BY date_trunc(\'day\',"Data" + interval \'1h\' *
         ( CAST("Hora" AS integer) - 5) )""".format(codigo, data, dataFim)
-            cursor = db.cursor()
+            cursor = self.db.cursor()
             cursor.execute(sql)
             saida = cursor.fetchall()
         except:
@@ -115,7 +139,7 @@ ORDER BY date_trunc(\'day\',"Data" + interval \'1h\' *
 
 
 
-    def getHistorico(self, codigo, data, dataBase,db, hora=99):
+    def getHistorico(self, codigo, data, dataBase,hora=99):
         
         saida = ''
         try:
@@ -138,7 +162,7 @@ WHERE  "codEstac"=\'{0}\' and
        "Hora"={3} 
 ORDER BY "Data" """.format(codigo, data, dataBase, hora)
 
-            cursor = db.cursor()
+            cursor = self.db.cursor()
             cursor.execute(sql)
             saida = cursor.fetchall()
         except:
@@ -151,9 +175,10 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
     def RestricoesChuva(self, mm, mmChuva):
 
         tabela = [ [ 0.00,  2.49, 1.00],\
-                [ 2.50,  4.99, 0.30],\
-                [ 5.00,  9.99, 0.60],\
-                [10.00, mmChuva, 0.80],\
+                   [ 2.50,  4.99, 0.30],\
+                   [ 5.00,  9.99, 0.60],\
+                   [10.00, mmChuva, 0.80],\
+                [mmChuva, 999, 0.0],\
                 ]
         
         saida = -99
@@ -171,7 +196,7 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
 
 
     def Resultado(self, indice):
-        tabela = [ [    0,   1.09, u'Nulo',      '#AA3939'],
+        tabela = [ [    0,   3.00, u'Nulo',      '#0000FF'],
                    [  3.1,   8.09, u'Medio',     '#2D882D'], 
                    [  8.1,  20.09, u'Alto',      '#AA6C39'], 
                    [ 20.1,9999.09, u'Muito Alto','#AA3939'], 
@@ -190,7 +215,7 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
     def criaResultado(self,values):
 
         labels = 'fmaANT;fmapANT;data;diaschuva;precipt;\
-                    fma;velVento;calcVelVento;fmap;restricao;\
+                    fma;velVento;calcVelVento;fmap;restricao;temperatura;pressao;\
                     horaUmid;umid;umidCalc;lblfma;lblfmap;colorfma;colorfmap'.split(';')
 
         linha = {}
@@ -206,15 +231,9 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
     def formula(self, codigo, dataBase=datetime.today().date()):
 
 
-        objDB =self. __conn()
+        wmoAutomatica = self.getCodigoByOMM(codigo)
 
-        wmoAutomatica = self.getCodigoByOMM(codigo, objDB)
-
-        data = self.getDiasSemChuva(wmoAutomatica, MM_CHUVA,dataBase, objDB)[0] 
-
-        # O sistema retorna o dia em que ocorreu a chuva       
-        # temos que remover um dia
-        data += timedelta(days=1)
+        data = self.getDiasSemChuva(wmoAutomatica, MM_CHUVA,dataBase)[0] 
 
         dataStr =  data.strftime('%d/%m/%Y') 
 
@@ -225,40 +244,37 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
         for item in self.getHistorico(wmoAutomatica,\
                                             dataStr, \
                                             dataBase,
-                                            objDB,\
                                             HORA_MEDICAO):
             medicoes.append(item)
+
+        for item in self.getPrecitacao(wmoAutomatica, \
+                                            dataStr, 
+                                            dataBase):
+            precipit.append(item[1])
+
 
         
         if len(medicoes) + 1 ==  len(precipit):
             obj = self.getHistorico(wmoAutomatica,\
                                     dataStr, \
-                                    dataBase,\
-                                    objDB)
+                                    dataBase)
             medicoes.append(obj[0])
 
-        for item in self.getPrecitacao(wmoAutomatica, \
-                                            dataStr, 
-                                            dataBase,\
-                                            objDB):
-            precipit.append(item[1])
-
-
-        del objDB
 
         fmap = float(0)
         fma = float(0)
-
         colecao = []
         for item in medicoes:
 
             fmaAnt = fma
             fmaPAnt = fmap
 
-            data = item[0]
-            umidade = float(item[1])
-            velVento = float(item[2])
-            mmPrecipt = precipit[indice]
+            data        = item[0]
+            umidade     = float(item[1])
+            velVento    = float(item[2])
+            mmPrecipt   = precipit[indice]
+            temperatura = float(item[4])
+            pressao     = float(item[5])
 
             if fma > 0:
                 restricao = self.RestricoesChuva(mmPrecipt, MM_CHUVA )
@@ -274,8 +290,19 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
             calcItemFMAP =  math.pow(LN_E, calcVelVento) 
             fmap += calcItemFMAP
 
+            if indice == 0:
+                fmap = 0
+                fma = 0
+                calcitem = 0
+                calcVelVento = 0
+                calcItemFMAP = 0
+                pressao = 0
+
+
             lblfma, colorfma     = self.Resultado(fma)
             lblfmap, colorfmap   = self.Resultado(fmap)
+
+
 
             values =[ fmaAnt,
                       fmaPAnt,
@@ -287,6 +314,8 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
                       calcVelVento,
                       fmap,
                       restricao,
+                      temperatura,
+                      pressao,
                       horaUmid,
                       umidade,
                       calcItem,
@@ -296,9 +325,9 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
                       colorfmap
                    ]
             self.criaResultado(values)
-           
-            indice += 1
+          
 
+            indice += 1
 
         return  self.colecao
 

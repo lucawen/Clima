@@ -19,9 +19,8 @@ __author__ = "Wilson Beirigo Duarte"
 __maintainer__ = "Wilson Beirigo Duarte"
 __version__ = "0.1"
 __script_name__ = "estacao.py"
-        
-           
-def sendmail():
+
+def sendmail(str):
     fromaddr = 'wilson@solvecorp.com.br'
     toaddrs  = 'wbeirigo@terravisiongeo.com.br'
 
@@ -32,6 +31,8 @@ Subject: Estacoes Climaticas
 Estacoes climaticas processadas
                 """
 
+    message += str
+
     username = 'wilson@solvecorp.com.br'
     password = 'wilci5w7'
 
@@ -41,7 +42,7 @@ Estacoes climaticas processadas
     server.sendmail(fromaddr, toaddrs, message)
     server.quit()
 
-
+       
 class ImportaDadosEstacao:
     
     HEADER = {'content-type': 'application/json', 'Accept-Language': 'pt-BR'}
@@ -84,7 +85,7 @@ class ImportaDadosEstacao:
     
     def __Scrap1(self, codEstacao, sessao):
                       
-        URL = 'http://www.inmet.gov.br/sonabra/pg_dspDadosCodigo.php?{0}=='
+        URL = 'http://www.inmet.gov.br/sonabra/pg_dspDadosCodigo_sim.php?{0}=='
                         
         resposta = ''
         try:
@@ -103,7 +104,7 @@ class ImportaDadosEstacao:
     
     def __Scrap2(self, codEstacao, param, sessao):
           
-        URL = 'http://www.inmet.gov.br/sonabra/pg_dspDadosCodigo.php?{0}=='          
+        URL = 'http://www.inmet.gov.br/sonabra/pg_dspDadosCodigo_sim.php?{0}=='          
         try:            
             saida = ''
             urlpost = URL.format(codEstacao)      
@@ -141,7 +142,9 @@ class ImportaDadosEstacao:
     def __Scrap(self, codEstacao, strtInicio, strtFim):
                         
         sessao = Session()
-        sessao.proxies = { "http"  : "http://54.207.45.19:3333", }
+
+
+        #sessao.proxies = { "http"  : "177.36.7.240:80", }
         self.inter = 0
         while True:              
             self.inter += 1
@@ -152,6 +155,7 @@ class ImportaDadosEstacao:
                 param = { 'aleaNum':resposta, 'aleaValue': captcha, 'dtafim':strtFim,  'dtaini': strtInicio}
                 texto = self.__Scrap2(codEstacao, param, sessao)
                 tabela = self.__Scrap3(texto)
+                print tabela
             except:
                 pass
             if len(tabela)>0 or self.inter > self.MAX_INTERACOES:                
@@ -197,7 +201,6 @@ class ImportaDadosEstacao:
         for codEstacao in estacoes:
             print "{0}/{1}".format(i, len(estacoes))
             self.__Scrap(codEstacao, inicio, fim)
-
 
             col.extend(self.colecao)            
             self.__GravaLog(codEstacao)
@@ -258,12 +261,17 @@ if __name__ == "__main__":
     obj.ProcessaImportacao( NOME_ARQUIVO,\
                             QTD_REGISTROS_GRAVAR, \
                             inicio, fim, col, logging)
-
     objDB = DadosEstacao()
     objDB.InsereDB(db, path)
-        
+
+    objResult = dados.getResult(db)
+    str = '\n\n'
+    for item in objResult:
+        str += '{0}\t{1}\n'.format( item[0], item[1])
+
+
+    sendmail(str)       
     logging.info("FIM." + datetime.now().strftime("%B %d,:%Y %H:%M:%S "))
         
     print('Fim')
 
-    sendmail()

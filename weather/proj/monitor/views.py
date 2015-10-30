@@ -1,11 +1,26 @@
 #-*- coding: utf-8 -*-
 #!/usr/bin/env python
 
-from django.shortcuts import render
-from django.http import HttpResponse
-from monitor.models import Projeto, Equipe, Alarme, ItemAlarme
-from monitor.fma    import FMA
-from django.template import RequestContext, loader
+from django.shortcuts   import render
+from django.http        import HttpResponse
+from monitor.models     import Projeto, Equipe, Alarme, ItemAlarme
+from monitor.fma        import FMA
+from monitor.dashboard  import DashBoard
+from django.template    import RequestContext, loader
+from datetime           import datetime
+
+def dashboard(request, idProjeto):
+
+
+    data = datetime(2015,10,18)
+
+    obj  = DashBoard()
+    resultado = obj.execute(idProjeto, data)
+    context = RequestContext(request, { 'result' : resultado, } )
+    template = loader.get_template('dashboard.html')
+    return HttpResponse(template.render(context))
+
+
 
 def mailalertafoco(request, idAlarme):
 
@@ -14,9 +29,6 @@ def mailalertafoco(request, idAlarme):
 
     objFMA  = FMA()
     objFMA  = objFMA.formula(obj.Projeto_FK.wmo_automatica, obj.data)
-
-    print objFMA
-
 
     foco = {}
     foco['alarm'] = obj

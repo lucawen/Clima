@@ -1,0 +1,666 @@
+{% extends 'base.html' %} {% load staticfiles %} 
+
+{% block cssformat %}
+     <style>
+        .bloco
+        {
+        height: 100%; /*Specify Height*/
+        width:  100%; /*Specify Width*/
+        border: 1px solid black; /*Add 1px solid border, use any color you want*/
+        text-align:center; /*Align the text to the center*/
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+
+
+<!--Start Breadcrumb-->
+<div class="row">
+	<div id="breadcrumb" class="col-xs-12">
+		<a href="#" class="show-sidebar">
+			<i class="fa fa-bars"></i>
+		</a>
+		<ol class="breadcrumb pull-left">
+			<li><a href="#">Dashboard</a></li>
+		</ol>
+		<div id="social" class="pull-right">
+			<a href="#"><i class="fa fa-google-plus"></i></a>
+			<a href="#"><i class="fa fa-facebook"></i></a>
+			<a href="#"><i class="fa fa-twitter"></i></a>
+			<a href="#"><i class="fa fa-linkedin"></i></a>
+			<a href="#"><i class="fa fa-youtube"></i></a>
+		</div>
+	</div>
+</div>
+<!--End Breadcrumb-->
+<!--Start Dashboard 1-->
+<div id="dashboard-header" class="row">
+
+	<div class="col-xs-5">
+		<div class="box">
+			<div class="box-header">
+				<div class="box-name">
+					<i class="fa fa-home"></i>
+					<span>{{ result.projeto }}</span>
+				</div>
+				<div class="box-icons">
+					<a class="collapse-link">
+						<i class="fa fa-chevron-up"></i>
+					</a>
+					<a class="expand-link">
+						<i class="fa fa-expand"></i>
+					</a>					
+				</div>
+				<div class="no-move"></div>
+			</div>
+			<div class="box-content">
+				<div class="card">
+					<h4 class="page-header">{{ result.projeto }}</h4>
+				</div>
+				<div class="card address">					
+					<p>
+						<span>{{ result.estacao.nome  }}</span> <br>
+						<span>WMO {{ result.estacao.wmo}}</span> <br>
+						<span>Altitude {{ result.estacao.altitude}}</span><br>
+						<span>Posicao {{ result.estacao.posicao}}</span><br>
+						<span>Implanta {{ result.estacao.cadastro}} </span><br>
+					</p>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-xs-7">
+		<div class="box">
+			<div class="box-header">
+				<div class="box-name">
+					<i class="fa fa-home"></i>
+					<span>Inidcadores</span>
+				</div>
+				<div class="box-icons">
+					<a class="collapse-link">
+						<i class="fa fa-chevron-up"></i>
+					</a>
+					<a class="expand-link">
+						<i class="fa fa-expand"></i>
+					</a>
+				</div>
+				<div class="no-move"></div>
+			</div>
+			<div class="box-content">
+                <div id="ow-server-footer">
+                
+                    {% for item in result.parametros %}
+                
+                        <a  href="#" 
+                            style="color: white;background-color:{{ item.color }};" 
+                            class="col-xs-3 col-sm-2 btn-default text-center">
+                                <i class="fa {{ item.icone }}"></i>
+                                <b>{{ item.valor}} {{item.unidade}} </b><span>{{ item.nome}}</span>
+                        </a>
+                        
+                    {% endfor %}
+                </div>
+			</div>
+		</div>
+	</div>
+
+</div>
+<!--End Dashboard 1-->
+<!--Start Dashboard 2-->
+<div class="row-fluid">
+	<div id="dashboard_links" class="col-xs-12 col-sm-2 pull-right">
+		<ul class="nav nav-pills nav-stacked">
+			<li class="active"><a href="#" class="tab-link" id="overview">Visão Geral</a></li>
+			<li><a href="#" class="tab-link" id="clients">FMA</a></li>
+			<li><a href="#" class="tab-link" id="graph">Previsão do Tempo</a></li>
+			<li><a href="#" class="tab-link" id="servers">Mapa</a></li>
+			<li><a href="#" class="tab-link" id="planning">Alertas</a></li>
+			<li><a href="#" class="tab-link" id="netmap">Focos de Calor</a></li>
+			<li><a href="#" class="tab-link" id="stock">Histórico</a></li>
+		</ul>
+	</div>
+	<div id="dashboard_tabs" class="col-xs-12 col-sm-10">
+		<!--Start Dashboard Tab 1-->
+		<div id="dashboard-overview" class="row" style="visibility: visible; position: relative;">
+			<div id="ow-marketplace" class="col-sm-12 col-md-6">
+				<div id="ow-setting">
+					<a href="#"><i class="fa fa-folder-open"></i></a>
+					<a href="#"><i class="fa fa-credit-card"></i></a>
+					<a href="#"><i class="fa fa-ticket"></i></a>
+					<a href="#"><i class="fa fa-bookmark-o"></i></a>
+					<a href="#"><i class="fa fa-globe"></i></a>
+				</div>
+				<h4 class="page-header">ÚLTIMA MEDIÇÂO 14:00</h4>
+				<table id="ticker-table" class="table m-table table-bordered table-hover table-heading">
+					<thead>
+						<tr>
+							<th>PARÂMETRO</th>
+							<th>VALOR</th>
+							<th>24 horas</th>
+							<th>30 dias</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="m-ticker"><b>UMIDADE</b><span>%</span></td>
+							<td class="m-price">33.27</td>
+							<td class="td-graph"></td>
+							<td class="td-graph"></td>
+						</tr>
+						<tr>
+							<td class="m-ticker"><b>PRESSÂO</b><span>Aswell Corp.</span></td>
+							<td class="m-price">45.13</td>
+							<td class="td-graph"></td>
+							<td class="td-graph"></td>
+						</tr>
+						<tr>
+							<td class="m-ticker"><b>TEMPERATURA</b><span>Mixal LTD.</span></td>
+							<td class="m-price">71.13</td>
+							<td class="td-graph"></td>
+							<td class="td-graph"></td>
+						</tr>
+						<tr>
+							<td class="m-ticker"><b>PRECIPITAÇÃO</b><span>L.A. Prod.</span></td>
+							<td class="m-price">30.24</td>
+							<td class="td-graph"></td>
+							<td class="td-graph"></td>
+						</tr>
+						<tr>
+							<td class="m-ticker"><b>VENTO</b><span>Allien K.</span></td>
+							<td class="m-price">51.1</td>
+							<td class="td-graph"></td>
+							<td class="td-graph"></td>
+						</tr>
+						<tr>
+							<td class="m-ticker"><b>FMA</b><span>Lenstri Sweet</span></td>
+							<td class="m-price">123.12</td>
+							<td class="td-graph"></td>
+							<td class="td-graph"></td>
+						</tr>
+						<tr>
+							<td class="m-ticker"><b>FMA+</b><span>Ron LEED</span></td>
+							<td class="m-price">64.14</td>
+							<td class="td-graph"></td>
+							<td class="td-graph"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-xs-12 col-md-6">
+	
+
+				<div id="ow-summary" class="row">
+					<div class="col-xs-12">
+						<h4 class="page-header">&Sigma; SUMÁRIO (30 dias)</h4>
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="row">
+									<div class="col-xs-6">Dias sem chuva<b>1245634</b></div>
+									<div class="col-xs-6">Umidade Últimos 30 dias<b>227</b></div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6">Alertas de foccos<b>5222345</b></div>
+									<div class="col-xs-6">Incidêntes<b>324322</b></div>
+								</div>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Dashboard Tab 1-->
+		<!--Start Dashboard Tab 2-->
+		<div id="dashboard-clients" class="row" style="visibility: hidden; position: absolute;">
+            <div id="tabs">
+                <ul>
+                    <li> <a href="#tabs-1">Tabela </a></li>
+                    <li> <a href="#tabs-2">Gráfico </a></li>
+                </ul>
+                <div id="tabs-1">
+
+                    <div class="row one-list-message">				
+                        <div class="col-xs-2"><b>Data</b></div>
+                        <div class="col-xs-1">Dias Sem Chuva</div>
+                        <div class="col-xs-1">Precipitação</div>
+                        <div class="col-xs-1">Umidade</div>
+                        <div class="col-xs-1">FMA</div>
+                        <div class="col-xs-1"> </div>
+                        <div class="col-xs-1">FMA+</div>				
+                    </div>
+
+                    {% for item in result.fma %}
+                        <div class="row one-list-message">				
+                            <div class="col-xs-2">{{ item.data | date:'d/m/Y'  }}</div>
+                            <div class="col-xs-1">{{ item.diaschuva }}</div>
+                            <div class="col-xs-1">{{ item.precipt }}</div>
+                            <div class="col-xs-1">{{ item.umid }}</div>
+                            <div class="col-xs-1" 
+                                style="color:{{ item.colorfma }};" >
+                                        {{ item.fma }} <br> {{ item.lblfma }} 
+                            </div>			
+
+                            <div class="col-xs-1"></div>
+                            <div class="col-xs-1"
+                                style="color:{{ item.colorfmap }};" >
+                                    {{ item.fmap }}<br> {{ item.lblfmap }} 
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div id="tabs-2">
+                    <div id="container" style="min-width: 600px; height: 400px; max-width:800px;  margin: 0 auto"></div>
+                </div>
+            </div>
+		</div>
+		<!--End Dashboard Tab 2-->
+		<!--Start Dashboard Tab 3-->
+		<div id="dashboard-graph" class="row" style="width:100%; visibility: hidden; position: absolute;" >
+			<div class="col-xs-12">
+				<h4 class="page-header">Previsão do Tempo</h4>
+						
+			<div class="row one-list-message">				
+				<div class="col-xs-2"><b>Data</b></div>
+				<div class="col-xs-2">TEMPO</div>
+				<div class="col-xs-2">TEMPERATURA</div>
+				<div class="col-xs-2">UMIDADE</div>
+				<div class="col-xs-2">VENTOS</div>
+				<div class="col-xs-2">SOL</div>
+				
+			</div>
+            {% for item in result.previsao %}
+                <div class="row one-list-message">				
+                    <div class="col-xs-2">
+                        <b>{{ item.data }} {{ item.dia_semana}} </b><br>
+                        {{ item.resumo }} 
+                    </div>
+                    <div class="col-xs-2"><img src='{{ item.icone }}' alt=''/></div>
+                    <div class="col-xs-2">
+                    <td class="m-change"><i class="fa fa-angle-up"></i> 
+                    {{ item.temp_max }}C   <img src='{{ item.temp_max_tende_icone}}'/><br>
+                    <td class="m-change"><i class="fa fa-angle-down"></i> 
+                     {{ item.temp_min }}C   <img src='{{ item.temp_min_tende_icone}}'/>
+                    </div>			
+
+
+                    <div class="col-xs-2">
+                    <td class="m-change"><i class="fa fa-angle-up"></i> 
+                    {{ item.umidade_max }}   <img src='{{ item.umidade_max_tende_icone}}'/>%<br>
+                    <td class="m-change"><i class="fa fa-angle-down"></i> 
+                    {{ item.umidade_min }}   <img src='{{ item.umidade_min_tende_icone}}'/>%
+                    </div>			
+
+                <div class="col-xs-2 ">
+                        {{ item.dir_vento }} 
+                       <img src='http://individual.icons-land.com/IconsPreview/Weather/PNG/24x24/Wind_Direction_NW.png'  />
+                        <br> 
+                        {{ item.int_vento }} 
+                                        </div>				
+                    <div class="col-xs-2 ">
+                                            <img src='http://pt.clubpenguinwiki.info/static/images/cpwpt/thumb/1/1d/PinSol.PNG/50px-PinSol.PNG' width='30px' />
+                                            {{ item.nascer }}<br>
+                                           <img src='https://pbs.twimg.com/profile_images/1723294853/SOL_normal.png' width='30px'/>
+                                           {{ item.ocaso }}</div>				
+                </div>
+            {% endfor %}
+		</div>
+			</div>
+	
+		<!--End Dashboard Tab 3-->
+		<!--Start Dashboard Tab 4-->
+		<div id="dashboard-servers" class="row" style="visibility: hidden; position: absolute;">
+			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
+				<h4 class="page-header text-right"><i class="fa  fa-cloud-upload"></i>#UMIDADE %</h4>
+				<small>Umidade relativa do ar em %</small>				
+				<div class="ow-settings">
+					<a href="#"><i class="fa fa-gears"></i></a>
+				</div>
+				<div class="row ow-server-bottom">
+					<div class="col-sm-4">
+						<div class="knob-slider">
+							<input id="knob-srv-1" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">Crítica
+						</div>
+					</div>
+					<div class="col-sm-8">
+						<div class="row"><i class="fa  fa-clock-o"></i> 15:00</div>																
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
+				<h4 class="page-header text-right"><i class="fa  fa-sort-amount-desc"></i>#PRESSÃO hPa</h4>
+				<small>Pressão atmosférica medida em hPa</small>
+				<div class="ow-settings">
+					<a href="#"><i class="fa fa-gears"></i></a>
+				</div>
+				<div class="row ow-server-bottom">
+					<div class="col-sm-4">
+						<div class="knob-slider">
+							<input id="knob-srv-2" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">
+						</div>
+					</div>
+					<div class="col-sm-8">
+						<div class="row"><i class="fa  fa-clock-o"></i> 15:00</div>	
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
+				<h4 class="page-header text-right"><i class="fa fa-asterisk"></i>#TEMPERATURA °C</h4>
+				<small>Temperatura em °C</small>
+				<div class="ow-settings">
+					<a href="#"><i class="fa fa-clock-o"></i></a>
+				</div>
+				<div class="row ow-server-bottom">
+					<div class="col-sm-4">
+						<div class="knob-slider">
+							<input id="knob-srv-3" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">CPU Load
+						</div>
+					</div>
+					<div class="col-sm-8">
+						<div class="row"><i class="fa  fa-clock-o"></i> 15:00</div>							
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
+				<h4 class="page-header text-right"><i class="fa fa-linux"></i>#WWW-SRV</h4>
+				<small>Web-server</small>
+				<div class="ow-settings">
+					<a href="#"><i class="fa fa-gears"></i></a>
+				</div>
+				<div class="row ow-server-bottom">
+					<div class="col-sm-4">
+						<div class="knob-slider">
+							<input id="knob-srv-4" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">CPU Load
+						</div>
+					</div>
+					<div class="col-sm-8">
+						<div class="row"><i class="fa fa-linux"></i> Centos 6.5</div>
+						<div class="row"><i class="fa fa-user"></i> Active users - 1989</div>
+						<div class="row"><i class="fa fa-bolt"></i> Uptime - 2 years 3 month</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
+				<h4 class="page-header text-right"><i class="fa fa-linux"></i>#PHONE-OFFICE</h4>
+				<small>Asterisk</small>
+				<div class="ow-settings">
+					<a href="#"><i class="fa fa-gears"></i></a>
+				</div>
+				<div class="row ow-server-bottom">
+					<div class="col-sm-4">
+						<div class="knob-slider">
+							<input id="knob-srv-5" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">CPU Load
+						</div>
+					</div>
+					<div class="col-sm-8">
+						<div class="row"><i class="fa fa-linux"></i> Debian 6.4</div>
+						<div class="row"><i class="fa fa-phone"></i> Active calls - 86</div>
+						<div class="row"><i class="fa fa-bolt"></i> Uptime - 3 month 19 day</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
+				<h4 class="page-header text-right"><i class="fa fa-linux"></i>#DEVEL</h4>
+				<small>DEV server</small>
+				<div class="ow-settings">
+					<a href="#"><i class="fa fa-gears"></i></a>
+				</div>
+				<div class="row ow-server-bottom">
+					<div class="col-sm-4">
+						<div class="knob-slider">
+							<input id="knob-srv-6" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">CPU Load
+						</div>
+					</div>
+					<div class="col-sm-8">
+						<div class="row"><i class="fa fa-linux"></i> CentOS 6.5</div>
+						<div class="row"><i class="fa fa-archive"></i> Repositories - 17</div>
+						<div class="row"><i class="fa fa-bolt"></i> Uptime - 4 month 21 day</div>
+					</div>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<div id="ow-server-footer">
+				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-sun-o"></i> <b>287</b> <span>Hosts</span></a>
+				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-envelope-o"></i> <b>56</b> <span>Messages</span></a>
+				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-desktop"></i> <b>85</b> <span>Stations</span></a>
+				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-info-circle"></i> <b>33</b> <span>Errors</span></a>
+				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-comments-o"></i> <b>1386</b> <span>Comments</span></a>
+				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-user"></i> <b>19985</b> <span>Clients</span></a>
+			</div>
+		</div>
+		<!--End Dashboard Tab 4-->
+		<!--Start Dashboard Tab 5-->
+		<div id="dashboard-planning" class="row" style="visibility: hidden; position: absolute;">
+				<div class="col-xs-12 col-sm-6">
+					<h4 class="page-header">Planned projects</h4>
+					<a href="#">Expense items</a><a href="#" class="pull-right">Project members</a>
+					<table class="table m-table table-bordered table-hover table-heading">
+						<thead>
+							<tr>
+								<th>Projects</th>
+								<th>Ending date</th>
+								<th>Cost</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="m-ticker"><b>Network upgrade</b><span>Change Dlink devices to Cisco</span></td>
+								<td class="m-price">Aug</td>
+								<td class="m-change">179459</td>
+							</tr>
+							<tr>
+								<td class="m-ticker"><b>Improved power equipment</b><span>Nevada datacenter</span></td>
+								<td class="m-price">Nov</td>
+								<td class="m-change">59411</td>
+							</tr>
+							<tr>
+								<td class="m-ticker"><b>New ticket system</b><span>developed from scratch</span></td>
+								<td class="m-price">Jul</td>
+								<td class="m-change">14906</td>
+							</tr>
+							<tr>
+								<td class="m-ticker"><b>Storage Area Network</b><span>project</span></td>
+								<td class="m-price">Nov</td>
+								<td class="m-change">250000</td>
+							</tr>
+							<tr>
+								<td class="m-ticker"><b>New optical channels</b><span>6 links</span></td>
+								<td class="m-price">Nov</td>
+								<td class="m-change">22359</td>
+							</tr>
+							<tr>
+								<td class="m-ticker"><b>Load-balance system</b><span>based on Linux</span></td>
+								<td class="m-price">Dec</td>
+								<td class="m-change">33950</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="col-xs-12 col-sm-6" id="planning-chart-1" style="height:250px;"><a href="#">Reports</a></div>
+				<div class="col-xs-12 col-sm-8" id="planning-chart-2" style="height: 250px;"></div>
+				<div class="col-xs-12 col-sm-4" id="planning-chart-3" style="height: 250px;"></div>
+				<div class="col-xs-8">
+					<h4 class="page-header">Quarterly forecast</h4>
+					<div class="row">
+						<div class="col-xs-3"><span>Q1</span>123,34234</div>
+						<div class="col-xs-3"><span>Q2</span>123,34234</div>
+						<div class="col-xs-3"><span>Q3</span>123,34234</div>
+						<div class="col-xs-3"><span>Q4</span>123,34234</div>
+					</div>
+				</div>
+				<div class="col-xs-4">
+					<h4 class="page-header">Total forecast</h4>
+					<div class="row">
+						<div class="col-xs-12"><span>QE</span>732423234.34</div>
+					</div>
+				</div>
+		</div>
+		<!--End Dashboard Tab 5-->
+		<!--Start Dashboard Tab 6-->
+		<div id="dashboard-netmap" class="row" style="visibility: hidden; position: absolute;">
+			<div class="col-xs-12">
+				<h4 class="page-header">Network map(mesh topology)</h4>
+				<canvas id="springy-demo" width="900" height="480" />
+			</div>
+		</div>
+		<!--End Dashboard Tab 6-->
+		<!--Start Dashboard Tab 7-->
+		<div id="dashboard-stock" class="row" style="visibility: hidden; position: absolute;">
+			<div class="col-xs-12">
+				<h4 class="page-header">Stocks from Yahoo Finance</h4>
+				<div id="inputSymbol">
+					<p>Enter Stock</p>
+					<input id="txtSymbol" class="required" Placeholder="Symbol" />
+					<input id="startDate" class="datePick required" type="text"  Placeholder="From" />
+					<input id="endDate" class="datePick" type="text" Placeholder="To"  />
+					<button id="submit">Submit</button>
+				</div>
+				<div class="realtime" style="margin-top:40px;">
+					<div class="col-xs-6"><p>Name</p><span id="symbol"></span></div>
+					<div class="col-xs-6"><p>RealtimeBid</p><span id="bidRealtime"></span></div>
+				</div>
+				<div class="historical">
+					<div class="col-xs-6"><p>Date</p><div id="date"></div></div>
+					<div class="col-xs-6"><p>Price</p><div id="closeValue"></div></div>
+				</div>
+			</div>
+		</div>
+		<!--End Dashboard Tab 7-->
+	</div>
+	<div class="clearfix"></div>
+</div>
+<!--End Dashboard 2 -->
+<div style="height: 40px;"></div>
+
+{% endblock %}
+
+{% block scriptsJava %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+	// Load Google Chart API and callback to draw test graphs
+	// This need for correct resize charts, when box open or drag
+	
+    DashboardTabChecker();
+    $("#tabs").tabs();
+    
+    var graphxChartsResize;
+	$(".box").resize(function(event){
+		event.preventDefault();
+		clearTimeout(graphxChartsResize);
+		graphxChartsResize = setTimeout(DrawAllCharts, 500);
+	});
+	// Add Drag-n-Drop action for .box
+	WinMove();
+
+    plot = [];
+    {% for item in result.graphFMA.plotBands %}
+
+        var it = {{item | safe }};
+
+        plot.push( {    from  :  it[0], 
+                        to    :  it[1], 
+                        color :  it[2], 
+                        label : { text : it[3]   } 
+                    } );
+    {% endfor %}
+
+
+    series = []
+    {% for item in result.graphFMA.series %}
+        var it = {{item | safe }};
+        series.push( { name : it[0], data : it[1] });
+    {% endfor %}
+
+
+
+
+    $('#container').highcharts({
+        chart: {
+            type: 'spline'
+        },
+        title: {
+            text: '{{ result.graphFMA.titulo }}' 
+        },
+        subtitle: {
+            text: '{{ result.projeto }} -  {{ result.graphFMA.subtitulo }}'
+        },
+        xAxis: {
+            type: 'datetime',
+            labels: {
+                overflow: 'justify'
+            }
+        },
+        yAxis: {
+            title: {
+                text: '{{ result.graphFMA.unidade }}'
+            },
+            minorGridLineWidth: 0,
+            gridLineWidth: 0,
+            alternateGridColor: null,
+            plotBands: plot    },
+        tooltip: {
+            valueSuffix: ' {{ result.graphFMA.unidade }} '
+        },
+        plotOptions: {
+            spline: {
+                lineWidth: 4,
+                states: {
+                    hover: {
+                        lineWidth: 5
+                    }
+                },
+                marker: {
+                    enabled: false
+                },
+                pointInterval: 24 *  3600000, // one hour
+                pointStart: Date.UTC({{ result.graphFMA.data.ano }}, {{ result.graphFMA.data.mes}}, {{ result.graphFMA.data.dia }}, 0, 0, 0)
+            }
+        },
+        series: series,
+        navigation: {
+            menuItemStyle: {
+                fontSize: '10px'
+            }
+        }
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+});
+</script>
+
+{% endblock %}
