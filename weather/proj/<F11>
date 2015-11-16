@@ -98,39 +98,7 @@
     }
 
 
-    var camada = function (lyrName, display, lyr,colColors,cpoLegenda, cpoPopUp, lyrGroup){
-
-        var getJson = function (data) {
-                lyrName  = new L.geoJson(data, {
-                    // apply a stylep
-                    style: function( feature){
-                       key = feature.properties[cpoLegenda];
-                       cor = colColors[key];
-                       return style(cor);
-                    },
-                    onEachFeature: function(feature, layer){
-                        layer.bindPopup(feature.properties[cpoPopUp]);
-                        }
-                                    }, { id : display } );
-                lyrGroup.addLayer(lyrName);
-
-
-       }
-
-       var getJson = function   (data) {
-                lyrName  = new L.geoJson(data, {
-                    // apply a stylep
-                    style: function( feature){
-                       key = feature.properties[cpoLegenda];
-                       cor = colColors[key];
-                       return style(cor);
-                    },
-                    onEachFeature: function(feature, layer){
-                        layer.bindPopup(feature.properties[cpoPopUp]);
-                        }
-                                    }, { id : display } );
-                lyrGroup.addLayer(lyrName);
-            }
+    function camada(lyrName, display, lyr,colColors,cpoLegenda, cpoPopUp, lyrGroup){
 
         var owsrootUrl = 'http://geonode.terravisiongeo.com.br/geoserver/ows';
 
@@ -151,23 +119,32 @@
         var URL = owsrootUrl + L.Util.getParamString(parameters);
                                                     
         //ajax to get map features
-        new $.ajax({
+        $.ajax({
             type: "POST",
             url: URL,
             dataType: 'jsonp',
             jsonpCallback : 'getJson',
+            async : false,
             //upon success extraction of data
+            success: function (data) {
+                //create a new geojson layer
+                lyrName  = new L.geoJson(data, {
+                    // apply a stylep
+                    style: function( feature){
+                       key = feature.properties[cpoLegenda];
+                       cor = colColors[key];
+                       return style(cor);
+                    },
+                    onEachFeature: function(feature, layer){
+                        layer.bindPopup(feature.properties[cpoPopUp]);
+                        }
+                                    }, { id : display } );
+                lyrGroup.addLayer(lyrName);
+            }
         });
-
-
-
 
     }
 
-
-//    function getJson(data){
-//        console.log(data);
-//    }
 
     var urlWMS = "http://geonode.terravisiongeo.com.br/geoserver/geonode/wms?";
 
@@ -206,16 +183,16 @@
 
 
     var vegetacaoLayer = new L.GeoJSON();
-    var solarLayer     = new L.GeoJSON();
-    var zonLayer       = new L.GeoJSON();
-    var torresLayer    = new L.GeoJSON();
-    var glebasLayer    = new L.GeoJSON();
+    var solarLayer = new L.GeoJSON();
+    var zonLayer = new L.GeoJSON();
+    var torresLayer = new L.GeoJSON();
+    var glebasLayer = new L.GeoJSON();
 
 
-    var lyrVegetacao  = new L.layerGroup();
-    var lyrZoneamento = new L.layerGroup();
-    var lyrSolar      = new L.layerGroup();
-    var lyrGlebas     = new L.layerGroup();
+    var lyrVegetacao   = L.layerGroup();
+    var lyrZoneamento = L.layerGroup();
+    var lyrSolar   = L.layerGroup();
+    var lyrGlebas   = L.layerGroup();
 
     var colVegetacao = { 'am-14' : '#800026' ,
                          'am-13' : '#BD0026' ,
@@ -252,10 +229,10 @@
 
 
 
-    var a = new  camada(vegetacaoLayer, 'Vegetacao',       'geonode:_2ferr004_ger_pl_vegetacao',         colVegetacao,  'CODIGO',    'NOME',        lyrVegetacao);
-    var b = new camada(glebasLayer,    'Glebas',          'geonode:_2ferr004_ger_pl_perimetro_glebas',  colGlebas,     'Glebas',    'Glebas',      lyrGlebas);
-    var c = new camada(zonLayer,       'Zoneamento',      'geonode:_2ferr004_ger_pl_zoneamento',        colZoneamento, 'CODIGO',    'NOME',        lyrZoneamento);
-    var d = new camada(solarLayer,     'Solar Barreiro',  'geonode:_2ferr004_ger_pl_solar_barreiro',    colSolar,      'Categoria', 'Categoria',   lyrSolar);
+    camada(vegetacaoLayer, 'Vegetacao',       'geonode:_2ferr004_ger_pl_vegetacao',         colVegetacao,  'CODIGO',    'NOME',        lyrVegetacao);
+    camada(glebasLayer,    'Glebas',          'geonode:_2ferr004_ger_pl_perimetro_glebas',  colGlebas,     'Glebas',    'Glebas',      lyrGlebas);
+    camada(zonLayer,       'Zoneamento',      'geonode:_2ferr004_ger_pl_zoneamento',        colZoneamento, 'CODIGO',    'NOME',        lyrZoneamento);
+    camada(solarLayer,     'Solar Barreiro',  'geonode:_2ferr004_ger_pl_solar_barreiro',    colSolar,      'Categoria', 'Categoria',   lyrSolar);
     
     var OverLays = { 'Vegetacao'    : lyrVegetacao , 
                      'Zoneamento'   : lyrZoneamento, 

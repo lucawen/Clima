@@ -63,7 +63,7 @@ class WFABBA:
         f = self.FireFtp()
         f.processa()
 
-        url = 'http://geonode.brandt.local/geoserver/geonode/ows?service=WFS&version=1.0.0\
+        url = 'http://geonode.terravisiongeo.com.br/geoserver/geonode/ows?service=WFS&version=1.0.0\
 &request=GetFeature&typeName=geonode:brasil&CQL_FILTER=UF%20=%20%27MG%27&\
 outputFormat=application/json'
         ds = DataSource(url)

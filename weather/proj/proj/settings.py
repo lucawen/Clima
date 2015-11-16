@@ -57,7 +57,7 @@ INSTALLED_APPS = (
 
 MEDIA_ROOT = BASE_DIR + '/static/midia/'
 MEDIA_URL = '/static/midia/'
-
+STATIC_ROOT = BASE_DIR + '/static'
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -140,6 +140,7 @@ STATICFILES_DIRS = (
     BASE_DIR+ "/static/plugins/tinymce/",
     BASE_DIR+ "/static/plugins/xcharts/",
     BASE_DIR+ "/static/js/highcharts/js/",
+    BASE_DIR+ "/static/js/Leaflet-WFST-master/dist/",
 )
 
 
