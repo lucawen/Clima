@@ -86,7 +86,6 @@ class ImportaDadosEstacao:
     def __Scrap1(self, codEstacao, sessao):
                       
         URL = 'http://www.inmet.gov.br/sonabra/pg_dspDadosCodigo_sim.php?{0}=='
-                        
         resposta = ''
         try:
             url = URL.format(codEstacao)
@@ -111,6 +110,16 @@ class ImportaDadosEstacao:
             req = Request('POST', urlpost, data=param, headers=sessao.headers)
             entrada = sessao.prepare_request(req)
             resp = sessao.send(entrada)            
+
+            URL = 'http://www.inmet.gov.br/sonabra/pg_downDadosCodigo_sim.php'
+            urlpost = URL
+            req = Request('GET', urlpost, headers=sessao.headers)
+            entrada = sessao.prepare_request(req)
+            resp = sessao.send(entrada)            
+
+            print resp.text
+
+
             saida = lxml.html.fromstring(resp.text)
         except:
             self.logging.error('Falhou pesquisa DOIS ItemEstacao:{0} Parametro:{1}'.format(codEstacao, param))            
@@ -234,7 +243,7 @@ if __name__ == "__main__":
     path='bases/'    
 
     dfim = datetime.today()
-    dinicio = dfim + timedelta(days=-2)
+    dinicio = dfim + timedelta(days=-10)
 
     inicio = dinicio.strftime("%d/%m/%y")
     fim = dfim.strftime("%d/%m/%y")

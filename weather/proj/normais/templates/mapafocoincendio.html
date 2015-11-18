@@ -16,7 +16,6 @@
             width: 100%;
             z-index: 1;
         }
-
         .leaflet-popup-content {
             width:auto !important;
         }
@@ -47,236 +46,96 @@
 
 {% block scriptsJava %}   
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+<script src="//cdn.jsdelivr.net/leaflet.esri/1.0.0/esri-leaflet.js"></script>a
+
 <script src="/static/plugins/leaflet/leaflet.markercluster.js"></script>
-<script src="/static/js/Leaflet-WFST/dist/Leaflet-WFST.src.js"></script>
-<script src="/static/js/leaflet-ajax/leaflet.ajax.js"></script>
-
-
-
-
-
-<script type="text/javascript">
-// add an OpenStreetMap tile layer
-    
-  // create the map, assign to the mao div, and set it's lat, long, and zoom level (12)
-  //NYC
-   // big thanks to
-   // http://gis.stackexchange.com/questions/64406/getting-wfs-data-from-geoserver-into-leaflet
-   // for making this script a lot better
-    
-    // Add MapBox Tiles
-   
-
-    var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+   <script type="text/javascript">
+function urlencode(str) {
+  //       discuss at: http://phpjs.org/functions/urlencode/
+  //      original by: Philip Peterson
+  //      improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  //      improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  //      improved by: Brett Zamir (http://brett-zamir.me)
+  //      improved by: Lars Fischer
+  //         input by: AJ
+  //         input by: travc
+  //         input by: Brett Zamir (http://brett-zamir.me)
+  //         input by: Ratheous
+  //      bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  //      bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  //      bugfixed by: Joris
+  // reimplemented by: Brett Zamir (http://brett-zamir.me)
+  // reimplemented by: Brett Zamir (http://brett-zamir.me)
+  //             note: This reflects PHP 5.3/6.0+ behavior
+  //             note: Please be aware that this function expects to encode into UTF-8 encoded strings, as found on
+  //             note: pages served as UTF-8
+  //        example 1: urlencode('Kevin van Zonneveld!');
+  //        returns 1: 'Kevin+van+Zonneveld%21'
+  //        example 2: urlencode('http://kevin.vanzonneveld.net/');
+  //        returns 2: 'http%3A%2F%2Fkevin.vanzonneveld.net%2F'
+  //        example 3: urlencode('http://www.google.nl/search?q=php.js&ie=utf-8&oe=utf-8&aq=t&rls=com.ubuntu:en-US:unofficial&client=firefox-a');
+  //        returns 3: 'http%3A%2F%2Fwww.google.nl%2Fsearch%3Fq%3Dphp.js%26ie%3Dutf-8%26oe%3Dutf-8%26aq%3Dt%26rls%3Dcom.ubuntu%3Aen-US%3Aunofficial%26client%3Dfirefox-a'
+  str = (str + '')
+    .toString();
+  // Tilde should be allowed unescaped in future versions of PHP (as reflected below), but if you want to reflect current
+  // PHP behavior, you would need to add ".replace(/~/g, '%7E');" to the following.
+  return encodeURIComponent(str)
+ .replace(/!/g, '%21')
+    .replace(/'/g, '%27')
+    .replace(/\(/g, '%20')
+    .replace(/\-/g, '%20')
+    .replace(/\./g, '%20')
+    .replace(/\)/g, '%20')
+    .replace(/\*/g, '%32');
+}
+        var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
                         '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
                         'Imagery © <a href="http://mapbox.com">Mapbox</a>',
             mbUrl ='https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ';
-
-    var grayscale   = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr}),
+        var grayscale   = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr}),
             streets  = L.tileLayer(mbUrl, {id: 'mapbox.streets',   attribution: mbAttr});
-
-    var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { 
+        var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { 
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
-
-    var baseLayers = {
+        var baseLayers = {
             "Grayscale": grayscale,
             "Streets": streets,
             "ESRI" : Esri_WorldImagery,
-    };
-
-    function style(color) {
-        return {
-            fillColor: color, 
-            weight: 2,
-            opacity: 1,
-            color: 'white',
-            dashArray: '3',
-            fillOpacity: 0.7
-         };
-    }
-
-
-    var camada = function (lyrName, display, lyr,colColors,cpoLegenda, cpoPopUp, lyrGroup){
-
-        var getJson = function (data) {
-                lyrName  = new L.geoJson(data, {
-                    // apply a stylep
-                    style: function( feature){
-                       key = feature.properties[cpoLegenda];
-                       cor = colColors[key];
-                       return style(cor);
-                    },
-                    onEachFeature: function(feature, layer){
-                        layer.bindPopup(feature.properties[cpoPopUp]);
-                        }
-                                    }, { id : display } );
-                lyrGroup.addLayer(lyrName);
-
-
-       }
-
-       var getJson = function   (data) {
-                lyrName  = new L.geoJson(data, {
-                    // apply a stylep
-                    style: function( feature){
-                       key = feature.properties[cpoLegenda];
-                       cor = colColors[key];
-                       return style(cor);
-                    },
-                    onEachFeature: function(feature, layer){
-                        layer.bindPopup(feature.properties[cpoPopUp]);
-                        }
-                                    }, { id : display } );
-                lyrGroup.addLayer(lyrName);
-            }
-
-        var owsrootUrl = 'http://geonode.terravisiongeo.com.br/geoserver/ows';
-
-        var defaultParameters = {
-            service : 'WFS',
-            version : '1.0',
-            request : 'GetFeature',
-            maxfeatures : 100000, 
-            typeName : lyr,
-            outputFormat : 'text/javascript',
-            format_options : 'callback:getJson',
-            SrsName : 'EPSG:4326'
         };
-        // get the srs name from Geoserver --> Layers
-        // that piece of information is critical to getting this working
-                                                
-        var parameters = L.Util.extend(defaultParameters);
-        var URL = owsrootUrl + L.Util.getParamString(parameters);
-                                                    
-        //ajax to get map features
-        new $.ajax({
-            type: "POST",
-            url: URL,
-            dataType: 'jsonp',
-            jsonpCallback : 'getJson',
-            //upon success extraction of data
+        var myIcon = L.icon({
+            iconUrl: 'https://www.openstreetmap.org/assets/marker-green-c37a767792941fc078f363f51dc9c035.png',
+            iconSize: [25, 41],
+            iconAnchor: [22, 94],
+            popupAnchor: [-3, -76],
         });
-
-
-
-
-    }
-
-
-//    function getJson(data){
-//        console.log(data);
-//    }
-
-    var urlWMS = "http://geonode.terravisiongeo.com.br/geoserver/geonode/wms?";
-
-    var trilhaLayer = L.tileLayer.wms(urlWMS, {
-                layers: 'geonode:_2ferr004_ger_ln_drenagem',
-                format: 'image/png',
-                transparent: true,
-                version: '1.1.0',
-                attribution: "Terravision"
+        //var dataurl = '{% url "data" %}';
+        var dataurl = '/fire.geojson';
+        // Download GeoJSON via Ajax
+        $.getJSON(dataurl, function (data) {
+            var focos = L.geoJson(data, {
+                onEachFeature: function (feature, layer) //functionality on click on feature
+                {
+                    layer.options.icon = myIcon;
+                    layer.bindPopup("<div id=" + feature.id + " style='width:260px' ></div>");
+                },
             });
-
-    var sedeLayer = L.tileLayer.wms(urlWMS, {
-                layers: 'geonode:_2ferr004_ger_pontos_sede',
-                format: 'image/png',
-                transparent: true,
-                version: '1.1.0',
-                attribution: "Terravision"
-            });
-
-    var torresLayer = L.tileLayer.wms(urlWMS, {
-                layers: 'geonode:_2ferr004_ger_pt_torres',
-                format: 'image/png',
-                transparent: true,
-                version: '1.1.0',
-                attribution: "Terravision"
-            });
-
-    var perimetroLayer = L.tileLayer.wms(urlWMS, {
-                layers: 'geonode:_2ferr004_ger_ln_perimetro_linha',
-                format: 'image/png',
-                transparent: true,
-                version: '1.1.0',
-                attribution: "Terravision"
-            });
-
-
-
-    var vegetacaoLayer = new L.GeoJSON();
-    var solarLayer     = new L.GeoJSON();
-    var zonLayer       = new L.GeoJSON();
-    var torresLayer    = new L.GeoJSON();
-    var glebasLayer    = new L.GeoJSON();
-
-
-    var lyrVegetacao  = new L.layerGroup();
-    var lyrZoneamento = new L.layerGroup();
-    var lyrSolar      = new L.layerGroup();
-    var lyrGlebas     = new L.layerGroup();
-
-    var colVegetacao = { 'am-14' : '#800026' ,
-                         'am-13' : '#BD0026' ,
-                         'am-15' : '#E31A1C' ,
-                         'am-18' : '#FC4E2A' ,
-                         'am-17' : '#FD8D3C' };
+            var markers = L.markerClusterGroup();
+            markers.addLayer(focos); // add it to the cluster group
+            var gfocos = new L.LayerGroup();
+            gfocos.addLayer(markers);
+            var map = L.map('map', {  center :[-15.39, -61.15], zoom: 5, maxZoom :15,  layers : [Esri_WorldImagery, gfocos]} );
+            var overlays = { 'Focos' : gfocos };
  
-    var colZoneamento = { 'am-2' : '#edf8fb' ,
-                         'am-5' : '#ccece6' ,
-                         'am-5' : '#525252' ,
-                         'am-8' : '#99d8c9' ,
-                         'am-6' : '#66c2a4' ,
-                         'am-1' : '#2ca25f' ,
-                         'am-3' : '#006d2c' };
-
-    var colSolar = { 'Edificada' : '#fdc086', 'Loteamento' : '#beaed4' };
-
-
-    var colGlebas = {   'Gleba 5'            : '#b2df8a',
-                        'Gleba 2'            : '#b2df8a',
-                        'Gleba 4'            : '#b2df8a',
-                        'Gleba 3'            : '#b2df8a',
-                        'Faixa de Servidão 1': '#a6cee3',
-                        'Gleba 6'            : '#b2df8a',
-                        'Faixa de Servidão 2': '#a6cee3',
-                        'Faixa de Servidão 3': '#a6cee3',
-                        'Faixa de Servidão 4': '#a6cee3',
-                        'Faixa de Servidão 5': '#a6cee3',
-                        'Faixa de Servidão 6': '#a6cee3',
-                        'Faixa de Servidão 7': '#a6cee3',
-                        'Faixa de Servidão 8': '#a6cee3',
-                        'Faixa de Servidão 9': '#a6cee3',
-                        'Gleba 1'            : '#b2df8a'};
-
-
-
-    var a = new  camada(vegetacaoLayer, 'Vegetacao',       'geonode:_2ferr004_ger_pl_vegetacao',         colVegetacao,  'CODIGO',    'NOME',        lyrVegetacao);
-    var b = new camada(glebasLayer,    'Glebas',          'geonode:_2ferr004_ger_pl_perimetro_glebas',  colGlebas,     'Glebas',    'Glebas',      lyrGlebas);
-    var c = new camada(zonLayer,       'Zoneamento',      'geonode:_2ferr004_ger_pl_zoneamento',        colZoneamento, 'CODIGO',    'NOME',        lyrZoneamento);
-    var d = new camada(solarLayer,     'Solar Barreiro',  'geonode:_2ferr004_ger_pl_solar_barreiro',    colSolar,      'Categoria', 'Categoria',   lyrSolar);
-    
-    var OverLays = { 'Vegetacao'    : lyrVegetacao , 
-                     'Zoneamento'   : lyrZoneamento, 
-                     'Solar'        : lyrSolar, 
-                     'Trilha'       : trilhaLayer, 
-                     "Sede"         : sedeLayer, 
-                     'Torres'       : torresLayer,
-                     'Glebas'       : lyrGlebas,
-                     'Perimetro'    : perimetroLayer};
-
-    var map = L.map('map', {  center: [-20.0511, -44.0155 ], zoom: 12,  layers : [Esri_WorldImagery, lyrVegetacao, lyrGlebas ]} );
-    
-
-    L.control.layers(baseLayers, OverLays).addTo(map);
-
-
-
-</script>
+            L.control.layers(baseLayers, overlays).addTo(map);
+            
+            map.on('popupopen', function(e) {
+                var id = e.popup._contentNode.lastElementChild.id;
+                $.get( "http://10.3.0.29:8080/focoCalor/" + id + "/", function( data ) { 
+                        e.popup._contentNode.lastElementChild.innerHTML = data; 
+                });
+            });
+        });
+   </script>
 
 
 {% endblock %}
-
-
-

@@ -1,6 +1,12 @@
 {% extends 'base.html' %} {% load staticfiles %} 
 
 {% block cssformat %}
+
+
+    <link rel="stylesheet" href="/static/js/leaflet.timedimension.control.css" />
+    <link rel="stylesheet" href="/static/js/Leaflet.Coordinates-0.1.3.css" />
+
+
      <style>
         .bloco
         {
@@ -9,8 +15,25 @@
         border: 1px solid black; /*Add 1px solid border, use any color you want*/
         text-align:center; /*Align the text to the center*/
         }
+       .leaflet-popup-content {
+            width:auto !important;
+        }
+        #map {
+            position: absolute;
+            float: left;
+            top: 1%;
+            height: 600px;
+            width: 100%;
+            z-index: 1;
+        }
+        .leaflet-popup-content {
+            width:auto !important;
+        }
+
     </style>
+
 {% endblock %}
+
 
 
 {% block content %}
@@ -312,128 +335,12 @@
 		<!--End Dashboard Tab 3-->
 		<!--Start Dashboard Tab 4-->
 		<div id="dashboard-servers" class="row" style="visibility: hidden; position: absolute;">
-			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
-				<h4 class="page-header text-right"><i class="fa  fa-cloud-upload"></i>#UMIDADE %</h4>
-				<small>Umidade relativa do ar em %</small>				
-				<div class="ow-settings">
-					<a href="#"><i class="fa fa-gears"></i></a>
-				</div>
-				<div class="row ow-server-bottom">
-					<div class="col-sm-4">
-						<div class="knob-slider">
-							<input id="knob-srv-1" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">Crítica
-						</div>
-					</div>
-					<div class="col-sm-8">
-						<div class="row"><i class="fa  fa-clock-o"></i> 15:00</div>																
-					</div>
-				</div>
-			</div>
-			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
-				<h4 class="page-header text-right"><i class="fa  fa-sort-amount-desc"></i>#PRESSÃO hPa</h4>
-				<small>Pressão atmosférica medida em hPa</small>
-				<div class="ow-settings">
-					<a href="#"><i class="fa fa-gears"></i></a>
-				</div>
-				<div class="row ow-server-bottom">
-					<div class="col-sm-4">
-						<div class="knob-slider">
-							<input id="knob-srv-2" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">
-						</div>
-					</div>
-					<div class="col-sm-8">
-						<div class="row"><i class="fa  fa-clock-o"></i> 15:00</div>	
-					</div>
-				</div>
-			</div>
-			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
-				<h4 class="page-header text-right"><i class="fa fa-asterisk"></i>#TEMPERATURA °C</h4>
-				<small>Temperatura em °C</small>
-				<div class="ow-settings">
-					<a href="#"><i class="fa fa-clock-o"></i></a>
-				</div>
-				<div class="row ow-server-bottom">
-					<div class="col-sm-4">
-						<div class="knob-slider">
-							<input id="knob-srv-3" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">CPU Load
-						</div>
-					</div>
-					<div class="col-sm-8">
-						<div class="row"><i class="fa  fa-clock-o"></i> 15:00</div>							
-					</div>
-				</div>
-			</div>
-			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
-				<h4 class="page-header text-right"><i class="fa fa-linux"></i>#WWW-SRV</h4>
-				<small>Web-server</small>
-				<div class="ow-settings">
-					<a href="#"><i class="fa fa-gears"></i></a>
-				</div>
-				<div class="row ow-server-bottom">
-					<div class="col-sm-4">
-						<div class="knob-slider">
-							<input id="knob-srv-4" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">CPU Load
-						</div>
-					</div>
-					<div class="col-sm-8">
-						<div class="row"><i class="fa fa-linux"></i> Centos 6.5</div>
-						<div class="row"><i class="fa fa-user"></i> Active users - 1989</div>
-						<div class="row"><i class="fa fa-bolt"></i> Uptime - 2 years 3 month</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
-				<h4 class="page-header text-right"><i class="fa fa-linux"></i>#PHONE-OFFICE</h4>
-				<small>Asterisk</small>
-				<div class="ow-settings">
-					<a href="#"><i class="fa fa-gears"></i></a>
-				</div>
-				<div class="row ow-server-bottom">
-					<div class="col-sm-4">
-						<div class="knob-slider">
-							<input id="knob-srv-5" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">CPU Load
-						</div>
-					</div>
-					<div class="col-sm-8">
-						<div class="row"><i class="fa fa-linux"></i> Debian 6.4</div>
-						<div class="row"><i class="fa fa-phone"></i> Active calls - 86</div>
-						<div class="row"><i class="fa fa-bolt"></i> Uptime - 3 month 19 day</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-xs-12 col-sm-6 col-md-4 ow-server">
-				<h4 class="page-header text-right"><i class="fa fa-linux"></i>#DEVEL</h4>
-				<small>DEV server</small>
-				<div class="ow-settings">
-					<a href="#"><i class="fa fa-gears"></i></a>
-				</div>
-				<div class="row ow-server-bottom">
-					<div class="col-sm-4">
-						<div class="knob-slider">
-							<input id="knob-srv-6" class="knob" data-width="60"  data-height="60" data-angleOffset="180" data-fgColor="#6AA6D6" data-skin="tron" data-thickness=".2" value="">CPU Load
-						</div>
-					</div>
-					<div class="col-sm-8">
-						<div class="row"><i class="fa fa-linux"></i> CentOS 6.5</div>
-						<div class="row"><i class="fa fa-archive"></i> Repositories - 17</div>
-						<div class="row"><i class="fa fa-bolt"></i> Uptime - 4 month 21 day</div>
-					</div>
-				</div>
-			</div>
-			<div class="clearfix"></div>
-			<div id="ow-server-footer">
-				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-sun-o"></i> <b>287</b> <span>Hosts</span></a>
-				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-envelope-o"></i> <b>56</b> <span>Messages</span></a>
-				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-desktop"></i> <b>85</b> <span>Stations</span></a>
-				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-info-circle"></i> <b>33</b> <span>Errors</span></a>
-				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-comments-o"></i> <b>1386</b> <span>Comments</span></a>
-				<a href="#" class="col-xs-4 col-sm-2 btn-default text-center"><i class="fa fa-user"></i> <b>19985</b> <span>Clients</span></a>
-			</div>
-		</div>
+                    <div id='map'></div>a
+        </div>
 		<!--End Dashboard Tab 4-->
 		<!--Start Dashboard Tab 5-->
 		<div id="dashboard-planning" class="row" style="visibility: hidden; position: absolute;">
-				<div class="col-xs-12 col-sm-6">
+				<div class="col-xs-10 col-sm-10">
 					<h4 class="page-header">Planned projects</h4>
 					<a href="#">Expense items</a><a href="#" class="pull-right">Project members</a>
 					<table class="table m-table table-bordered table-hover table-heading">
@@ -537,6 +444,16 @@
 {% endblock %}
 
 {% block scriptsJava %}
+    <script type="text/javascript" src="/static/js/Leaflet.Coordinates-0.1.5.min.js"></script>
+    <script type="text/javascript" src="/static/js/iso8601.js"></script>
+
+    <script type="text/javascript" src="/static/js/leaflet.timedimension.js"></script>
+    <script type="text/javascript" src="/static/js/leaflet.timedimension.util.js"></script>
+    <script type="text/javascript" src="/static/js/leaflet.timedimension.layer.js"></script>
+    <script type="text/javascript" src="/static/js/leaflet.timedimension.layer.wms.js"></script>
+    <script type="text/javascript" src="/static/js/leaflet.timedimension.layer.geojson.js"></script>
+    <script type="text/javascript" src="/static/js/leaflet.timedimension.player.js"></script>
+    <script type="text/javascript" src="/static/js/leaflet.timedimension.control.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -549,8 +466,6 @@ $(document).ready(function() {
     var graphxChartsResize;
 	$(".box").resize(function(event){
 		event.preventDefault();
-		clearTimeout(graphxChartsResize);
-		graphxChartsResize = setTimeout(DrawAllCharts, 500);
 	});
 	// Add Drag-n-Drop action for .box
 	WinMove();
@@ -628,39 +543,396 @@ $(document).ready(function() {
     });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 });
+</script>
+<script type="text/javascript">
+// add an OpenStreetMap tile layer
+    
+    var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                        '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                        'Imagery  <a href="http://mapbox.com">Mapbox</a>',
+            mbUrl ='https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ';
+    var grayscale   = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr}),
+            streets  = L.tileLayer(mbUrl, {id: 'mapbox.streets',   attribution: mbAttr});
+    var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { 
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+
+    var urlWMS = "http://geonode.terravisiongeo.com.br/geoserver/geonode/wms?";
+    var worldviewlayer = L.tileLayer.wms(urlWMS, {
+                layers: 'geonode:worldview_jun_10_orto_spts_urb_final',
+                format: 'image/png',
+                transparent: true,
+                version: '1.1.0',
+                attribution: "Terravision"
+            });
+
+
+
+
+
+
+    var baseLayers = {
+            "Grayscale": grayscale,
+            "Streets": streets,
+            "ESRI" : Esri_WorldImagery,
+            "World View" : worldviewlayer
+    };
+
+
+    function style(color) {
+         return {
+                  fillColor: color, 
+                  weight: 2,
+                  opacity: 1,
+                  color: 'white',
+                  dashArray: '3',
+                  fillOpacity: 0.7
+               };
+    }
+
+    var lgrp001  = new L.layerGroup();
+    var lyr001   = new L.geoJson();
+
+    var colVegetacao = { 'am-14' : '#800026' ,
+                         'am-13' : '#BD0026' ,
+                         'am-15' : '#E31A1C' ,
+                         'am-18' : '#FC4E2A' ,
+                         'am-17' : '#FD8D3C' };
+
+   function  getJson001(data) {
+              lyr001  = new L.geoJson(data, {
+                       style: function( feature){
+                                    key = feature.properties['CODIGO'];
+                                    cor = colVegetacao[key];
+                                    return style(cor);
+                               },
+                       onEachFeature: function(feature, layer){
+                            layer.bindPopup(feature.properties['NOME']);
+                  }
+              });
+              lgrp001.addLayer(lyr001);
+   }
+
+   var owsrootUrl = 'http://geonode.terravisiongeo.com.br/geoserver/ows';
+   var defaultParameters = {
+            service : 'WFS',
+            version : '1.0',
+            request : 'GetFeature',
+            maxfeatures : 100000, 
+            typeName : 'geonode:_2ferr004_ger_pl_vegetacao',
+            outputFormat : 'text/javascript',
+            format_options : 'callback:getJson001',
+            SrsName : 'EPSG:4326'
+   };
+   var parameters = L.Util.extend(defaultParameters);
+   var URL001 = owsrootUrl + L.Util.getParamString(parameters);
+                                                    
+   new $.ajax({
+            type: "POST",
+            url: URL001,
+            dataType: 'jsonp',
+            jsonpCallback : 'getJson001',
+            success: getJson001
+   });
+
+
+
+
+    //Zoneamento
+    var lgrp002  = new L.layerGroup();
+    var lyr002   = new L.geoJson();
+
+    var colZoneamento = { 'am-2' : '#edf8fb' ,
+                         'am-5' : '#ccece6' ,
+                         'am-5' : '#525252' ,
+                         'am-8' : '#99d8c9' ,
+                         'am-6' : '#66c2a4' ,
+                         'am-1' : '#2ca25f' ,
+                         'am-3' : '#006d2c' };
+
+    function  getJson002(data) {
+              lyr002  = new L.geoJson(data, {
+                       style: function( feature){
+                                    key = feature.properties['CODIGO'];
+                                    cor = colZoneamento[key];
+                                    return style(cor);
+                               },
+                       onEachFeature: function(feature, layer){
+                            layer.bindPopup(feature.properties['NOME']);
+                  }
+              });
+              lgrp002.addLayer(lyr002);
+   }
+
+   var owsrootUrl = 'http://geonode.terravisiongeo.com.br/geoserver/ows';
+   var defaultParameters = {
+            service : 'WFS',
+            version : '1.0',
+            request : 'GetFeature',
+            maxfeatures : 100000, 
+            typeName : 'geonode:_2ferr004_ger_pl_zoneamento',
+            outputFormat : 'text/javascript',
+            format_options : 'callback:getJson002',
+            SrsName : 'EPSG:4326'
+   };
+   var parameters = L.Util.extend(defaultParameters);
+   var URL002 = owsrootUrl + L.Util.getParamString(parameters);
+                                                    
+   new $.ajax({
+            type: "POST",
+            url: URL002,
+            dataType: 'jsonp',
+            jsonpCallback : 'getJson002',
+            success: getJson002
+   });
+
+
+
+    //Solar
+    var lgrp003  = new L.layerGroup();
+    var lyr003   = new L.geoJson();
+
+    var colSolar = { 'Edificada' : '#fdc086', 'Loteamento' : '#beaed4' };
+    
+    function  getJson003(data) {
+              lyr003  = new L.geoJson(data, {
+                       style: function( feature){
+                                    key = feature.properties['Categoria'];
+                                    cor = colSolar[key];
+                                    return style(cor);
+                               },
+                       onEachFeature: function(feature, layer){
+                            layer.bindPopup(feature.properties['Categoria']);
+                  }
+              });
+              lgrp003.addLayer(lyr003);
+   }
+
+   var owsrootUrl = 'http://geonode.terravisiongeo.com.br/geoserver/ows';
+   var defaultParameters = {
+            service : 'WFS',
+            version : '1.0',
+            request : 'GetFeature',
+            maxfeatures : 100000, 
+            typeName : 'geonode:_2ferr004_ger_pl_solar_barreiro',
+            outputFormat : 'text/javascript',
+            format_options : 'callback:getJson003',
+            SrsName : 'EPSG:4326'
+   };
+   var parameters = L.Util.extend(defaultParameters);
+   var URL003 = owsrootUrl + L.Util.getParamString(parameters);
+                                                    
+   new $.ajax({
+            type: "POST",
+            url: URL003,
+            dataType: 'jsonp',
+            jsonpCallback : 'getJson003',
+            success: getJson003
+   });
+
+
+    //Glebas
+    var lgrp004  = new L.layerGroup();
+    var lyr004   = new L.geoJson();
+
+     var colGlebas = {   'Gleba 5'           :  ' #feebe2',
+                        'Gleba 2'            :  '#fcc5c0',
+                        'Gleba 4'            :  '#fa9fb5',
+                        'Gleba 3'            :  '#f768a1',
+                        'Gleba 6'            :  '#c51b8a',
+                        'Gleba 1'            :  '#7a0177'};
+    
+    function  getJson004(data) {
+              lyr004  = new L.geoJson(data, {
+                       style: function( feature){
+                                    key = feature.properties['Glebas'];
+                                    cor = colGlebas[key];
+                                    return style(cor);
+                               },
+                       onEachFeature: function(feature, layer){
+                            layer.bindPopup(feature.properties['Glebas']);
+                  }
+              });
+              lgrp004.addLayer(lyr004);
+   }
+
+   var owsrootUrl = 'http://geonode.terravisiongeo.com.br/geoserver/ows';
+   var defaultParameters = {
+            service : 'WFS',
+            version : '1.0',
+            request : 'GetFeature',
+            maxfeatures : 100000, 
+            typeName : 'geonode:_2ferr004_ger_pl_perimetro_glebas',
+            outputFormat : 'text/javascript',
+            format_options : 'callback:getJson003',
+            SrsName : 'EPSG:4326'
+   };
+   var parameters = L.Util.extend(defaultParameters);
+   var URL004 = owsrootUrl + L.Util.getParamString(parameters);
+                                                    
+   new $.ajax({
+            type: "POST",
+            url: URL004,
+            dataType: 'jsonp',
+            jsonpCallback : 'getJson004',
+            success: getJson003
+   });
+
+
+   //FIRMS
+   var myIcon005 = L.icon({
+                         iconUrl:
+                         'http://1.bp.blogspot.com/_98gj-G3sUG4/TS4Pf3lpkyI/AAAAAAAABIc/Cn3AlAi7S1Q/s1600/hot_orange.png',
+                         iconSize: [24, 24],
+                         iconAnchor: [22, 94],
+                         popupAnchor: [-3, -76],
+                                             });
+    var lgrp005  = new L.layerGroup();
+    var lyr005   =  new L.timeDimension.layer.geoJson();
+  
+ 
+
+    function  getJson005(data) {
+              lyr005  = L.timeDimension.layer.geoJson(data, {
+                      onEachFeature: function(feature, layer){
+                            layer.bindPopup(feature.properties['id']);
+                            layer.options.icon = myIcon005;
+                      }, 
+                      updateTimeDimension: true,
+              });
+   }
+
+
+   var URL005 = '/firms.geojson';
+                                                    
+   new $.ajax({
+            url: URL005,
+            success: getJson005
+   });
+
+
+   //WFABBA
+   var myIcon006 = L.icon({
+                         iconUrl: 'http://gis.nwcg.gov/images/fire2.gif',
+                         iconSize: [24, 24],
+                         iconAnchor: [22, 94],
+                         popupAnchor: [-3, -76],
+                                             });
+    var lgrp006  = new L.layerGroup();
+    var lyr006   = new L.geoJson();
+   
+    function  getJson006(data) {
+              lyr005  = new L.geoJson(data, {
+                      onEachFeature: function(feature, layer){
+                            layer.bindPopup(feature.properties['id']);
+                            layer.options.icon = myIcon006;
+                  }
+              });
+              lgrp006.addLayer(lyr006);
+   }
+
+
+   var URL005 = '/firms.geojson';
+                                                    
+   new $.ajax({
+            url: URL005,
+            success: getJson005
+   });
+
+
+
+
+
+
+
+    var drenagemLayer = L.tileLayer.wms(urlWMS, {
+                layers: 'geonode:_2ferr004_ger_ln_drenagem',
+                format: 'image/png',
+                transparent: true,
+                version: '1.1.0',
+                attribution: "Terravision"
+            });
+    var sedeLayer = L.tileLayer.wms(urlWMS, {
+                layers: 'geonode:_2ferr004_ger_pontos_sede',
+                format: 'image/png',
+                transparent: true,
+                version: '1.1.0',
+                attribution: "Terravision"
+            });
+    var torresLayer = L.tileLayer.wms(urlWMS, {
+                layers: 'geonode:_2ferr004_ger_pt_torres',
+                format: 'image/png',
+                transparent: true,
+                version: '1.1.0',
+                attribution: "Terravision"
+            });
+    var perimetroLayer = L.tileLayer.wms(urlWMS, {
+                layers: 'geonode:_2ferr004_ger_ln_perimetro_linha',
+                format: 'image/png',
+                transparent: true,
+                version: '1.1.0',
+                attribution: "Terravision"
+            });
+     var perimetroLayer = L.tileLayer.wms(urlWMS, {
+                layers: 'geonode:_2ferr004_ger_ln_perimetro_linha',
+                format: 'image/png',
+                transparent: true,
+                version: '1.1.0',
+                attribution: "Terravision"
+            }); 
+            
+    var perimetroBuffer  = L.tileLayer.wms(urlWMS, {
+                layers: 'geonode:_2ferr004_ger_pl_zoneamento_buffer',
+                format: 'image/png',
+                transparent: true,
+                version: '1.1.0',
+                attribution: "Terravision"
+            }); 
+            
+    var OverLays = { 'Vegetacao'    : lgrp001 , 
+                     'Zoneamento'   : lgrp002, 
+                     'Solar'        : lgrp003, 
+                     'Drenagem'     : drenagemLayer, 
+                     "Sede"         : sedeLayer, 
+                     'Torres'       : torresLayer,
+                     'Glebas'       : lgrp004,
+                     'Buffer'       : perimetroBuffer,
+    //               'FIRMS'        : lgrp005,
+                     'WFABBA'       : lgrp006,
+                     'Perimetro'    : perimetroLayer};
+
+
+    var map = L.map(     'map', 
+                        {  center: [-20.0511, -44.0155 ], 
+                        zoom: 12,  
+                        layers : [Esri_WorldImagery, lyr005, perimetroLayer ],
+                        timeDimension: true,
+                        timeDimensionControl: true,
+                        timeDimensionControlOptions: {
+                                position: 'bottomleft',
+                                autoPlay: true,
+                        playerOptions: {
+                                buffer : 10,
+                                transitionTime: 250,
+                                loop: true,
+                                       }
+                        },
+    
+    });
+   
+
+    L.control.coordinates({
+        position: "bottomright",
+        decimals: 3,
+        labelTemplateLat: "Latitude: {y}",
+        labelTemplateLng: "Longitude: {x}",
+        useDMS: false,
+        enableUserInput: false
+    } ).addTo(map);
+
+    L.control.layers(baseLayers, OverLays).addTo(map);
 </script>
 
 {% endblock %}
