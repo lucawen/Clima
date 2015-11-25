@@ -52,6 +52,7 @@ INSTALLED_APPS = (
     'mptt',    
     'igam',   
     'toolbox',
+    'roi',
 )
 
 

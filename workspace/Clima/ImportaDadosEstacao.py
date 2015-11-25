@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from requests import Request, Session
+from requests import Request, Session, post
 import lxml.html
 from lxml import cssselect
 import re
@@ -9,6 +9,8 @@ import logging
 from datetime import datetime, timedelta
 import time
 import json
+
+import urllib
 
 from pacote.tools import Tools
 from pacote.modelos import Estacao, DadosEstacao
@@ -45,7 +47,13 @@ Estacoes climaticas processadas
        
 class ImportaDadosEstacao:
     
-    HEADER = {'content-type': 'application/json', 'Accept-Language': 'pt-BR'}
+    HEADER = { 'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:42.0) Gecko/20100101 Firefox/42.0',\
+              'Accept': '*/*',\
+              'Cache-Control' : 'max-age=0',\
+              'Accept-Language': 'pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3',\
+              'Accept-Encoding': 'gzip, deflate'}
+
+
     MAX_INTERACOES = 3
     TIME_SLEEP = 4
     
@@ -90,7 +98,7 @@ class ImportaDadosEstacao:
         try:
             url = URL.format(codEstacao)
             req = Request('GET', url)           
-            entrada = sessao.prepare_request(req)            
+            entrada = sessao.prepare_request(req)
             resp = sessao.send(entrada)
             padrao = re.compile(r'<input type="hidden" name="aleaValue" value="(\w{6})==">')            
             chave = padrao.findall(resp.text)
@@ -104,20 +112,22 @@ class ImportaDadosEstacao:
     def __Scrap2(self, codEstacao, param, sessao):
           
         URL = 'http://www.inmet.gov.br/sonabra/pg_dspDadosCodigo_sim.php?{0}=='          
-        try:            
+        try: 
+
+            sessao.headers.update({'Content-Type': 'application/x-www-form-urlencoded'})
+
             saida = ''
             urlpost = URL.format(codEstacao)      
-            req = Request('POST', urlpost, data=param, headers=sessao.headers)
-            entrada = sessao.prepare_request(req)
-            resp = sessao.send(entrada)            
+            para = urllib.urlencode(param)
+            req = Request('POST', urlpost, data=para, headers=sessao.headers, )
+            rr = post(urlpost, data=para, headers=sessao.headers )
+            print rr.__dict__
 
-            URL = 'http://www.inmet.gov.br/sonabra/pg_downDadosCodigo_sim.php'
-            urlpost = URL
-            req = Request('GET', urlpost, headers=sessao.headers)
-            entrada = sessao.prepare_request(req)
-            resp = sessao.send(entrada)            
 
-            print resp.text
+
+            #entrada = sessao.prepare_request(req)
+            #resp = sessao.send(entrada)            
+            #print req.__dict__
 
 
             saida = lxml.html.fromstring(resp.text)
@@ -151,8 +161,7 @@ class ImportaDadosEstacao:
     def __Scrap(self, codEstacao, strtInicio, strtFim):
                         
         sessao = Session()
-
-
+        sessao.headers.update(self.HEADER)
         #sessao.proxies = { "http"  : "177.36.7.240:80", }
         self.inter = 0
         while True:              
@@ -164,7 +173,6 @@ class ImportaDadosEstacao:
                 param = { 'aleaNum':resposta, 'aleaValue': captcha, 'dtafim':strtFim,  'dtaini': strtInicio}
                 texto = self.__Scrap2(codEstacao, param, sessao)
                 tabela = self.__Scrap3(texto)
-                print tabela
             except:
                 pass
             if len(tabela)>0 or self.inter > self.MAX_INTERACOES:                
@@ -243,7 +251,7 @@ if __name__ == "__main__":
     path='bases/'    
 
     dfim = datetime.today()
-    dinicio = dfim + timedelta(days=-10)
+    dinicio = dfim + timedelta(days=-1)
 
     inicio = dinicio.strftime("%d/%m/%y")
     fim = dfim.strftime("%d/%m/%y")

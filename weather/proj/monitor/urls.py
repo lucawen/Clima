@@ -11,8 +11,9 @@ from djgeojson.views import GeoJSONLayerView
 urlpatterns = [    
     url(r'^mailalertafoco/(?P<idAlarme>\d+)/$', views.mailalertafoco),
     url(r'^dashboard/(?P<idProjeto>\d+)/$', views.dashboard),
-    url(r'^wfabba.geojson$', GeoJSONLayerView.as_view(model= FocoWFABBA, properties=('id', 'dataregUTC',))),
-    url(r'^firms.geojson$', GeoJSONLayerView.as_view(model= FocoFIRMS, properties=('id', 'dataregUTC',))),
+    url(r'^firmsLayer/(?P<start>\d+)/(?P<end>\d+)/$', views.firmsLayer),
+    url(r'^wfabbaLayer/(?P<start>\d+)/(?P<end>\d+)/$', views.wfabbaLayer),
+    url(r'^focoPopUp/(?P<chave>\w+)/$', views.focoPopUp),
 ]
 
 

@@ -31,6 +31,9 @@ class DashBoard:
 
         dash['parametros']  = self._DahsParametros(situaacaoatual)
 
+        dash['colorFMA']  = dash['parametros'][5].color
+        dash['colorFMAP'] = dash['parametros'][6].color 
+
         dash['previsao']  = Previsao(reg.codIBGE)
 
         dash['graphFMA'] = self.GraficoFMA(colecao)
