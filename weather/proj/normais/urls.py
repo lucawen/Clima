@@ -7,6 +7,8 @@ from normais.models import Station, FocoItem
 
 urlpatterns = [    
     url(r'^$', views.normais ),
+    url(r'^accounts/login/$', views.loginusr ),
+    url(r'^sair/$', views.sair ),
     url(r'^normais/$', views.normais ),
     url(r'^automaticas/$', views.automaticas ),
     url(r'^grafnormais/(?P<station>\d+)/(?P<texto>[\w ]+)/$', views.grafnormais ),

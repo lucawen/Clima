@@ -11,11 +11,10 @@ from roi.models import DeteccaoChoices, CausaacidenteChoices,\
                        DanosVegetacoChoices, ROI
 
 
-def roi(request):
+def DetailROI(request,idRoi):
 
-    obj = ROI.objects.all()[0]
+    obj = ROI.objects.get(id=idRoi)
 
-    print obj.TIPO_AREA_CHOICES[0][0]
 
     context = RequestContext(request,\
                         { 'form' : obj, \

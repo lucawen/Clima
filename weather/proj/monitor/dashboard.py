@@ -2,10 +2,12 @@
 #!/usr/bin/env python
 
 import django
-from monitor.models   import KPI, KPI_Nivel, Projeto
+from monitor.models   import KPI, KPI_Nivel, Projeto, Equipe
 from monitor.fma      import FMA
 from toolbox.tools    import ObjectView
 from monitor.previsao import Previsao
+from roi.models       import ROI
+from monitor.models   import Alarme, ItemAlarme
 from datetime         import datetime, date, timedelta
 from toolbox.tools    import add_months
 
@@ -19,8 +21,11 @@ class DashBoard:
 
         dash['projeto'] = u'{0} - {1}'.format( reg.codigo, reg.nome)
 
+        dash['equipe'] = Equipe.objects.filter(Projeto_FK = idProjeto)
+
         objFMA = FMA()
         dash['estacao']  = objFMA.getEstacaoByOMM(reg.wmo_automatica)
+        dash['clima'] = objFMA.getClima(reg.wmo_automatica, data)
 
         colecao = objFMA.formula(reg.wmo_automatica, data)
         dash['fma'] =  colecao
@@ -37,6 +42,23 @@ class DashBoard:
         dash['previsao']  = Previsao(reg.codIBGE)
 
         dash['graphFMA'] = self.GraficoFMA(colecao)
+        
+        dash['roi'] = ROI\
+                       .objects\
+                       .values( 'id', 'ROIID',\
+                               'municip', 'distrito',\
+                               'local', 'responsavel',\
+                               'data')\
+                       .all() 
+
+
+        dash['alarme'] = ItemAlarme.objects.all().select_related()
+
+
+
+
+
+
 
         return  ObjectView(dash)
 

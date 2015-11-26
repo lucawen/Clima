@@ -136,19 +136,10 @@ class ROI(models.Model):
     deteccaotxt        = models.CharField(u'Outros', max_length=300, default= '', blank=True)
     
     etapadatainic      = models.DateTimeField(u'Data Inicio')
-    etapahorainic      = models.CharField(u'Hora Inicio', max_length=10, default= '', blank=True)
-    
     etapadatadetec     = models.DateTimeField(u'Data Deteccao')
-    etapahoradetec     = models.CharField(u'Hora Deteccao',max_length=10, default= '', blank=True)
-    
     etapadataatac      = models.DateTimeField(u'Data Primeiro Ataque')
-    etapahoraatac      = models.CharField(u'Hora Primeiro Ataque', max_length=10, default= '', blank=True)
-    
     etapadatacontr     = models.DateTimeField(u'Data Controle')
-    etapahoracontr     = models.CharField(u'Hora Controle',max_length=10, default= '', blank=True)
-    
     etapadataext       = models.DateTimeField(u'Data Extincao')
-    etapahoraext       = models.CharField(u'Hora Extincao',max_length=10, default= '', blank=True)
     
     formaext           = models.CharField(u'Forma de Extincao', max_length=2, choices=FORMA_EXT_CHOICES, default= '  ')
     

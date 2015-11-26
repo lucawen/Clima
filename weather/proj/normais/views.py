@@ -14,6 +14,38 @@ from automaticas.graficos   import GeraGraficos
 from automaticas.regras    import Medicao
 from datetime import datetime
 from django.utils import http
+from django.shortcuts import  redirect
+from django.contrib.auth import authenticate, login, logout
+
+def loginusr(request):
+
+    state = "Por favor informe seu usuaario e senha..."
+    username = password = ''
+    
+    template = loader.get_template('login.html')
+    if request.POST:
+        username = request.POST['usuario']
+        password = request.POST['senha']
+        
+        user = authenticate(username=username, password=password)        
+        if user is not None:
+            if user.is_active:       
+                login(request,user)                     
+                return redirect('/dashboard/1/')                                           
+            else:
+                state = u"Sua conta esta desativada, por favor entre em contato com o administrador.."
+        else:
+            state = u"Seu usuario ou senha estao  incorretos.."            
+            
+            
+    context = RequestContext(request, {'usuario': username, 'state':state } )                  
+    return HttpResponse(template.render(context))
+
+def sair(request):    
+    logout(request)
+    return redirect('/accounts/login')
+
+
 
 def normais(request):
 

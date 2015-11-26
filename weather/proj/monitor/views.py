@@ -14,7 +14,7 @@ from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal import OGRGeometry
 from django.contrib.gis.gdal.envelope import Envelope 
 from monitor.alarme     import FocoToItemAlarme
-
+from django.contrib.auth.decorators import login_required
 
 
 def focoPopUp(request, chave):
@@ -100,6 +100,8 @@ def wfabbaLayer(request, start, end):
 
 
 
+
+@login_required()
 def dashboard(request, idProjeto):
 
 

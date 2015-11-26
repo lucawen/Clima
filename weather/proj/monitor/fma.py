@@ -170,6 +170,29 @@ ORDER BY "Data" """.format(codigo, data, dataBase, hora)
 
         return saida
 
+    def getClima(self, wmo, data):
+        
+        codigo = self.getCodigoByOMM(wmo)
+
+        saida = ''
+        try:
+            sql = """
+SELECT "Data", "Hora", "Chuva", "VentVel",  "UmidInst", "PressInst", "TempInst"  
+FROM   "Clima_dadosestacao" 
+WHERE  "codEstac"=\'{0}\' and 
+       "Data" = \'{1}\' 
+ORDER BY "Data","Hora" """.format(codigo, data)
+
+            cursor = self.db.cursor()
+            cursor.execute(sql)
+            saida = cursor.fetchall()
+        except:
+            raise
+
+        return saida
+
+
+
 
 
     def RestricoesChuva(self, mm, mmChuva):

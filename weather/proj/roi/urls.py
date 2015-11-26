@@ -7,7 +7,6 @@ from django.contrib import admin
 from roi import views
 
 urlpatterns = [    
-    url(r'^roi/$', views.roi),
+    url(r'^DetailROI/(?P<idRoi>\d+)/$', views.DetailROI),
 ]
-
 
