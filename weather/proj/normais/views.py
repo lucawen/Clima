@@ -16,6 +16,8 @@ from datetime import datetime
 from django.utils import http
 from django.shortcuts import  redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+
 
 def loginusr(request):
 
@@ -46,7 +48,7 @@ def sair(request):
     return redirect('/accounts/login')
 
 
-
+@login_required()
 def normais(request):
 
     if request.method == 'POST':
@@ -77,6 +79,7 @@ def normais(request):
 
     return HttpResponse(template.render(context))
 
+@login_required()
 def grafnormais(request, station, texto):
 
     texto = http.urlunquote(texto)
@@ -93,7 +96,7 @@ def grafnormais(request, station, texto):
     context = RequestContext(request, { 'estacao': estacao, 'graficos': grf });
     return HttpResponse(template.render(context))
 
-
+@login_required()
 def automaticas(request):
 
     if request.method == 'POST':
@@ -130,7 +133,7 @@ def automaticas(request):
 
     return HttpResponse(template.render(context))
 
-
+@login_required()
 def grafAutomatica(request, station, ano, mes, texto):
 
     texto = texto.replace('_', ' ')
@@ -167,7 +170,7 @@ def dadosAutomatica(request, station):
 
     return HttpResponse(result,content_type='text/javascript')
 
-
+@login_required()
 def grafAutomaticaTotal(request, station, texto):
 
     texto = texto.replace('_', ' ')
@@ -191,6 +194,7 @@ def grafAutomaticaTotal(request, station, texto):
 
     return HttpResponse(template.render(context))
 
+@login_required()
 def mapaestacoes(request):
     context = RequestContext(request)
     template = loader.get_template('mapaestacoes.html')   
