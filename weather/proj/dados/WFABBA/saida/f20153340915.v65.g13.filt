@@ -1,0 +1,10 @@
+NOAA/NESDIS/ORA  University of Wisconsin-Madison/CIMSS
+GOES-13 WF_ABBA (vs 6.5.008) Experimental Filtered Fire Product
+Note: This product is preliminary and has not been quality controlled
+Date: 2015334   Time: 0915 UTC   Filtered file:   12 hours  63 files
+Longitude  Latitude  Satzen(deg)  Pix Size(km2)  T4(K)  T11(K)  Fire Size(km2)  Temp(K)  FRP(MW)  Ecosystem  Fire Flag
+ -90.89     14.44       24.90        18.3694     341.1   282.8     -9.0000         -9.       -9.      24          1
+ -50.49      1.26       28.70        19.0463     304.0   294.7      0.1746        457.      135.      33          0
+ -50.47      1.22       28.70        19.0526     301.5   293.3     -9.0000         -9.      100.      19          3
+ -53.13     -1.06       25.60        18.4016     305.0   293.2      0.0436        551.      135.      33          0
+ -48.09     -2.65       31.60        19.7600     301.6   293.8      0.0185        587.       87.      33          0

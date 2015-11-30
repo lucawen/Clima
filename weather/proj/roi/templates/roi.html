@@ -6,7 +6,7 @@
        <meta name="author" content="Terravision">
 	</head>
 	<body >
-        <form method='POST'>        
+        <form method='POST' id='formulario'>        
             {% csrf_token %}
             <div style='display:block;width:800px;'>
                 <div style='display:inline;width:800px;height:150px'>
@@ -339,6 +339,18 @@
                 </p>
             </div>
         </form>
+
+        {% block scriptsJava %}
+
+
+        <script src="/static/plugins/jquery/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#formulario :input").prop("disabled", true);
+            });
+        </script>
+
+        {% endblock %}
 	</body>
 </html>
 

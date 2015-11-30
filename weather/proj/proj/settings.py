@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'django.contrib.sites',
     'normais',
     'monitor',
     'projetos',
@@ -55,6 +56,9 @@ INSTALLED_APPS = (
     'roi',
 )
 
+
+
+SITE_ID=1
 
 MEDIA_ROOT = BASE_DIR + '/static/midia/'
 MEDIA_URL = '/static/midia/'

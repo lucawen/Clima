@@ -6,7 +6,7 @@ from proj import settings
 import shutil
 
 #GOOGLE STATIC API KEY
-API_KEY    = 'AIzaSyDLoBDJBVGCajNFLGcLhBVNB3OnBpym68M'
+API_KEY    = '0qVDHp4vdHTM3PxINyQa003dFAM='
 HTTP_OK    = 200
 URL        = 'https://maps.googleapis.com/maps/api/staticmap?{0}'
 FORMATO    = 'jpg'
@@ -21,13 +21,12 @@ class StaticMap:
     def processa(self, center,\
                  size='800x600',\
                  type='hybrid',\
-                 zoom=10101010101010101010 ):
-
+                 zoom=10 ):
 
         arquivo  ='{0}.{1}'.format(self.filename, FORMATO)
 
         strmark=''
-        for pos in self.markers:
+        for pos in self.markers[:10]:
             strmark += 'markers={0},{1}&'.format(pos[1], pos[0]) 
 
         mask= 'center={0},{1}&zoom={2}&size={3}&maptype={4}&{5} key={6}'
@@ -43,7 +42,8 @@ class StaticMap:
 
         r = requests.get(url, stream=True)
         if r.status_code != HTTP_OK:
-            raise 'Erro ao consultar Google API'
+            print r.status_code
+            raise 'Erro ao consultar Google API' 
         else:
             filename ='{0}{1}'.format(settings.MEDIA_ROOT, arquivo)
             with open(filename, 'wb') as fd:
@@ -52,5 +52,4 @@ class StaticMap:
 
 
         return '{0}{1}'.format(settings.MEDIA_URL, arquivo)
-
 

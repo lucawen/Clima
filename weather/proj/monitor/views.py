@@ -106,6 +106,7 @@ def dashboard(request, idProjeto):
 
 
     data = datetime(2015,10,18)
+    #data = datetime.today()
 
     start =data.strftime('%d-%m-%Y')
     end = data.strftime('%d-%m-%Y')

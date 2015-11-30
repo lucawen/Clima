@@ -11,7 +11,7 @@ from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal import OGRGeometry
 from django.contrib.gis.geos import GEOSGeometry, Polygon
 from  toolbox.maillib import Email
-
+from django.contrib.sites.models import Site
 
 def KelvinToCelcius(t):
     if t <0:
@@ -22,6 +22,10 @@ def KelvinToCelcius(t):
 class AlarmeProc:
 
     def __init__(self):
+
+
+
+
         self.__Alarme = None
         self.__Projeto = None
 
@@ -82,9 +86,10 @@ class AlarmeProc:
                 mapa.markers = markers 
                 mapa.filename = 'mapaAlarme{0}'.format(self.__Alarme.id)
                 path = mapa.processa( self.__centroid) 
-
-                url = 'http://10.3.0.29:8080/mailalertafoco/{0}/'.\
+            
+                url = 'http://' + Site.objects.get_current().domain +  '/mailalertafoco/{0}/'.\
                     format(self.__Alarme.id)
+
                 r = requests.get(url)
 
                 for item in Equipe.\
