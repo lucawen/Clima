@@ -341,7 +341,7 @@
         <!--Start Dashboard Tab 6-->
         <div id="dashboard-netmap" class="row" style="visibility: hidden; position: absolute;">
             <div class="col-xs-10 col-sm-10">
-                <h4 class="page-header">Dados Meterologicos</h4>
+                <h4 class="page-header">Dados Meteorologicos</h4>
                 <table class="table m-table table-bordered table-hover table-heading">
                     <thead>
                         <tr>
@@ -558,7 +558,7 @@ $(document).ready(function() {
 
     var urlWMS = "http://geonode.terravisiongeo.com.br/geoserver/geonode/wms?";
     var worldviewlayer = L.tileLayer.wms(urlWMS, {
-                layers: 'geonode:worldview_jun_10_orto_spts_urb_final',
+                layers: 'geonode:worldview_jun_10_orto_spts_vegetacao_final',
                 format: 'image/png',
                 transparent: true,
                 version: '1.1.0',
@@ -676,7 +676,10 @@ $(document).ready(function() {
                                     colFMA = defCamadaFMA(colorFMA);
                                     cor = colFMA[key];
                                     return style(cor);
-                               }
+                               },
+                       onEachFeature: function(feature, layer){
+                            layer.bindPopup(feature.properties['NOME']);
+                  }
               });
               lyrFMAP  = new L.geoJson(data, {
                        style: function( feature){
@@ -684,7 +687,10 @@ $(document).ready(function() {
                                     colFMAP = defCamadaFMA(colorFMAP);
                                     cor = colFMAP[key];
                                     return style(cor);
-                               }
+                               },
+                       onEachFeature: function(feature, layer){
+                            layer.bindPopup(feature.properties['NOME']);
+                  }
               });
               lgrp001.addLayer(lyr001);
               lgrpFMA.addLayer(lyrFMA);

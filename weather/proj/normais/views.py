@@ -21,7 +21,7 @@ from django.contrib.auth.decorators import login_required
 
 def loginusr(request):
 
-    state = "Por favor informe seu usuaario e senha..."
+    state = "Por favor informe seu usuario e senha..."
     username = password = ''
     
     template = loader.get_template('login.html')

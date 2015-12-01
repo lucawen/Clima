@@ -6,7 +6,6 @@ from monitor import firms, wfabba, alarme
 from  toolbox.maillib import Email
 
 def run():
-    """
     obj = firms.FIRMS()
     obj.processa()
     del obj
@@ -14,7 +13,6 @@ def run():
     obj = wfabba.WFABBA()
     obj.processa()
     del obj
-    """
 
 
     obj = alarme.AlarmeProc()
@@ -22,12 +20,9 @@ def run():
     del obj
 
 
-
-    """
     objMail = Email()
     objMail.EnviaMSG('Fire Monitor',\
                 'Focos de Incendio Processados com SUCESSO, FIRMS e WAFBBA,\
                 Alarmes processados com sucesso',\
                 [ 'wbeirigo@terravisiongeo.com.br', ])
-    """
 
