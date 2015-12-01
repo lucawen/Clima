@@ -130,7 +130,7 @@ function urlencode(str) {
             
             map.on('popupopen', function(e) {
                 var id = e.popup._contentNode.lastElementChild.id;
-                $.get( "http://10.3.0.29:8080/focoCalor/" + id + "/", function( data ) { 
+                $.get( "/focoCalor/" + id + "/", function( data ) { 
                         e.popup._contentNode.lastElementChild.innerHTML = data; 
                 });
             });

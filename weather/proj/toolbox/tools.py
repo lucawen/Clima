@@ -4,6 +4,29 @@
 import xlrd
 import datetime
 import calendar
+from dateutil import parser
+
+def lerDataExcel(vlr):
+    date = datetime.datetime(1899, 12, 30)
+    get_ = datetime.timedelta(int(vlr))
+    get_col2 = str(date + get_)[:10]
+    d = datetime.datetime.strptime(get_col2, '%Y-%m-%d')
+    return d.strftime('%d-%m-%Y')
+
+def convert_excel_time(t, hour24=True):
+    if t > 1:
+        t = t%1
+    seconds = round(t*86400)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    if hour24:
+        if hours > 12:
+            hours -= 12
+            return "%d:%d:%d PM" % (hours, minutes, seconds)
+        else:
+            return "%d:%d:%d AM" % (hours, minutes, seconds)
+
+    return "%d:%d:%d" % (hours, minutes, seconds)
 
 
 def KelvinToCelcius(t):
