@@ -62,10 +62,9 @@ class WFABBA:
 
         f = self.FireFtp()
         f.processa()
-
-        url = 'http://geonode.terravisiongeo.com.br/geoserver/geonode/ows?service=WFS&version=1.0.0\
-&request=GetFeature&typeName=geonode:estados_2010&CQL_FILTER=sigla%20=%20%27MG%27&\
-outputFormat=application/json'
+        url = 'http://geonode.terravisiongeo.com.br/geoserver/geonode/ows?\
+service=WFS&version=1.0.0&request=GetFeature&typeName=geonode:estados_2010&\
+CQL_FILTER=regiao_id=4%20or%20id=1&outputFormat=application/json'
         ds = DataSource(url)
         self.layer = ds[0]
 

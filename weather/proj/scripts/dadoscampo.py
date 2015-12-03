@@ -9,7 +9,7 @@ from  toolbox.tools   import lerDataExcel, convert_excel_time
 from  dateutil        import parser
 import xlrd
 from  toolbox.maillib import Email
-
+from django.utils import timezone
 
 def getCampanha(idProjeto, dataHora):
 
@@ -31,14 +31,13 @@ def getCampanha(idProjeto, dataHora):
     return objCampanha
 
 
-def isMedicao(_ponto, _param, _data, _valor):
+def isMedicao(_ponto, _param, _data):
 
     col = Medicao.objects.filter(data = _data,
                                 PtoMonit_FK = _ponto,
-                                Parametro_FK = _param,
-                                vlr = _valor)
+                                Parametro_FK = _param )
 
-    return len(col) > 0
+    return len(col) == 0
                                 
 
 
@@ -90,23 +89,32 @@ def run():
                 hora = convert_excel_time(hr, False)
                 mask = '{0} {1}'.format(data, hora)
             except:
-                erros.append({  'linha':row, \
-                                'valor' :0  ,\
-                                'msg':'Data ou hora com formatos invalidos'\
+                erros.append({  'linha' : row, \
+                                'valor' : sheet.cell(row,3)  ,\
+                                'msg'   : 'Data ou hora com formatos invalidos'\
                                  })
                 continue
 
-               
-
             dataHora =  parser.parse(mask)
+            dataHora = timezone.make_aware(dataHora, timezone.get_current_timezone())
 
             valores = []
             for col in colPos:
-                vlr    = sheet.cell(row, 5).value
+                vlr    = sheet.cell(row, col).value
                 if vlr == '':
                     vlr = 0.0
-                param  = sheet.cell(0, 5).value
-                valores.append( [param, vlr] )     
+
+                try:
+                    vlrF = float(vlr)
+                except:
+                   erros.append({  'linha':row, \
+                                    'valor' : vlr ,\
+                                    'msg':'Campo valor formato invalido'\
+                                     })
+                   continue
+
+                param  = sheet.cell(0, col).value
+                valores.append( [param, vlrF] )     
 
 
             registro = {'codEstacao' : codEstacao,               \
@@ -120,7 +128,6 @@ def run():
 
             colMedicao.append(item)
 
-
     
     for item in colMedicao:
 
@@ -129,8 +136,8 @@ def run():
 
         for param, valor in item.valores:
             objParam = Param.objects.get(id= param)
-
-            if not isMedicao(objEstacao, objParam, item.data, valor):
+            
+            if isMedicao(objEstacao, objParam,  item.data):
                 objMed = Medicao(Campanha_FK = objCampanha, \
                                 PtoMonit_FK = objEstacao,  \
                                 Parametro_FK = objParam,   \

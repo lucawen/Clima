@@ -6,7 +6,7 @@ from paintstore.fields import ColorPickerField
 from param.models import Param
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import datetime
-
+from django.utils import timezone
 
 # Create your models. here.
 
@@ -81,8 +81,8 @@ class Medicao(models.Model):
     PtoMonit_FK  = models.ForeignKey(PtoMonit, verbose_name="Ponto Monit." )
     Parametro_FK= models.ForeignKey(Param, verbose_name="Parametro" )
     controle    = models.CharField(max_length=20, blank=True)
-    data        = models.DateField()
-    dataInc     = models.DateField(default=datetime.now, blank=True)
+    data        = models.DateTimeField()
+    dataInc     = models.DateTimeField(default=timezone.now, blank=True)
     vlr         = models.DecimalField(default=0, decimal_places=2, max_digits=16)    
     vlrLbl      = models.CharField(default='',  max_length=36, blank=True)    
  
