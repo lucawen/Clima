@@ -39,6 +39,14 @@ def add_months(sourcedate,months):
     day = min(sourcedate.day,calendar.monthrange(year,month)[1])
     return datetime.date(year,month,day)
 
+def xlsDate_as_datetime(xldate, datemode):
+    # datemode: 0 for 1900-based, 1 for 1904-based
+    xldate = float('0' + str(xldate))
+    return (
+        datetime.datetime(1899, 12, 30)
+        + datetime.timedelta(days=xldate + 1462 * datemode)
+        )
+
 
 
 class Struct(object):

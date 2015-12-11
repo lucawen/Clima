@@ -1,0 +1,185 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+
+import xlrd
+
+PATH_ARQUIVO     = '/home/wbeirigo/cavidades/dados/BDGIS.xls'
+
+
+class ProcCavidades:
+
+    def __init__(self):
+        self.registro = {}
+        self.__procExcel()
+
+
+    def __getcel(self, carac):
+        return ord(carac) -  ord('A')
+
+
+
+
+    def __adderro(self, msg, valor, planilha):
+
+        erro = { 'msg'     : msg,     \
+                 'valor'   : valor,   \
+                 'planilha': planilha }
+
+        self.erros.append(erro)
+
+    def __procExcel(self):
+
+        workbook = xlrd.open_workbook(PATH_ARQUIVO)
+        sheet = workbook.sheet_by_index(5)
+        for row in range(sheet.nrows):
+
+            if row == 0:
+                tmp = str(sheet.cell(row,6).value)
+                tmp = tmp.replace('CAVIDADE:','').replace(' ','')
+                self.registro['cavidade'] = tmp
+
+                tmp = str(sheet.cell(row,0).value)
+                tmp = tmp.replace('PONTO: ','').replace(' ','')
+                self.registro['ponto'] = tmp
+
+                tmp = str(sheet.cell(row,16).value)
+                tmp = tmp.replace('DATA: ','').replace(' ','')
+                self.registro['data'] = tmp
+
+            if row == 3:
+                tmp = sheet.cell(row,0).value
+                tmp = tmp.replace('LITO (  1  ):','').replace(' ','')
+                self.registro['lito1'] = tmp
+
+                tmp = sheet.cell(row,11).value
+                tmp = tmp.replace('LITO (  3  ):','').replace(' ','')
+                self.registro['lito2'] = tmp
+
+            if row == 4:
+                vlr = u'ALTERAÇÃO:'
+                tmp = u'{0}'.format(sheet.cell(row,0).value)
+                tmp = tmp.replace(vlr,'').replace(' ','')
+                self.registro['A1'] = tmp
+
+                vlr = u'ALTERAÇÃO:'
+                tmp = u'{0}'.format(sheet.cell(row,11).value)
+                tmp = tmp.replace(vlr,'').replace(' ','')
+                self.registro['A2'] = tmp
+
+
+            if row == 5:
+                vlr = u'RESISTENCIA:'
+                tmp = u'{0}'.format(sheet.cell(row,0).value)
+                tmp = tmp.replace(vlr,'').replace(' ','')
+                self.registro['R1'] = tmp
+
+                vlr = u'RESISTENCIA:'
+                tmp = u'{0}'.format(sheet.cell(row,11).value)
+                tmp = tmp.replace(vlr,'').replace(' ','')
+                self.registro['R2'] = tmp
+
+
+            if row == 6:
+                vlr = u'FRATURAMENTO: '
+                tmp = u'{0}'.format(sheet.cell(row,0).value)
+                tmp = tmp.replace(vlr,'').replace(' ','')
+                self.registro['F1'] = tmp
+
+                vlr = u'FRATURAMENTO: '
+                tmp = u'{0}'.format(sheet.cell(row,11).value)
+                tmp = tmp.replace(vlr,'').replace(' ','')
+                self.registro['F2'] = tmp
+
+
+            if row == 7:
+                vlr = u'N° DE FAMILIAS DE JUNTAS:'
+                tmp = u'{0}'.format(sheet.cell(row,0).value)
+                tmp = tmp.replace(vlr,'').replace(' ','')
+                self.registro['NJF1'] = tmp
+
+                vlr = u'N° DE FAMILIAS DE JUNTAS:'
+                tmp = u'{0}'.format(sheet.cell(row,11).value)
+                tmp = tmp.replace(vlr,'').replace(' ','')
+                self.registro['NJF2'] = tmp
+
+            if row == 9:
+                tmp = u'{0}'.format(sheet.cell(row,0).value)
+                tmp = tmp.replace(' ','')[19:8]
+                self.registro['PCTMAT'] = tmp
+
+            if row == 10:
+                palavra = ''
+                pos = (0, 3, 6, 9, 12, 15)
+                for item in pos:
+                    if sheet.cell(row,item).value in ('X','x') :
+                        palavra += u'{0},'.format(sheet.cell(row,pos+1).value)
+                self.registro['CAGUA'] = palavra
+
+                
+                self.registro['PERIODO'] = sheet.cell(row,14).value
+
+            if row in (27,28):
+                if row == 27:
+                    palavra = ''
+                pos = (0, 3, 6, 9, 12)
+                for item in pos:
+                    if  sheet.cell(row,item).value in ('X','x'):
+                        palavra += u'{0},'.format(sheet.cell(row,pos+1).value)
+                if row == 28:
+                    self.registro['PROC_RISCO'] = palavra
+
+
+            if row in (24,25):
+    
+                if row == 24:
+
+                    palavra_LOCAL = ''
+                    palavra_FEICAO = ''
+                    for pos in  [ __getcel(x) for x in (A,D,G,J) ]:
+                        if  sheet.cell(row,pos).value in ('X','x'):
+                            palavra_LOCAL += u'{0},'.format(sheet.cell(row,pos+1).value)
+
+                    for pos in  [ __getcel(x) for x in (M,O,R) ]:
+                        if  sheet.cell(row,pos).value in ('X','x'):
+                            palavra_FEICAO += u'{0},'.format(sheet.cell(row,pos+1).value)
+
+                else:
+                    for pos in  [ __getcel(x) for x in (A) ]:
+                        if  sheet.cell(row,pos).value in ('X','x'):
+                            palavra_LOCAL += u'{0},'.format(sheet.cell(row,pos+1).value)
+ 
+                    for pos in  [ __getcel(x) for x in (D,G,J,M,O) ]:
+                        if  sheet.cell(row,pos).value in ('X','x'):
+                            palavra_FEICAO += u'{0},'.format(sheet.cell(row,pos+1).value)
+
+
+
+                    self.registro['PROC_LOCAL'] = palavra_LOCAL
+                    self.registro['PROC_FEICAO'] = palavra_FEICAO
+
+            if row in (30,31,32,33):
+                if row == 30:
+                    pontomon = u'{0},'.format(sheet.cell(row, __getcel('T') ).value)
+                    palavra  = u'{0},'.format(sheet.cell(row,0).value)
+                else:
+                    pontomon += u'{0},'.format(sheet.cell(row, __getcel('T') ).value)
+                    palavra  += u'{0},'.format(sheet.cell(row,0).value)
+                    if row == 33:
+                        self.registro['PROC_OBS'] = palavra
+                        self.registro['PMO'] = pontomon
+                    
+ 
+            
+
+            if row == 38:
+                self.registro['PROC_FEICAO'] = u'{0},'.format(sheet.cell(row,0 ).value)
+
+
+            #print  sheet.cell(row,0).value
+
+
+
+if __name__ == "__main__":
+   obj = ProcCavidades()
+   print obj.registro
+

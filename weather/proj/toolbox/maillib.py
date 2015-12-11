@@ -24,15 +24,15 @@ class Email:
 
 
     def mask(self):
-        return "\
-Ol·,<br><br>\
+        return u"\
+Ol√°,<br><br>\
 \
 {0}<br>\
 <br><br>\
-Esta È uma menssagem enviada automaticamene pelo sistema. <br>\
+Esta √© uma menssagem enviada automaticamene pelo sistema. <br>\
 Esta mensagem foi envia em virtude de seu cadastro no sistema FireMonitor.\
 <br>\
-Respostas n„o ser„o consideradas, esta conta n„o È monitorada <br>\
+Respostas n√£o ser√£o consideradas, esta conta n√£o √© monitorada <br>\
 <br>\
 Atenciosamente, <br>\
 Equipe Firemonitor <br>\
@@ -44,8 +44,7 @@ www.firemonitor.com.br <br>\
 
         if mask == None:
             message = self.mask().format(message)
-
-        msg = MIMEText(message, 'html')
+        msg = MIMEText(message.encode('utf-8'), 'html', 'utf-8')
         msg['Subject']  = titulo
         msg['From']     =  '{0} <{1}>'.format(FROMNAME, USERNAME)
         msg['To'] = ", ".join(destinatarios)

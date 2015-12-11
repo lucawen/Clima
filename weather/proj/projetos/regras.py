@@ -10,6 +10,28 @@ import requests
 import base64
 import json
 
+
+
+def getCampanha(idProjeto, dataHora):
+
+    colCampanha = Campanha.objects.\
+                    filter(Projeto_FK_id = idProjeto,\
+                            ano = dataHora.year,\
+                            mes = dataHora.month)
+
+    if len(colCampanha)  == 0:
+        nmCamp = 'Campanha {0}/{1}'.format(dataHora.month, dataHora.year)
+        objCampanha = Campanha( nome = nmCamp,
+                                mes  =  dataHora.month,
+                                ano  =  dataHora.year,
+                                Projeto_FK = objProjeto)
+        objCampanha.save()
+    else:
+        objCampanha = colCampanha[0]
+
+    return objCampanha
+
+
 class Grafico:
 
         def __getGrafico(self):
