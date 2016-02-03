@@ -18,7 +18,7 @@ class WFABBA:
     class FireFtp():
 
         def diretorio(self):
-            return '{0}{1}'.format( datetime.utcnow().year,\
+            return '{0}{1:03d}'.format( datetime.utcnow().year,\
                                     datetime.utcnow().timetuple().tm_yday)
 
         def processa(self):
@@ -27,6 +27,9 @@ class WFABBA:
             caminho = 'pub/abba/v65/goes-13/text/' + self.diretorio()
             entrada = settings.WFABBA_PATH + '/entrada/'
             saida  =  settings.WFABBA_PATH + '/saida/'
+
+	    print(caminho)
+
 
             ftp = FTP(url)
             ftp.login()

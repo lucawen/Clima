@@ -10,7 +10,25 @@ from  dateutil        import parser
 import xlrd
 from  toolbox.maillib import Email
 from django.utils import timezone
-from projetos.regras    import getCampanha
+
+def getCampanha(idProjeto, dataHora):
+
+    colCampanha = Campanha.objects.\
+                    filter(Projeto_FK_id = idProjeto,\
+                            ano = dataHora.year,\
+                            mes = dataHora.month)
+
+    if len(colCampanha)  == 0:
+        nmCamp = 'Campanha {0}/{1}'.format(dataHora.month, dataHora.year)
+        objCampanha = Campanha( nome = nmCamp,
+                                mes  =  dataHora.month,
+                                ano  =  dataHora.year,
+                                Projeto_FK = objProjeto)
+        objCampanha.save()
+    else:
+        objCampanha = colCampanha[0]
+
+    return objCampanha
 
 
 def isMedicao(_ponto, _param, _data):

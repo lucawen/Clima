@@ -19,7 +19,7 @@ class FIRMS:
     class FireFtp():
 
         def processa(self, data):
-            arquivo = 'South_America_MCD14DL_{0}{1}.txt'.\
+            arquivo = 'South_America_MCD14DL_{0}{1:03d}.txt'.\
                       format( data.year,\
                               data.timetuple().tm_yday)
 
@@ -34,7 +34,7 @@ class FIRMS:
                 ftp.cwd (caminho)
 
                 gravar = entrada + arquivo
-                ftp.retrbinary('RETR ' +  arquivo, open(gravar, 'wb').write) 
+                ftp.retrbinary('RETR ' + arquivo, open(gravar, 'wb').write) 
                 ftp.quit()
             except:
                 raise
@@ -57,6 +57,7 @@ class FIRMS:
 service=WFS&version=1.0.0&request=GetFeature&typeName=geonode:estados_2010&\
 CQL_FILTER=regiao_id=4%20or%20id=1&outputFormat=application/json'
         ds = DataSource(url)
+
         self.layer = ds[0]
 
     def getArquivos(self):
