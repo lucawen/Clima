@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*- 
-#!/usr/bin/env python 
+# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 
 from django.db import models
 from paintstore.fields import ColorPickerField
@@ -10,18 +10,19 @@ from django.utils import timezone
 
 # Create your models. here.
 
+
 class Projeto(models.Model):
 
     codigo = models.CharField(max_length=6)
     nome = models.CharField(max_length=100, verbose_name='Projeto')
-    
+
     class Meta:
         verbose_name = 'Projeto'
         verbose_name_plural = 'Projetos'
-	ordering = ['nome',]     
+	ordering = ['nome',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.nome) 
+    def __unicode__(self):
+        return u'{0}'.format(self.nome)
 
 
 class Layer(models.Model):
@@ -29,14 +30,14 @@ class Layer(models.Model):
     Projeto_FK  = models.ForeignKey(Projeto, verbose_name="Projeto" )
     nome        = models.CharField(max_length=100, verbose_name='Layer')
     url         = models.URLField(max_length=300, verbose_name='URL Layer'),
-    
+
     class Meta:
         verbose_name = 'Camada'
         verbose_name_plural = 'Camadas'
-        ordering = ['nome',]     
+        ordering = ['nome',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.nome) 
+    def __unicode__(self):
+        return u'{0}'.format(self.nome)
 
 
 
@@ -49,15 +50,15 @@ class PtoMonit(MPTTModel):
     ObjectID    = models.IntegerField(default=0)
     parent      = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     created     = models.DateTimeField(auto_now_add=True)
-    
+
     class MPTTMeta:
         order_insertion_by = ['sigla']
         verbose_name = 'Ponto de Monitoramento'
         verbose_name_plural = 'Pontos de Monitoramento'
-        ordering = ['sigla',]     
+        ordering = ['sigla',]
 
-    def __unicode__(self):              
-        return u'{0}-{1}'.format(self.sigla, self.nome) 
+    def __unicode__(self):
+        return u'{0}-{1}'.format(self.sigla, self.nome)
 
 class Campanha(models.Model):
 
@@ -69,10 +70,10 @@ class Campanha(models.Model):
     class Meta:
         verbose_name = 'Campanha'
         verbose_name_plural = 'Campanhas'
-        ordering = ['nome',]     
+        ordering = ['nome',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.nome) 
+    def __unicode__(self):
+        return u'{0}'.format(self.nome)
 
 
 class Medicao(models.Model):
@@ -83,16 +84,16 @@ class Medicao(models.Model):
     controle    = models.CharField(max_length=20, blank=True)
     data        = models.DateTimeField()
     dataInc     = models.DateTimeField(default=timezone.now, blank=True)
-    vlr         = models.DecimalField(default=0, decimal_places=2, max_digits=16)    
-    vlrLbl      = models.CharField(default='',  max_length=36, blank=True)    
- 
+    vlr         = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    vlrLbl      = models.CharField(default='',  max_length=36, blank=True)
+
     class Meta:
         verbose_name = u'Medicao'
         verbose_name_plural = u'Medicoes'
-        ordering = ['data',]     
+        ordering = ['data',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.controle) 
+    def __unicode__(self):
+        return u'{0}'.format(self.controle)
 
 
 class Midia(models.Model):
@@ -106,10 +107,10 @@ class Midia(models.Model):
     class Meta:
         verbose_name = u'Midia'
         verbose_name_plural = u'Midia'
-        ordering = ['nome',]     
+        ordering = ['nome',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.nome) 
+    def __unicode__(self):
+        return u'{0}'.format(self.nome)
 
 
 class Texto(models.Model):
@@ -119,10 +120,10 @@ class Texto(models.Model):
     data        = models.DateField()
 
     class Meta:
-        ordering = ['descricao',]     
+        ordering = ['descricao',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.descricao) 
+    def __unicode__(self):
+        return u'{0}'.format(self.descricao)
 
 
 class Relatorio(models.Model):
@@ -132,9 +133,9 @@ class Relatorio(models.Model):
     descricao   = models.TextField(default='')
     data        = models.DateField()
     class Meta:
-        ordering = ['descricao',]     
+        ordering = ['descricao',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.descricao) 
+    def __unicode__(self):
+        return u'{0}'.format(self.descricao)
 
 

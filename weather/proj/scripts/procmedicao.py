@@ -25,13 +25,11 @@ class ProcMedicao:
         self.processados = 0
         self.pontoConv = {}
         self.paramConv = {}
-   
 
         self.__converte(0) # Pontos
         self.__converte(1) # Parametros
 
         self.__procExcel()
-
 
         for item in  self.result:
             self.__processaItem(item)
@@ -43,10 +41,8 @@ class ProcMedicao:
             print u'{0};{1};{2};'\
                     .format(item['msg'], item['valor'], item['planilha'])
             #print u'{0}'.format( item['valor'])
-        """    
+        """
 
-
- 
         self.__sendMail()
 
     def __adderro(self, msg, valor, planilha):
@@ -70,7 +66,7 @@ class ProcMedicao:
             _ponto = sheet.cell(row,2).value
             _param = sheet.cell(row,4).value
             _caminho =sheet.cell(row,5).value
- 
+
             try:
                 _valor = sheet.cell(row,3).value
             except:
@@ -123,7 +119,7 @@ class ProcMedicao:
                          item['valor'],\
                          item['planilha'])
             content += linha
-        
+
 
 
 
@@ -152,7 +148,7 @@ class ProcMedicao:
             return False
 
 
-        col = Param.objects.filter(nome = item.param) 
+        col = Param.objects.filter(nome = item.param)
         if len(col) == 0:
             self.__adderro(u'Parâmetro não existe',   \
                         item.param,               \
@@ -167,7 +163,7 @@ class ProcMedicao:
         Local
         """
         item.ponto  = item.ponto.replace(' ','').replace('-','').strip()
-       
+
         if item.ponto in self.pontoConv:
             item.ponto = self.pontoConv[item.ponto].strip()
             item.ponto  = item.ponto.replace(' ','').replace('-','').strip()
@@ -213,11 +209,11 @@ class ProcMedicao:
         col = Medicao.objects.filter( PtoMonit_FK  = objLocal,
                                       Parametro_FK = objParametro,
                                       controle     = item.controle,
-                                      data         = item.data) 
+                                      data         = item.data)
         if len(col) > 0:
             return False
 
-    
+
         """
         Campanha
         """
@@ -229,10 +225,10 @@ class ProcMedicao:
                                 controle     = item.controle,
                                 data         = item.data,
                                 vlr          = float_vlr,
-                                vlrLbl       = item.valor) 
-                
-        registro.save() 
-        self.processados += 1 
+                                vlrLbl       = item.valor)
+
+        registro.save()
+        self.processados += 1
 
         return True
 
@@ -240,4 +236,4 @@ class ProcMedicao:
 
 def run():
 
-   obj = ProcMedicao() 
+   obj = ProcMedicao()

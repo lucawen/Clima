@@ -23,7 +23,7 @@ def getCampanha(idProjeto, dataHora):
         objCampanha = Campanha( nome = nmCamp,
                                 mes  =  dataHora.month,
                                 ano  =  dataHora.year,
-                                Projeto_FK = objProjeto)
+                                Projeto_FK_id = idProjeto)
         objCampanha.save()
     else:
         objCampanha = colCampanha[0]
@@ -38,7 +38,8 @@ def isMedicao(_ponto, _param, _data):
                                 Parametro_FK = _param )
 
     return len(col) == 0
-                                
+
+
 
 
 def run():
@@ -114,7 +115,7 @@ def run():
                    continue
 
                 param  = sheet.cell(0, col).value
-                valores.append( [param, vlrF] )     
+                valores.append( [param, vlrF] )
 
 
             registro = {'codEstacao' : codEstacao,               \
@@ -128,7 +129,7 @@ def run():
 
             colMedicao.append(item)
 
-    
+
     for item in colMedicao:
 
         objEstacao = PtoMonit.objects.get(sigla= item.codEstacao)
@@ -136,7 +137,7 @@ def run():
 
         for param, valor in item.valores:
             objParam = Param.objects.get(id= param)
-            
+
             if isMedicao(objEstacao, objParam,  item.data):
                 objMed = Medicao(Campanha_FK = objCampanha, \
                                 PtoMonit_FK = objEstacao,  \
@@ -146,11 +147,11 @@ def run():
                                 vlr  = valor,         \
                                 vlrLbl = '')
                 objMed.save()
-            
+
 
     objMail = Email()
 
-    content = ' ' 
+    content = ' '
     content += 'Abaixo lista de erros encontrados ao processar a planilha de parametros: <br>'
 
     content += '<table border="1">'

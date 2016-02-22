@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'y@bzrocszm8#r_cyt@gsof+#29kcufqv6@z#l*7z@_e!5m8boj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True 
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -49,9 +49,9 @@ INSTALLED_APPS = (
     'leaflet',
     'django_extensions',
     'django_mptt_admin',
-    'paintstore',    
-    'mptt',    
-    'igam',   
+    'paintstore',
+    'mptt',
+    'igam',
     'toolbox',
     'roi',
 )
@@ -80,7 +80,7 @@ ROOT_URLCONF = 'proj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR+'/templates/'], 
+        'DIRS': [BASE_DIR+'/templates/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -104,13 +104,13 @@ WSGI_APPLICATION = 'proj.wsgi.application'
 
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.postgresql_psycopg2', 
+        #'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'FireMonitor',                      
+        'NAME': 'FireMonitor',
         'USER': 'postgres',
         'PASSWORD': 'wilci5w7',
-        'HOST': '10.3.0.29',                   
-        'PORT': '5432',                     
+        'HOST': '10.2.8.85',
+        'PORT': '5432',
     }
 }
 
@@ -169,7 +169,7 @@ GRAPPELLI_ADMIN_TITLE= u'FIRE-MONITOR -  Terravision'
 
 STATIC_URL  = '/static/'
 
-IGAM_PATH   = BASE_DIR + "/dados/IGAM" 
+IGAM_PATH   = BASE_DIR + "/dados/IGAM"
 WFABBA_PATH = BASE_DIR + '/dados/WFABBA'
 FIRMS_PATH  = BASE_DIR + '/dados/FIRMS'
 
