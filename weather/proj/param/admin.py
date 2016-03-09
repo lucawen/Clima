@@ -6,7 +6,7 @@ from django_mptt_admin.admin import DjangoMpttAdmin
 # Register your models here.
 
 class ParamAdmin(DjangoMpttAdmin):
-	pass
+    pass
 
 
 admin.site.register(Unidade)

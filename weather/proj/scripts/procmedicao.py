@@ -11,10 +11,21 @@ from toolbox.tools import ObjectView, xlsDate_as_datetime
 from projetos.regras import getCampanha
 from toolbox.maillib import Email
 from operator import itemgetter
+from django.utils import timezone
+from xlwt import Workbook
+import os
+import time
 
-PATH_ARQUIVO     = '/home/wbeirigo/Clima/dados/dadoslaborat/procmedicao.xls'
-PATH_FERRAMENTA  = '/home/wbeirigo/Clima/dados/dadoslaborat/converte.xls'
+PATH_ARQUIVO     = '/media/projeto_cemig/01_SOFTWARE/procmedicao.xls'
+#PATH_ARQUIVO     = '/home/wbeirigo/Clima/dados/bioagri/consolidado.xls'
+PATH_FERRAMENTA  = '/media/projeto_cemig/01_PROJETO SOFTWARE/converte.xls'
+
+
+PATH_SAIDA  = '/media/projeto_cemig/01_SOFTWARE/'
+
+
 ID_PROJETO       = 1
+PARAMETRO_DATA   = 840
 
 
 class ProcMedicao:
@@ -34,16 +45,30 @@ class ProcMedicao:
         for item in  self.result:
             self.__processaItem(item)
 
+        self.__planilha_erro()
 
-        """
-        Áté ção
-        for item in sorted( self.erros, key= itemgetter('valor', 'msg')):
-            print u'{0};{1};{2};'\
-                    .format(item['msg'], item['valor'], item['planilha'])
-            #print u'{0}'.format( item['valor'])
-        """
 
-        self.__sendMail()
+
+    def __planilha_erro(self):
+
+        workbook = Workbook()
+        sheet = workbook.add_sheet('Sheet1')
+
+        y = 1
+        for item in self.erros:
+            sheet.write(y, 0, u'{0}'.format(item['msg']) )
+            sheet.write(y, 1, u'{0}'.format(item['valor']) )
+            sheet.write(y, 2, u'{0}'.format(item['planilha']) )
+            y +=1
+            print(y)
+
+        novodir = '{0}{1}/'.format(PATH_SAIDA, datetime.datetime.now() )
+        os.makedirs(novodir)
+        path_saida ='{0}{1}.xls'.format(novodir, 'Erros')
+        workbook.save(path_saida)
+
+        return path_saida
+
 
     def __adderro(self, msg, valor, planilha):
 
@@ -60,12 +85,21 @@ class ProcMedicao:
         sheet = workbook.sheet_by_index(0)
         for row in range(1, sheet.nrows):
             _laudo = sheet.cell(row,0).value
+            _laudo = str(_laudo)
             _laudo = _laudo.replace('.0','')
 
             _data = xlsDate_as_datetime( sheet.cell(row,1).value, 0)
+
+            _data = timezone.make_aware(_data, timezone.get_current_timezone())
+
             _ponto = sheet.cell(row,2).value
             _param = sheet.cell(row,4).value
-            _caminho =sheet.cell(row,5).value
+
+            _caminho = ''
+            try:
+                _caminho =sheet.cell(row,6).value
+            except:
+                _caminhoa = ''
 
             try:
                 _valor = sheet.cell(row,3).value
@@ -102,39 +136,6 @@ class ProcMedicao:
                 self.paramConv[_de] = _para
 
 
-    def __sendMail(self):
-        objMail = Email()
-
-        content = u' '
-        content += u'Abaixo lista de erros encontrados ao processar as planilha dos laboratorios: <br>'
-        content += u'<table border="1">'
-        content += u'<thead>'
-        content += u'<tr>'
-        content += u'<td>Erro</td><td>Valor</td><td>Planilha</td>'
-        content += u'</tr>'
-        content += u'</thead>'
-        for item in sorted( self.erros, key= itemgetter('valor', 'msg')):
-            linha = u'<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>'\
-                  .format(item['msg'], \
-                         item['valor'],\
-                         item['planilha'])
-            content += linha
-
-
-
-
-        content += u'</table>'
-        content += u'<p> {0} Erros encontrados </p>'.format(len(self.erros))
-        content += u'<p> {0} Processados </p>'.format(self.processados)
-
-        destinatario = u'{0} <{1}>'.format('Wilson', 'wbeirigo@terravisiongeo.com.br')
-
-        objMail.EnviaMSG('Projeto CEMIG - Consistencia Parametros Laboratorios',
-                        content,
-                        [ destinatario, ],
-                        True )
-
-
     def __processaItem(self, item):
 
         """
@@ -142,7 +143,6 @@ class ProcMedicao:
         """
         if item.param in self.paramConv:
             item.param = self.paramConv[item.param].strip()
-
 
         if item.param == 'Excluir':
             return False
@@ -187,20 +187,44 @@ class ProcMedicao:
         """
         Tratamento de valor
         """
+        float_vlr = float(0)
+
+        if type(item.valor) == type(float(0)):
+            item.valor = u'{0}'.format(item.valor)
+
         if item.valor.strip() == 'L.T.':
             return False
 
-        if '<' in item.valor:
-            float_vlr = float(0)
+        _vl = item.valor.replace('<','').replace(',','.')
+        try:
+            float_vlr = float(_vl)
+        except:
+           self.__adderro(u'Erro ao converter valor',   \
+                        item.valor,                  \
+                        item.caminho )
+           return False
+
+
+
+
+        """
+        A data considerada é a data da planilha de dados em campo
+        Os dados da planilha só devem ser importados após os dados de campo
+        """
+        start_week = item.data - datetime.timedelta(item.data.weekday())
+        end_week = start_week + datetime.timedelta(7)
+        query = Medicao.objects.filter( PtoMonit_FK  = objLocal,
+                                        Parametro_FK = PARAMETRO_DATA,
+                                        data__range=[start_week, end_week]).values('data')
+        if query:
+            item.data =  query[0]['data']
+            if len(query) > 1:
+                self.__adderro(u'Foram encontrados mais de um parametro nesta faixa',
+                    u'{0} {1}'.format(objLocal.sigla, item.data), item.caminho )
         else:
-            _vl = item.valor.replace('<','').replace(',','.')
-            try:
-                float_vlr = float(_vl)
-            except:
-               self.__adderro(u'Erro ao converter valor',   \
-                            item.valor,                  \
-                            item.caminho )
-               return False
+            self.__adderro(u'Não foi encontrado dados de campo para processar a planilha',
+                    u'{0} {1}'.format(objLocal.sigla, item.data), item.caminho )
+            return False
 
 
         """
@@ -235,5 +259,4 @@ class ProcMedicao:
 
 
 def run():
-
    obj = ProcMedicao()

@@ -1,0 +1,2 @@
+No (valid) module for script 'teste' found
+Try running with a higher verbosity level like: -v2 or -v3

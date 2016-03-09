@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
 import django
 from normais.models import Parametro, Classe, Resultado
 import json
+
 
 # convert a dictionary to a class
 class Struct(object):
@@ -37,14 +38,14 @@ class Chart:
 
         if not  _tipo:
             raise ValueError('Tipo não definido');
-        
+
         saida['type'] = _tipo
-        
+
         if _title:
-            saida['title'] = { 'text' :  _title } 
-    
+            saida['title'] = { 'text' :  _title }
+
         if _title:
-            saida['subtitle'] = { 'text' :  _subtitle } 
+            saida['subtitle'] = { 'text' :  _subtitle }
 
         if _xAxis:
             saida['xAxis'] = _xAxis
@@ -58,16 +59,16 @@ class Chart:
         if _credits:
             saida['credits'] = _credits
 
-        saida['legend'] =  'true' if  _legend else 'false'   
+        saida['legend'] =  'true' if  _legend else 'false'
 
         if _series:
             saida['series'] = _series
 
         return saida
-       
+
 class NormalGraficos:
 
-    
+
 
     def __init__(self, _idStation, _texto):
         self.idStation = _idStation
@@ -82,12 +83,12 @@ class NormalGraficos:
         resultParam = Parametro.objects.get(codigo = idSerie)
 
         resultSerie  = Resultado.objects.filter(
-                                        Station_FK_id = self.idStation, 
+                                        Station_FK_id = self.idStation,
                                         Parametro_FK__codigo = idSerie)
         if len(resultSerie) > 0:
             dicionario = resultSerie[0].__dict__
-            for mes in self.meses:            
-                data.append( float(dicionario[mes])) 
+            for mes in self.meses:
+                data.append( float(dicionario[mes]))
 
         self.yAxis =  {
                          'title': {  'text': resultParam.unidade.encode('latin-1')}
@@ -95,7 +96,7 @@ class NormalGraficos:
 
 
 
-        saida =  {'name' : resultParam.Nome.encode('latin-1') , 'color': resultParam.corGrafico.encode('latin-1'), 'data' : data   } 
+        saida =  {'name' : resultParam.Nome.encode('latin-1') , 'color': resultParam.corGrafico.encode('latin-1'), 'data' : data   }
 
         return saida
 
@@ -107,7 +108,7 @@ class NormalGraficos:
         if tipo == 'line':
             plotOptions =  { 'line' : {    'dataLabels': {  'enabled': 'true'  } }  }
         else:
-            plotOptions = {  'column': {'pointPadding': 0.1, 'borderWidth': 0,  
+            plotOptions = {  'column': {'pointPadding': 0.1, 'borderWidth': 0,
                                         'dataLabels': {'enabled': 'true' }  } }
 
         return plotOptions
@@ -122,102 +123,102 @@ class NormalGraficos:
                   }
 
         colGrafico = []
-        col = [    {    'id'        : 1, 
-                        'title'     : 'Precipitação Acumulada',        
-                        'tipo'      : 'column',   
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
-                        'series'    : [11,] },  
+        col = [    {    'id'        : 1,
+                        'title'     : 'Precipitação Acumulada',
+                        'tipo'      : 'column',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
+                        'series'    : [11,] },
 
-                   {    'id'        : 2, 
-                        'title'     : 'Temperaturas',                  
-                        'tipo'      : 'line',     
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : True,  
-                        'series'    : [1,2,3,] } ,  
-                   {    'id'        : 3, 
-                        'title'     : 'Precipitação Máxima 24h',       
-                        'tipo'      : 'column',   
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
-                        'series'    : [12,] } ,  
-                   {    'id'        : 4, 
-                        'title'     : 'Temperatura Mínima Absoluta',   
-                        'tipo'      : 'line',     
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
-                        'series'    : [5,] } ,  
-                   {    'id'        : 5, 
-                        'title'     : 'Temperatura Máxima Absoluta',   
-                        'tipo'      : 'line',     
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
-                        'series'    : [4,] } , 
-                   {    'id'        : 6, 
-                        'title'     : 'Deficit e Superávit Hídrico',   
-                        'tipo'      : 'area',     
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
-                        'series'    : [19,] } ,  
-                   {    'id'        : 7, 
-                        'title'     : 'Umidade Relativa',              
-                        'tipo'      : 'column',   
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
-                        'series'    : [10,] } ,  
-                   {    'id'        : 8, 
-                        'title'     : 'Nebulosidade',                  
-                        'tipo'      : 'area',     
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
-                        'series'    : [9,] } ,  
-                   {    'id'        : 9, 
-                        'title'     : 'Pressão',                       
-                        'tipo'      : 'line',     
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
-                        'series'    : [6,] },  
-                   {    'id'        : 10, 
-                        'title'     : 'Insolação',                     
-                        'tipo'      : 'column',   
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
-                        'series'    : [7,] } ,  
-                   {    'id'        : 11, 
-                        'title'     : 'Dias com Chuva',                
-                        'tipo'      : 'column',   
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
-                        'series'    : [13,] } ,  
-                   {    'id'        : 12, 
-                        'title'     : 'Direção Predominante do Vento', 
-                        'tipo'      : 'line',     
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : True,  
-                        'series'    : [14,15,16,17,18,] },  
-                   {    'id'        : 13, 
-                        'title'     : 'Velocidade do Vento',           
-                        'tipo'      : 'line',     
-                        'categ'     : 99,   
-                        'credito'   : 0,   
-                        'legend'    : False, 
+                   {    'id'        : 2,
+                        'title'     : 'Temperaturas',
+                        'tipo'      : 'line',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : True,
+                        'series'    : [1,2,3,] } ,
+                   {    'id'        : 3,
+                        'title'     : 'Precipitação Máxima 24h',
+                        'tipo'      : 'column',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
+                        'series'    : [12,] } ,
+                   {    'id'        : 4,
+                        'title'     : 'Temperatura Mínima Absoluta',
+                        'tipo'      : 'line',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
+                        'series'    : [5,] } ,
+                   {    'id'        : 5,
+                        'title'     : 'Temperatura Máxima Absoluta',
+                        'tipo'      : 'line',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
+                        'series'    : [4,] } ,
+                   {    'id'        : 6,
+                        'title'     : 'Deficit e Superávit Hídrico',
+                        'tipo'      : 'area',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
+                        'series'    : [19,] } ,
+                   {    'id'        : 7,
+                        'title'     : 'Umidade Relativa',
+                        'tipo'      : 'column',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
+                        'series'    : [10,] } ,
+                   {    'id'        : 8,
+                        'title'     : 'Nebulosidade',
+                        'tipo'      : 'area',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
+                        'series'    : [9,] } ,
+                   {    'id'        : 9,
+                        'title'     : 'Pressão',
+                        'tipo'      : 'line',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
+                        'series'    : [6,] },
+                   {    'id'        : 10,
+                        'title'     : 'Insolação',
+                        'tipo'      : 'column',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
+                        'series'    : [7,] } ,
+                   {    'id'        : 11,
+                        'title'     : 'Dias com Chuva',
+                        'tipo'      : 'column',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
+                        'series'    : [13,] } ,
+                   {    'id'        : 12,
+                        'title'     : 'Direção Predominante do Vento',
+                        'tipo'      : 'line',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : True,
+                        'series'    : [14,15,16,17,18,] },
+                   {    'id'        : 13,
+                        'title'     : 'Velocidade do Vento',
+                        'tipo'      : 'line',
+                        'categ'     : 99,
+                        'credito'   : 0,
+                        'legend'    : False,
                         'series'    : [14,] },
             ]
-       
-        for item in col: 
-            
+
+        for item in col:
+
             colSeries = []
             for parametro in  item['series']:
 
@@ -232,13 +233,13 @@ class NormalGraficos:
                 if len(linha['data']) > 0:
                     colSeries.append(  linha )
 
-            if len(colSeries) > 0:       
-                itemGrafico = Chart().it( item['tipo'],      
-                                     item['title'],     
-                                     xAxis,             
-                                     self.yAxis,        
+            if len(colSeries) > 0:
+                itemGrafico = Chart().it( item['tipo'],
+                                     item['title'],
+                                     xAxis,
+                                     self.yAxis,
                                      self.plotOptions(item['tipo']),
-                                     credito,  
+                                     credito,
                                      item['legend'],
                                      colSeries,
                                      item['id'],
@@ -248,8 +249,8 @@ class NormalGraficos:
                 colGrafico.append(itemGrafico)
 
         return colGrafico
-   
-"""        
+
+"""
 http://jsfiddle.net/5m4djL4b/
 http://jsfiddle.net/5r3ffoky/
 http://jsfiddle.net/w172sc4t/

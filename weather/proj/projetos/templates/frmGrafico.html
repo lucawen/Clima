@@ -45,11 +45,11 @@
 			{% csrf_token %}
 			{{ form.as_p }}
 			<input type="submit" value="Enviar" />
-
 			<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-	
-
-		</form>            
+		</form>      
+        {% if link %}
+            <a href='{{link}}' target='_blank'>Relatóro</a>
+        {% endif %}
             </div>
         </div>
     </div>

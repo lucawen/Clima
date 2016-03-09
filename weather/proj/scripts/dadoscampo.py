@@ -6,10 +6,13 @@ from  param.models    import Param
 from  projetos.models import PtoMonit, Medicao, Projeto, Campanha
 from  toolbox.tools   import ObjectView
 from  toolbox.tools   import lerDataExcel, convert_excel_time
-from  dateutil        import parser
 import xlrd
 from  toolbox.maillib import Email
 from django.utils import timezone
+from datetime import datetime
+
+
+PARAMETRO_DATA = 840
 
 def getCampanha(idProjeto, dataHora):
 
@@ -40,12 +43,10 @@ def isMedicao(_ponto, _param, _data):
     return len(col) == 0
 
 
-
-
 def run():
 
     idProjeto = 1
-    caminho = '/home/wbeirigo/Clima/dados/dadoscampo/DADOS_CAMPO.xls'
+    caminho = "/media/projeto_cemig/01_PROJETO SOFTWARE/DADOSDECAMPO.xls"
     erros = []
     errosParam = 0
 
@@ -58,6 +59,7 @@ def run():
 
     for row in range(0, sheet.nrows):
 
+
         if row == 0:
             for col in colPos:
                 idParam =  int(sheet.cell(row, col).value)
@@ -69,13 +71,12 @@ def run():
                                  })
             errosParam = len(erros)
 
-
-
         if row >= 2 and errosParam == 0 :
 
             codEstacao = sheet.cell(row, 1).value
 
             objEstacao = PtoMonit.objects.filter(sigla= codEstacao)
+
             if len(objEstacao) == 0:
                 erros.append({  'linha':row, \
                                 'valor' : codEstacao,\
@@ -84,7 +85,6 @@ def run():
                 continue
 
             try:
-
                 data = lerDataExcel(sheet.cell(row,3).value)
                 hr = sheet.cell(row,4).value
                 hora = convert_excel_time(hr, False)
@@ -96,8 +96,10 @@ def run():
                                  })
                 continue
 
-            dataHora =  parser.parse(mask)
-            dataHora = timezone.make_aware(dataHora, timezone.get_current_timezone())
+
+            dataHora1 = datetime.strptime(mask, '%d-%m-%Y %H:%M:%S')
+            dataHora = timezone.make_aware(dataHora1, timezone.get_current_timezone())
+
 
             valores = []
             for col in colPos:
@@ -117,19 +119,22 @@ def run():
                 param  = sheet.cell(0, col).value
                 valores.append( [param, vlrF] )
 
+                """ Se for a primeira passagem do loop insere o parametro data para
+                    exibir na planilha
+                """
+                if colPos.index(col) == 0:
+                    param = valores.append( [PARAMETRO_DATA, 0] )
 
             registro = {'codEstacao' : codEstacao,               \
                         'data'       : dataHora,                 \
-                        'controle'   : 'Linha:{0}'.format(row),  \
+                        'controle'   : 'DADOS CPO:{0}'.format(row),  \
                         'valores'    : valores                   \
                        }
-
-
             item =ObjectView(registro)
-
             colMedicao.append(item)
 
 
+    label = None
     for item in colMedicao:
 
         objEstacao = PtoMonit.objects.get(sigla= item.codEstacao)
@@ -138,6 +143,12 @@ def run():
         for param, valor in item.valores:
             objParam = Param.objects.get(id= param)
 
+            if param == PARAMETRO_DATA:
+                label =item.data.isoformat()
+            else:
+                label = str(valor)
+
+
             if isMedicao(objEstacao, objParam,  item.data):
                 objMed = Medicao(Campanha_FK = objCampanha, \
                                 PtoMonit_FK = objEstacao,  \
@@ -145,33 +156,7 @@ def run():
                                 controle = item.controle,  \
                                 data = item.data,          \
                                 vlr  = valor,         \
-                                vlrLbl = '')
+                                vlrLbl = label)
                 objMed.save()
 
-
-    objMail = Email()
-
-    content = ' '
-    content += 'Abaixo lista de erros encontrados ao processar a planilha de parametros: <br>'
-
-    content += '<table border="1">'
-    content += '<thead>'
-    content += '<tr>'
-    content += '<td>Linha</td><td>Valor</td><td>Erro</td>'
-    content += '</tr>'
-    content += '</thead>'
-    for item in erros:
-        content += '<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>'\
-                   .format(item['linha'], item['valor'], item['msg'])
-    content += '</table>'
-    content += '<p> {0} Erros encontrados </p>'.format(len(erros))
-
-    content = objMail.mask().format(content)
-
-    destinatario = '{0} <{1}>'.format('Wilson', 'wbeirigo@terravisiongeo.com.br')
-
-    objMail.EnviaMSG('Projeto CEMIG - Consistencia Parametros Formulario',
-                    content,
-                    [ destinatario, ],
-                    True )
 

@@ -84,7 +84,7 @@ class Medicao(models.Model):
     controle    = models.CharField(max_length=20, blank=True)
     data        = models.DateTimeField()
     dataInc     = models.DateTimeField(default=timezone.now, blank=True)
-    vlr         = models.DecimalField(default=0, decimal_places=2, max_digits=16)
+    vlr         = models.DecimalField(default=0, decimal_places=4, max_digits=16)
     vlrLbl      = models.CharField(default='',  max_length=36, blank=True)
 
     class Meta:

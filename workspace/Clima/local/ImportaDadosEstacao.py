@@ -1,1 +1,0 @@
-/home/wbeirigo/Clima/workspace/Clima/ImportaDadosEstacao.py
