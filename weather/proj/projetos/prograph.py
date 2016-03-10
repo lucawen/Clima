@@ -112,11 +112,11 @@ series: [ {% for item in series %}
                                      classe_FK_id = ID_CLASSE)
     if col_limite:
         obj_limite = col_limite[0]
-        if obj_limite.vlr_max <> 0:
+        if obj_limite.vlr_max != 0:
             linha = [ float(obj_limite.vlr_max) for it in ptomonit ]
             lim_max = { 'name':'VMP', 'type':'line', 'color':'red', 'data':linha }
 
-        if obj_limite.vlr_min <> 0:
+        if obj_limite.vlr_min != 0:
             color = 'red' if lim_max  else 'blue'
             linha = [ float(obj_limite.vlr_min) for it in ptomonit ]
             lim_min = { 'name':'VMP', 'type':'line', 'color':color, 'data':linha }
@@ -200,6 +200,7 @@ def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
                    "Parametro_FK_id",
                    "PtoMonit_FK_id")
 
+    """
     grade_tabela = []
     for camp in _col_campanha:
         grade_tabela[camp] = []
@@ -207,6 +208,8 @@ def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
             grade[camp][param] = []
             for pto in _col_pontos:
                 grade_tabela[camp][param][pto] = ''
+    """
+
     for item in col0:
 
         if item['Parametro_FK_id'] in (798,840):
@@ -221,9 +224,6 @@ def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
             x = _col_parametro.index(item['Parametro_FK_id'])
             y = _col_pontos.index(item['PtoMonit_FK_id'])
             grade_tabela[z][x][y] = item['vlrLbl']
-
-
-    print grade_tabela
 
 
     for parametro  in _col_parametro:
