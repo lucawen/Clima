@@ -70,23 +70,23 @@ def run():
         insere = True
         if param[pos]['id'] == 840:
             newlinha = [ '{0:02d}/{1:02d}/{2}'.format(it.day, it.month, it.year) for it in item]
-            newlinha.insert(0, ('Data', '') )
+            newlinha.insert(0, ('Data', '', '') )
             col_linhas.append(newlinha)
 
             newlinha = ['{0:02d}:{1:02d}'.format(it.hour, it.minute) for it in item]
-            newlinha.insert(0, ('Hora', '') )
+            newlinha.insert(0, ('Hora', '', '') )
             col_linhas.append(newlinha)
             insere = False
 
 
         if param[pos]['id'] == 798:
             newlinha =list(item)
-            newlinha.insert(0, ('Profundidade', 'm') )
+            newlinha.insert(0, ('Profundidade', 'm', '') )
             col_linhas.append(newlinha)
             insere = False
 
         if insere:
-            reg = [ (it['nome'], it['unidade_FK__sigla']) for it in param if it['id']==key][0]
+            reg = [ (it['nome'], it['unidade_FK__sigla'], '') for it in param if it['id']==key][0]
             item.insert(0, reg)
             saida.append(item)
         pos +=1
@@ -99,34 +99,35 @@ def run():
     head_rel = [ item['sigla'] for item in pontos]
 
     document = Document()
-    document.add_heading('Document Title', 0)
-
-    step_cols = 7
+    step_col = 7
     start = 0
+    total = len(main_rel[1])
 
+    for start in range(0,total,step_col):
+        final = min( start+step_col , total)
+        table = document.add_table(rows=len(saida)+1, cols=(final-start)+3)
 
-    table = document.add_table(rows=len(saida)+2, cols=step_cols+2)
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = 'Ponto'
+        hdr_cells[1].text = 'Unidade'
+        hdr_cells[2].text = 'VMP'
+        pos = 3
+        for ptos in head_rel[start:final]:
+            hdr_cells[pos].text = ptos
+            pos += 1
 
-    hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = ''
-    hdr_cells[1].text = ''
-    pos = 2
-    for ptos in head_rel[start:step_cols]:
-        hdr_cells[pos].text = ptos
-        pos += 1
+        row = 0
+        for item in main_rel:
+           pos = 0
+           row_cells = table.rows[row+1].cells
+           for it in left_rel[row]:
+               row_cells[pos].text = u'{0}'.format(it)
+               pos += 1
 
-    row = 1
-    for item in main_rel:
-       pos = 0
-       row_cells = table.rows[row].cells
-       for it in left_rel[row-1]:
-           row_cells[pos].text = u'{0}'.format(it)
-           pos += 1
+           for coluna in item[start:final]:
+               row_cells[pos].text = u'{0}'.format(coluna)
+               pos += 1
+           row += 1
 
-       for coluna in item[start:step_cols]:
-           row_cells[pos].text = u'{0}'.format(coluna)
-           pos += 1
-       row += 1
-
-    document.add_page_break()
+        document.add_page_break()
     document.save('/home/wbeirigo/demo.docx')

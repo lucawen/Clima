@@ -21,10 +21,6 @@ def geraGraphico(_col_pontos, _col_campanha, _parametro,  _idleg, _idclasse):
     ID_LEGISLACAO = _idleg
     ID_CLASSE = _idclasse
 
-
-
-
-
     cores = [ '#73A374', '#b0ccb0', '#a8cdd7', '#c0beaf', '#cec597', '#e8b7b7', '#66A7B9', '#6a6755',
                 '#B4E789', '#F4AABA', '#94AECD', '#C2C174', '#8B878F', '#C3A3D7',
                 '#77B25A', '#E7ACBC', '#7E93A6', '#93B483','#BC8A97','#B6C6D6',
@@ -42,7 +38,7 @@ yAxis: [{title:{ text: '{{ str_param }}',style: {fontWeight: 'bold'} }, labels: 
 credits: { text: ' ', href: ' '},
 plotOptions: { line: { lineWidth: 2, marker: { enabled: false}}},
 series: [ {% for item in series %}
-{ color:'{{item.color}}', data:{{item.data}}, name:'{{ item.name}}', type:'{{item.type}}'},
+{ color:'{{item.color}}', borderColor:'#E6E6E6', data:{{item.data}}, name:'{{ item.name}}', type:'{{item.type}}'},
 {% endfor %}]}
 """
 
@@ -180,51 +176,178 @@ series: [ {% for item in series %}
 
     return saida
 
+
+
+
+
+
+def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
+
+    query = Medicao.objects.values('Parametro_FK_id', 'PtoMonit_FK_id', 'Campanha_FK_id', 'id')
+
+    col = []
+    qs = []
+    for item in query:
+        if item["PtoMonit_FK_id"] in _col_pontos and \
+           item["Campanha_FK_id"] in _col_campanha:
+
+            reg = (item['Parametro_FK_id'], item['PtoMonit_FK_id'])
+            if reg not in col:
+                col.append(reg)
+                qs.append(item)
+
+    df = pd.DataFrame.from_records(qs)
+    saida = pd.pivot_table(df, index=[ 'Parametro_FK_id'], columns=['PtoMonit_FK_id'], values=['id'], fill_value=0)
+
+    db_param  =  list(Param.objects.all().values('id', 'nome', 'unidade_FK__sigla').order_by('nome'))
+    db_pontos  = list(PtoMonit.objects.all().values('id', 'sigla').order_by('sigla'))
+
+    colunas = [ item[1] for item in  list(saida.columns)]
+    pontos = [ item for item in db_pontos if item['id'] in colunas ]
+    param = [ item for item in db_param if item['id'] in list(saida.index)]
+
+    linhas = []
+
+    """Header"""
+    linhaBranco = [ '' for item in colunas]
+
+    for x in param:
+        linhas.append(list(linhaBranco))
+
+    col_datas = []
+    pos_profund = []
+
+    for key_param in saida.index:
+        reg_param = [ item for item in param if item['id'] == key_param][0]
+        pos_param = param.index(reg_param)
+
+        for key_pto in saida.loc[key_param].index:
+            reg_pto = [ item for item in pontos if item['id'] == key_pto[1] ][0]
+            pos_pto = pontos.index(reg_pto)
+
+            key_vlr = saida.loc[key_param].get(key_pto)
+            if key_vlr == 0:
+                vlr = 0
+            else:
+                if key_param == 840:
+                    vlr = Medicao.objects.get(pk=key_vlr).data
+                else:
+                    vlr = Medicao.objects.get(pk=key_vlr).vlrLbl
+            linhas[pos_param][pos_pto] = vlr
+
+
+    pos = 0
+    col_linhas = []
+    saida = []
+    for item in linhas:
+        key = param[pos]['id']
+        insere = True
+        if param[pos]['id'] == 840:
+            newlinha = [ '{0:02d}/{1:02d}/{2}'.format(it.day, it.month, it.year) for it in item]
+            newlinha.insert(0, ('Data', '', '') )
+            col_linhas.append(newlinha)
+
+            newlinha = ['{0:02d}:{1:02d}'.format(it.hour, it.minute) for it in item]
+            newlinha.insert(0, ('Hora', '', '') )
+            col_linhas.append(newlinha)
+            insere = False
+
+
+        if param[pos]['id'] == 798:
+            newlinha =list(item)
+            newlinha.insert(0, ('Profundidade', 'm', '') )
+            col_linhas.append(newlinha)
+            insere = False
+
+        if insere:
+            reg = [ (it['nome'], it['unidade_FK__sigla'], '') for it in param if it['id']==key][0]
+            item.insert(0, reg)
+            saida.append(item)
+        pos +=1
+
+    for it in col_linhas:
+       saida.insert(0,it)
+
+    main_rel = [ item[1:] for item in saida ]
+    left_rel = [ item[:1][0] for item in saida ]
+    head_rel = [ item['sigla'] for item in pontos]
+
+    step_col = 7
+    start = 0
+    total = len(main_rel[1])
+
+    for start in range(0,total,step_col):
+        final = min( start+step_col , total)
+        table = document.add_table(rows=len(saida)+1, cols=(final-start)+3)
+
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = 'Ponto'
+        hdr_cells[1].text = 'Unidade'
+        hdr_cells[2].text = 'VMP'
+        pos = 3
+        for ptos in head_rel[start:final]:
+            hdr_cells[pos].text = ptos
+            pos += 1
+
+        row = 0
+        for item in main_rel:
+           pos = 0
+           row_cells = table.rows[row+1].cells
+           for it in left_rel[row]:
+               row_cells[pos].text = u'{0}'.format(it)
+               pos += 1
+
+           for coluna in item[start:final]:
+               row_cells[pos].text = u'{0}'.format(coluna)
+               pos += 1
+           row += 1
+
+        document.add_page_break()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
 
     document = Document()
     document.add_heading('Document Title', 0)
 
-
     URL_PHANTOM = 'http://10.3.0.29:3003'
     headers ={ 'Content-Type': 'application/json', '-X POST':'' }
-    indice = 1
+    indice = 0
 
-    col0 = Medicao.objects.\
-          values("Parametro_FK_id",
-                 "Campanha_FK_id",
-                 "PtoMonit_FK_id",
-                 "vlrLbl",
-                 "vlr").\
-          order_by("Campanha_FK_id",
-                   "Parametro_FK_id",
-                   "PtoMonit_FK_id")
-
-    """
-    grade_tabela = []
-    for camp in _col_campanha:
-        grade_tabela[camp] = []
-        for param in _col_param:
-            grade[camp][param] = []
-            for pto in _col_pontos:
-                grade_tabela[camp][param][pto] = ''
-    """
-
-    for item in col0:
-
-        if item['Parametro_FK_id'] in (798,840):
-            continue
-
-        if item['Campanha_FK_id'] in _col_campanha and \
-           item['PtoMonit_FK_id'] in _col_pontos and \
-           item['Parametro_FK_id'] in _col_parametro:
-
-
-            z = _col_campanha.index(item['Campanha_FK_id'])
-            x = _col_parametro.index(item['Parametro_FK_id'])
-            y = _col_pontos.index(item['PtoMonit_FK_id'])
-            grade_tabela[z][x][y] = item['vlrLbl']
-
+    indice += 1
+    document.add_heading(u'Quadro 6.{0} - - Resultados do monitoramento da qualidade da água'.format(indice, ''), level=2)
+    geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse)
 
     for parametro  in _col_parametro:
 
@@ -242,17 +365,17 @@ def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
         f.write(png_recovered)
         f.close()
 
+        indice += 1
         obj_param = Param.objects.get(pk=parametro)
         nome = obj_param.nome
         texto = obj_param.texto
-
         document.add_heading(u'6.{0} - {1}'.format(indice, nome), level=1)
 
-        document.add_paragraph(texto)
+        indice += 1
         document.add_heading(u'Figura 6.{0} -Resultados obtidos para o parâmetro {1}'.format(indice, nome), level=2)
+        document.add_paragraph(texto)
         document.add_picture(path, width=Inches(5.2))
         document.add_page_break()
-        indice += 1
     path = "/tmp/{0}.docx".format(int(time.time()*1000))
     document.save(path)
     return path
