@@ -26,15 +26,10 @@ def proc_medicao(tipo, colusinas, colcampanha):
         else:
             zona = 'S'
 
-        print(tipo,zona)
-
         if item.id not in pontos and \
            (tipo == zona or tipo == '*') and \
            item.parent_id in colusinas:
             pontos.append(item.id)
-
-
-    print(pontos)
 
     for item in Medicao.objects.all():
         if item.Campanha_FK_id in colcampanha :

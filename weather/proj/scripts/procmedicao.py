@@ -26,6 +26,7 @@ PATH_SAIDA  = '/media/projeto_cemig/01_SOFTWARE/'
 
 ID_PROJETO       = 1
 PARAMETRO_DATA   = 840
+PARAMETRO_TURBIDEZ  = 708
 
 
 class ProcMedicao:
@@ -204,9 +205,6 @@ class ProcMedicao:
                         item.caminho )
            return False
 
-
-
-
         """
         A data considerada é a data da planilha de dados em campo
         Os dados da planilha só devem ser importados após os dados de campo
@@ -232,11 +230,21 @@ class ProcMedicao:
         """
         col = Medicao.objects.filter( PtoMonit_FK  = objLocal,
                                       Parametro_FK = objParametro,
-                                      controle     = item.controle,
                                       data         = item.data)
         if len(col) > 0:
-            return False
+            reg = col[0]
+            """ Se o controle for o mesmo é reprocessamento da informação"""
+            if item.controle == reg.controle:
+                return False
 
+            """ Se o controle for diferente e o parametro for turbidez substitui pelo mais recente"""
+            if objParametro.id == PARAMETRO_TURBIDEZ:
+                reg.delete()
+            else:
+                """ Controle diferente e não é turbiudez deve gerar erro  """"
+                self.__adderro(u'Medição duplicada',
+                                u'{0} {1} {2}'.format(objLocal.sigla, item.data, objParametro.nome), item.caminho )
+                return False
 
         """
         Campanha
@@ -250,7 +258,6 @@ class ProcMedicao:
                                 data         = item.data,
                                 vlr          = float_vlr,
                                 vlrLbl       = item.valor)
-
         registro.save()
         self.processados += 1
 

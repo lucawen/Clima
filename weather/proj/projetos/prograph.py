@@ -14,6 +14,9 @@ from PIL import Image
 from StringIO import StringIO
 from docx import Document
 from docx.shared import Inches
+import os
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.section import WD_ORIENT
 
 
 def geraGraphico(_col_pontos, _col_campanha, _parametro,  _idleg, _idclasse):
@@ -30,11 +33,10 @@ def geraGraphico(_col_pontos, _col_campanha, _parametro,  _idleg, _idclasse):
                 '#D6C7A1','#9FA0A1','#4E763F','#495D71','#9F6270','#725E29','#5E5C57',
             ]
 
-    template = """
-{chart: {  width:800, plotBackgroundColor: '#E6E6E6'  },
+    template = """{chart: {width:800, plotBackgroundColor: '#E6E6E6'  },
 title: { text: ' ' },
 xAxis: [{ categories: {{categories|safe}} , crosshair: true, labels: {style: {fontWeight: 'bold'}}}],
-yAxis: [{title:{ text: '{{ str_param }}',style: {fontWeight: 'bold'} }, labels: { style: {fontWeight: 'bold'} }}],
+yAxis: [{title:{ text: '{{ str_param }}',style: {fontWeight: 'bold'} }, labels: { style: {fontWeight: 'bold'}, format: '{value:.{{casas}}f}' }}],
 credits: { text: ' ', href: ' '},
 plotOptions: { line: { lineWidth: 2, marker: { enabled: false}}},
 series: [ {% for item in series %}
@@ -167,17 +169,15 @@ series: [ {% for item in series %}
     """
     contexto = Context({    'categories' : categories,
                             'str_param': str_param,
+                            'casas': parametro.decimais,
                             'series':series})
+
     templ = Template(template)
     saida = templ.render(contexto)
-
     saida= '{"infile":"' + saida.encode('utf-8','ignore') + '","constr":"Chart"}'
     saida = saida.replace('\n','')
 
     return saida
-
-
-
 
 
 
@@ -199,7 +199,7 @@ def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
     df = pd.DataFrame.from_records(qs)
     saida = pd.pivot_table(df, index=[ 'Parametro_FK_id'], columns=['PtoMonit_FK_id'], values=['id'], fill_value=0)
 
-    db_param  =  list(Param.objects.all().values('id', 'nome', 'unidade_FK__sigla').order_by('nome'))
+    db_param  =  list(Param.objects.all().values('id', 'nome', 'unidade_FK__sigla', 'decimais').order_by('nome'))
     db_pontos  = list(PtoMonit.objects.all().values('id', 'sigla').order_by('sigla'))
 
     colunas = [ item[1] for item in  list(saida.columns)]
@@ -233,6 +233,7 @@ def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
                     vlr = Medicao.objects.get(pk=key_vlr).data
                 else:
                     vlr = Medicao.objects.get(pk=key_vlr).vlrLbl
+
             linhas[pos_param][pos_pto] = vlr
 
 
@@ -279,6 +280,8 @@ def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
     for start in range(0,total,step_col):
         final = min( start+step_col , total)
         table = document.add_table(rows=len(saida)+1, cols=(final-start)+3)
+        table.autofit = True
+        table.style= 'Table Grid'
 
         hdr_cells = table.rows[0].cells
         hdr_cells[0].text = 'Ponto'
@@ -302,53 +305,32 @@ def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
                pos += 1
            row += 1
 
-        document.add_page_break()
+        for row in range(len(saida)+1):
+            for col in range( (final-start)+3):
+                    table.cell(row,col).paragraphs[0].paragraph_format.alignment=WD_ALIGN_PARAGRAPH.CENTER
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    document.add_page_break()
 
 
 def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
 
-    document = Document()
-    document.add_heading('Document Title', 0)
+    document = Document('/home/wbeirigo/Clima/weather/proj/matriz.docx')
 
     URL_PHANTOM = 'http://10.3.0.29:3003'
     headers ={ 'Content-Type': 'application/json', '-X POST':'' }
     indice = 0
 
+
+    section = document.add_section()
+    section.orientation = WD_ORIENT.LANDSCAPE
     indice += 1
+    document.add_paragraph('  ', style='Normal')
+    document.add_paragraph('  ', style='Normal')
     document.add_heading(u'Quadro 6.{0} - - Resultados do monitoramento da qualidade da água'.format(indice, ''), level=2)
     geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse)
-
+    document.add_paragraph('  ', style='Normal')
+    section = document.add_section()
+    section.orientation = WD_ORIENT.PORTRAIT
     for parametro  in _col_parametro:
 
         """ Não processa parametros Data e Profundidade"""
@@ -369,13 +351,18 @@ def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
         obj_param = Param.objects.get(pk=parametro)
         nome = obj_param.nome
         texto = obj_param.texto
-        document.add_heading(u'6.{0} - {1}'.format(indice, nome), level=1)
-
-        indice += 1
-        document.add_heading(u'Figura 6.{0} -Resultados obtidos para o parâmetro {1}'.format(indice, nome), level=2)
-        document.add_paragraph(texto)
+        document.add_heading(u'6.{0} - {1}'.format(indice, nome), level=3)
+        document.add_paragraph('  ', style='Normal')
+        document.add_paragraph(texto, style='Normal')
+        document.add_paragraph('  ', style='Normal')
+        document.add_paragraph('  ', style='Normal')
+        document.add_paragraph(u'Figura 6.{0} -Resultados obtidos para o parâmetro {1}'.format(indice, nome), style='f')
         document.add_picture(path, width=Inches(5.2))
+        document.add_paragraph('  ', style='Normal')
+        last_paragraph = document.paragraphs[-1]
+        last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
         document.add_page_break()
+        os.remove(path)
     path = "/tmp/{0}.docx".format(int(time.time()*1000))
     document.save(path)
     return path
