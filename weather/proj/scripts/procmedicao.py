@@ -100,7 +100,12 @@ class ProcMedicao:
             try:
                 _caminho =sheet.cell(row,6).value
             except:
-                _caminhoa = ''
+                _caminho = ''
+
+
+            if  '01_OUTROS MONITORAMENTOS' in  _caminho:
+                continue
+
 
             try:
                 _valor = sheet.cell(row,3).value
@@ -145,7 +150,7 @@ class ProcMedicao:
         if item.param in self.paramConv:
             item.param = self.paramConv[item.param].strip()
 
-        if item.param == 'Excluir':
+        if item.param.tolower() == 'excluir':
             return False
 
 
@@ -170,7 +175,7 @@ class ProcMedicao:
             item.ponto  = item.ponto.replace(' ','').replace('-','').strip()
 
 
-        if item.ponto == 'Excluir':
+        if item.ponto.tolower() == 'excluir':
             return False
 
         col = PtoMonit.objects.filter(sigla = item.ponto)
@@ -241,7 +246,9 @@ class ProcMedicao:
             if objParametro.id == PARAMETRO_TURBIDEZ:
                 reg.delete()
             else:
-                """ Controle diferente e não é turbiudez deve gerar erro  """"
+                """
+                Controle diferente e não é turbiudez deve gerar erro
+                """
                 self.__adderro(u'Medição duplicada',
                                 u'{0} {1} {2}'.format(objLocal.sigla, item.data, objParametro.nome), item.caminho )
                 return False

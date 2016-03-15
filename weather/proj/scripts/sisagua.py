@@ -261,10 +261,8 @@ def run():
     print qtdErros
     print colPtosErrados
 
-    """
     print '-------------------------------------'
     for item in colPontos:
         print u'linha[{0}] de:[{1}] para:[{2}]'\
             .format(item[0], item[1], item[2])
-    """
 

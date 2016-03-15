@@ -10,7 +10,9 @@ import xlrd
 from  toolbox.maillib import Email
 from django.utils import timezone
 from datetime import datetime
-
+from xlwt import Workbook
+import os
+import time
 
 PARAMETRO_DATA = 840
 
@@ -133,6 +135,24 @@ def run():
             item =ObjectView(registro)
             colMedicao.append(item)
 
+
+
+    PATH_SAIDA  = '/media/projeto_cemig/01_SOFTWARE/'
+    workbook = Workbook()
+    sheet = workbook.add_sheet('Sheet1')
+
+    y = 1
+    for item in erros:
+        sheet.write(y, 0, u'{0}'.format(item['linha']) )
+        sheet.write(y, 1, u'{0}'.format(item['valor']) )
+        sheet.write(y, 2, u'{0}'.format(item['msg']) )
+        y +=1
+
+    novodir = '{0}{1}/'.format(PATH_SAIDA, datetime.now() )
+    os.makedirs(novodir)
+    path_saida ='{0}{1}.xls'.format(novodir, 'DadosCampo_error')
+    workbook.save(path_saida)
+    print('Erros salvos')
 
     label = None
     for item in colMedicao:

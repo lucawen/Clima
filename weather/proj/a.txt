@@ -1,0 +1,10 @@
+1,1-Dicloroeteno
+1,2 Diclorobenzeno
+1,2 Dicloroetano
+1,2,3-Triclorobenzeno
+1,2,4-Triclorobenzeno
+1,3,5-Triclorobenzeno
+1,4 Diclorobenzeno
+2,4,5-T
+2,4-D
+Exception while running run() in 'scripts.param_existe'

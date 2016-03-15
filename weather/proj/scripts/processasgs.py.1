@@ -46,7 +46,11 @@ class DirWalker(object):
             nfile = os.path.join(dir,file)
             meth(nfile)
             if os.path.isdir(nfile):
-                self.walk(nfile,meth)
+                name = format(nfile).encode('utf-8', 'ignore')
+                if nfile.startswith('/media/projeto_cemig/01_'):
+                    print(name)
+                else:
+                    self.walk(nfile,meth)
 
 
 dw = DirWalker()
@@ -62,7 +66,6 @@ print('step 1')
 book = xlwt.Workbook(encoding='utf-8')
 sheet1 = book.add_sheet("SAIDA")
 index = 0
-arq = "/media/projeto_cemig/01_SOFTWARE/procmedicao.xls"
 for planilha, arquivo in resultados:
     posVlr = - 1
     ponto = planilha[8][posVlr]
@@ -83,13 +86,14 @@ for planilha, arquivo in resultados:
             dsc_metodo not in [u'Data Amostragem',u'Hora Amostragem',u'Ultima Chuva',u'Tempo'] and \
             ponto and \
             u'{0}'.format(vlr):
-            arq_ = arquivo.decode('utf-8', 'ignore').replace('/','%')
-            for elem in [numrel, Converte_Data(data), ponto,vlr,metodo, item[1],arq_ ]:
+            for elem in [numrel, Converte_Data(data), ponto,vlr,metodo, item[1]]:
                 row = sheet1.row(index)
                 if type(elem) == type(""):
                     elem = u'{0}'.format(elem)
                 row.write(numcol, elem)
                 numcol += 1
-            index +=1
-book.save(arq)
+                row.write(numcol, arquivo.decode('utf-8', 'ignore' ))
+                index +=1
+
+book.save("/media/projeto_cemig/01_SOFTWARE/procmedicao.xls")
 
