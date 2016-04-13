@@ -2,16 +2,12 @@
 #!/usr/bin/env python
 
 import pandas as pd
-import django
-from param.models import Unidade, Param, Limites
-from projetos.models import Medicao, PtoMonit, Projeto, Campanha
+from param.models import Param, Limites
+from projetos.models import Medicao, PtoMonit, Campanha
 from django.template import Context, Template
-from json import dumps
 import requests
 import base64
 import time
-from PIL import Image
-from StringIO import StringIO
 from docx import Document
 from docx.shared import Inches
 import os
@@ -115,7 +111,7 @@ series: [ {% for item in series %}
             lim_max = { 'name':'VMP', 'type':'line', 'color':'red', 'data':linha }
 
         if obj_limite.vlr_min != 0:
-            color = 'red' if lim_max  else 'blue'
+            color = 'blue' if lim_max  else 'red'
             linha = [ float(obj_limite.vlr_min) for it in ptomonit ]
             lim_min = { 'name':'VMP', 'type':'line', 'color':color, 'data':linha }
 
@@ -183,6 +179,7 @@ series: [ {% for item in series %}
 
 def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
 
+
     query = Medicao.objects.values('Parametro_FK_id', 'PtoMonit_FK_id', 'Campanha_FK_id', 'id')
 
     col = []
@@ -214,9 +211,6 @@ def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
     for x in param:
         linhas.append(list(linhaBranco))
 
-    col_datas = []
-    pos_profund = []
-
     for key_param in saida.index:
         reg_param = [ item for item in param if item['id'] == key_param][0]
         pos_param = param.index(reg_param)
@@ -227,12 +221,20 @@ def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
 
             key_vlr = saida.loc[key_param].get(key_pto)
             if key_vlr == 0:
-                vlr = 0
+                vlr = ''
             else:
                 if key_param == 840:
                     vlr = Medicao.objects.get(pk=key_vlr).data
                 else:
-                    vlr = Medicao.objects.get(pk=key_vlr).vlrLbl
+                    record = Medicao.objects.get(pk=key_vlr)
+                    simbol = ''
+                    if '<' in record.vlrLbl:
+                        simbol = '<'
+                    if '>' in record.vlrLbl:
+                        simbol = '>'
+
+                    casas = param[pos_param]['decimais']
+                    vlr = '{0}{1:.{2}f}'.format(simbol, record.vlr, casas).replace('.',',')
 
             linhas[pos_param][pos_pto] = vlr
 
@@ -261,7 +263,41 @@ def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
             insere = False
 
         if insere:
-            reg = [ (it['nome'], it['unidade_FK__sigla'], '') for it in param if it['id']==key][0]
+            vleg = int(_idleg)
+            vclass = int(_idclasse)
+            vparam = param[pos]['id']
+            col_limite  = Limites.objects.filter(parametro_FK_id =vparam,
+                                                 legislacao_FK_id = vleg,
+                                                 classe_FK_id = vclass)
+
+            if len(col_limite):
+                casas = param[pos]['decimais']
+                vlr_max = col_limite[0].vlr_max
+                if  vlr_max == 0:
+                    vlr_max = ''
+                else:
+                    vlr_max = '{0:.{1}f}'.format(vlr_max, casas).replace('.',',')
+
+                vlr_min = col_limite[0].vlr_min
+                if  vlr_min == 0:
+                    vlr_min = ''
+                else:
+                    vlr_min = '{0:.{1}f}'.format(vlr_min, casas).replace('.',',')
+
+
+                if vlr_max  and vlr_min:
+                    vlr = vlr_min + ' - ' + vlr_max
+                elif vlr_min:
+                    vlr = vlr_min
+                elif vlr_max:
+                    vlr = vlr_max
+
+
+
+            else:
+                vlr = ''
+
+            reg = [ (it['nome'], it['unidade_FK__sigla'], vlr) for it in param if it['id']==key][0]
             item.insert(0, reg)
             saida.append(item)
         pos +=1
@@ -278,6 +314,7 @@ def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
     total = len(main_rel[1])
 
     for start in range(0,total,step_col):
+        document.add_page_break()
         final = min( start+step_col , total)
         table = document.add_table(rows=len(saida)+1, cols=(final-start)+3)
         table.autofit = True
@@ -341,6 +378,9 @@ def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
         if not saida:
             continue
         r = requests.post(URL_PHANTOM, data=saida, headers=headers)
+        print('-------------------------------------------------------------')
+        print(r.content)
+        print('-------------------------------------------------------------')
         png_recovered = base64.decodestring(r.content)
         path = "/tmp/{0}.png".format(int(time.time()*1000))
         f = open(path, "w")

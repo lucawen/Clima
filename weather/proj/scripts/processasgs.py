@@ -48,48 +48,47 @@ class DirWalker(object):
             if os.path.isdir(nfile):
                 self.walk(nfile,meth)
 
+def run():
 
-dw = DirWalker()
-dw.walk(path, cb)
+    dw = DirWalker()
+    dw.walk(path, cb)
 
-metodos = {}
-unidades = []
-linhas = []
-saida = []
+    metodos = {}
+    unidades = []
+    linhas = []
+    saida = []
 
-print('step 1')
+    book = xlwt.Workbook(encoding='utf-8')
+    sheet1 = book.add_sheet("SAIDA")
+    index = 0
+    arq = "/media/projeto_cemig/01_SOFTWARE/procmedicao.xls"
+    for planilha, arquivo in resultados:
+        posVlr = - 1
+        ponto = planilha[8][posVlr]
+        data = planilha[9][posVlr]
+        numrel = planilha[0][1]
+        for item in planilha[10:]:
+            metodo = item[0]
+            if not metodo in metodos:
+                metodos[metodo] = item[1]
+            if not  item[1] in unidades:
+                unidades.append(item[1])
 
-book = xlwt.Workbook(encoding='utf-8')
-sheet1 = book.add_sheet("SAIDA")
-index = 0
-arq = "/media/projeto_cemig/01_SOFTWARE/procmedicao.xls"
-for planilha, arquivo in resultados:
-    posVlr = - 1
-    ponto = planilha[8][posVlr]
-    data = planilha[9][posVlr]
-    numrel = planilha[0][1]
-    for item in planilha[10:]:
-        metodo = item[0]
-        if not metodo in metodos:
-            metodos[metodo] = item[1]
-        if not  item[1] in unidades:
-            unidades.append(item[1])
-
-        vlr = item[posVlr]
-        numcol = 0
-        dsc_metodo = u'{0}'.format(metodo)
-        if dsc_metodo and   \
-            dsc_metodo[:7] not in ['LEGENDA', '* VMP -'] and \
-            dsc_metodo not in [u'Data Amostragem',u'Hora Amostragem',u'Ultima Chuva',u'Tempo'] and \
-            ponto and \
-            u'{0}'.format(vlr):
-            arq_ = arquivo.decode('utf-8', 'ignore').replace('/','%')
-            for elem in [numrel, Converte_Data(data), ponto,vlr,metodo, item[1],arq_ ]:
-                row = sheet1.row(index)
-                if type(elem) == type(""):
-                    elem = u'{0}'.format(elem)
-                row.write(numcol, elem)
-                numcol += 1
-            index +=1
-book.save(arq)
+            vlr = item[posVlr]
+            numcol = 0
+            dsc_metodo = u'{0}'.format(metodo)
+            if dsc_metodo and   \
+                dsc_metodo[:7] not in ['LEGENDA', '* VMP -'] and \
+                dsc_metodo not in [u'Data Amostragem',u'Hora Amostragem',u'Ultima Chuva',u'Tempo'] and \
+                ponto and \
+                u'{0}'.format(vlr):
+                arq_ = arquivo.decode('utf-8', 'ignore').replace('/','%')
+                for elem in [numrel, Converte_Data(data), ponto,vlr,metodo, item[1],arq_ ]:
+                    row = sheet1.row(index)
+                    if type(elem) == type(""):
+                        elem = u'{0}'.format(elem)
+                    row.write(numcol, elem)
+                    numcol += 1
+                index +=1
+    book.save(arq)
 

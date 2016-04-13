@@ -22,8 +22,10 @@ def run():
     for row in range(3, sheet.nrows):
 
         idParam =  int(sheet.cell(row, 0).value)
-        obj_param = Param.objects.get(id=idParam)
-        if not obj_param:
+        try:
+            obj_param = Param.objects.get(id=idParam)
+        except:
+            print('Parametro {0} não existe'.format(idParam))
             continue
 
         for col in  col_colunas:
@@ -50,5 +52,5 @@ def run():
             key_legis  = col_legis[indice]
             obj_legis = Legislacao.objects.get(pk=key_legis )
 
-            registro = Limites(classe_FK = obj_classe, legislacao_FK=obj_legis, parametro_FK = obj_param, vlr_min = valor0,  vlr_max = valor1)
+            registro = Limites(classe_FK = obj_classe, legislacao_FK=obj_legis, parametro_FK = obj_param, vlr_min = valor1,  vlr_max = valor0)
             Limites.save(registro)

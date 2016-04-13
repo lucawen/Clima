@@ -37,10 +37,7 @@ def proc_medicao(tipo, colusinas, colcampanha):
                 if item.Parametro_FK_id not in parametros:
                     parametros.append(item.Parametro_FK_id)
 
-
     return parametros, pontos
-
-
 
 
 
@@ -63,7 +60,7 @@ def viewGrafico(request):
                                       colusinas,
                                       colcampanha)
 
-            link = prograph.processa(pontos, colcampanha, parametros, classe, legislacao)
+            link = prograph.processa(pontos, colcampanha, parametros, legislacao, classe )
 
     else:
 	form = frmGrafico()

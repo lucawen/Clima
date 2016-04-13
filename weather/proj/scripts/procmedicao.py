@@ -150,7 +150,7 @@ class ProcMedicao:
         if item.param in self.paramConv:
             item.param = self.paramConv[item.param].strip()
 
-        if item.param.tolower() == 'excluir':
+        if item.param == u'excluir' or item.param == u'EXCLUIR' or item.param == u'Excluir' :
             return False
 
 
@@ -175,7 +175,7 @@ class ProcMedicao:
             item.ponto  = item.ponto.replace(' ','').replace('-','').strip()
 
 
-        if item.ponto.tolower() == 'excluir':
+        if item.ponto == u'excluir' or item.ponto == u'EXCLUIR' or item.ponto == u'Excluir' :
             return False
 
         col = PtoMonit.objects.filter(sigla = item.ponto)

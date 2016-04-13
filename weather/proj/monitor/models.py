@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*- 
-#!/usr/bin/env python 
+# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 
 from django.db import models
 from django.contrib.gis.db import models
@@ -18,10 +18,10 @@ class Projeto(models.Model):
     class Meta:
         verbose_name = 'Projeto'
         verbose_name_plural = 'Projetos'
-	ordering = ['nome',]     
+	ordering = ['nome',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.nome) 
+    def __unicode__(self):
+        return u'{0}'.format(self.nome)
 
 
 class Camada(models.Model):
@@ -30,14 +30,14 @@ class Camada(models.Model):
     nome        = models.CharField(max_length=100, verbose_name='Layer')
     url         = models.URLField(max_length=300, verbose_name='URL Layer')
     isExtent    = models.BooleanField(default = False)
-    
+
     class Meta:
         verbose_name = 'Camada'
         verbose_name_plural = 'Camadas'
-        ordering = ['nome',]     
+        ordering = ['nome',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.nome) 
+    def __unicode__(self):
+        return u'{0}'.format(self.nome)
 
 
 class Equipe(models.Model):
@@ -48,14 +48,14 @@ class Equipe(models.Model):
     foneFixo      = models.CharField(max_length=20 )
     foneCel       = models.CharField(max_length=20)
 
-    
+
     class Meta:
         verbose_name = 'Equipe'
         verbose_name_plural = 'Equipes'
-        ordering = ['nome',]     
+        ordering = ['nome',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.nome) 
+    def __unicode__(self):
+        return u'{0}'.format(self.nome)
 
 class FocoWFABBA(models.Model):
     dataUTC     = models.DateTimeField()
@@ -78,10 +78,10 @@ class FocoWFABBA(models.Model):
         return self.posicao
 
     class Meta:
-        ordering = ['dataUTC',]     
+        ordering = ['dataUTC',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.dataUTC) 
+    def __unicode__(self):
+        return u'{0}'.format(self.dataUTC)
 
 class FocoFIRMS(models.Model):
     #https://earthdata.nasa.gov/files/README_TXT.pdf
@@ -104,21 +104,21 @@ class FocoFIRMS(models.Model):
         return self.posicao
 
     class Meta:
-        ordering = ['dataUTC',]     
+        ordering = ['dataUTC',]
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.dataUTC) 
+    def __unicode__(self):
+        return u'{0}'.format(self.dataUTC)
 
 
 class Alarme(models.Model):
-    
+
     Projeto_FK  = models.ForeignKey(Projeto, verbose_name="Projeto" )
     isenviado   = models.IntegerField(default=0)
     data        = models.DateTimeField(default=timezone.now)
     msg         = models.TextField(default='',blank=True)
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.msg) 
+    def __unicode__(self):
+        return u'{0}'.format(self.msg)
 
 class ItemAlarme(models.Model):
 
@@ -134,11 +134,11 @@ class ItemAlarme(models.Model):
     firesize    = models.DecimalField(default=0, decimal_places=4, max_digits=16)
     confianca   = models.DecimalField(default=0, decimal_places=4, max_digits=16)
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.id) 
+    def __unicode__(self):
+        return u'{0}'.format(self.id)
 
     class Meta:
-        ordering = ['dataUTC',]     
+        ordering = ['dataUTC',]
 
 class KPI(models.Model):
 
@@ -148,11 +148,11 @@ class KPI(models.Model):
     icone       = models.CharField(max_length=15)
     msg         = models.TextField(default='',blank=True)
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.nome) 
+    def __unicode__(self):
+        return u'{0}'.format(self.nome)
 
     class Meta:
-        ordering = ['ordem',]     
+        ordering = ['ordem',]
 
 
 class KPI_Nivel(models.Model):
@@ -163,11 +163,11 @@ class KPI_Nivel(models.Model):
     texto   = models.CharField(max_length=20)
     cor     = models.CharField(max_length=10)
 
-    def __unicode__(self):              
-        return u'{0}'.format(self.texto) 
+    def __unicode__(self):
+        return u'{0}'.format(self.texto)
 
     class Meta:
-        ordering = ['KPI_FK','v1',]     
+        ordering = ['KPI_FK','v1',]
 
 
 
