@@ -6,13 +6,14 @@ from param.models import Unidade, Param
 from projetos.models import Medicao, PtoMonit, Projeto, Campanha
 import datetime
 import xlrd
+import xlwt
 import chardet
 from dateutil import parser, tz
+from datetime import datetime, date
 from django.utils import timezone
 import pytz
 
-PLANILHA = '/home/wbeirigo/Clima/dados/sisagua/dados_ajuste.xls'
-
+PLANILHA = '/media/projeto_cemig/01_PROJETO SOFTWARE/Dadosarodar/DadosCEMIG20132015.xls'
 
 def pesquisa(ponto):
 
@@ -83,34 +84,6 @@ def pesquisa(ponto):
     return (query,key)
 
 
-
-def checaPontos():
-
-    ROW_INICIAL = 4
-
-    lista = []
-
-    workbook = xlrd.open_workbook(PLANILHA)
-    sheet = workbook.sheet_by_index(0)
-    for row in range(ROW_INICIAL, sheet.nrows):
-
-        if sheet.cell(row,0).value == '':
-            continue
-
-        ponto = u'{0}'.format(sheet.cell(row,1).value)
-
-        query, key = pesquisa(ponto)
-        lista.append([ ponto,  key, len(query) ] )
-
-
-    for item in lista:
-        print  u'{0};{1};{2};'.format(
-                    item[0].encode('ascii','ignore'),
-                    item[1],
-                    item[2] )
-
-    print len(lista)
-
 def matriz():
 
     workbook = xlrd.open_workbook(PLANILHA)
@@ -129,83 +102,67 @@ def matriz():
 
     return col
 
-def lerDataExcel(vlr):
-    date = datetime.datetime(1899, 12, 30)
-    get_ = datetime.timedelta(int(vlr))
-    get_col2 = str(date + get_)[:10]
-    d = datetime.datetime.strptime(get_col2, '%Y-%m-%d')
-    return d
+
+
+def Converte_Data(param):
+
+    try:
+        data_int = xlrd.xldate_as_tuple(int(param), 0)
+        saida_1 = date(data_int[0], data_int[1], data_int[2])
+    except:
+        saida_1 = date(1900,1,1)
+
+    return saida_1
 
 def convert_excel_time(t, hour24=True):
-    if t > 1:
-        t = t%1
-    seconds = round(t*86400)
-    minutes, seconds = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-    if hour24:
-        if hours > 12:
-            hours -= 12
-            return "%d:%d:%d PM" % (hours, minutes, seconds)
-        else:
-            return "%d:%d:%d AM" % (hours, minutes, seconds)
+    try:
+        if t > 1:
+            t = t%1
+        seconds = round(t*86400)
+        minutes, seconds = divmod(seconds, 60)
+        hours, minutes = divmod(minutes, 60)
+        if hour24:
+           if hours > 12:
+               hours -= 12
+               return "%d:%d:%d PM" % (hours, minutes, seconds)
+           else:
+               return "%d:%d:%d AM" % (hours, minutes, seconds)
+    except:
+       hours = 0
+       minutes = 0
+       seconds = 0
 
     return int(hours), int(minutes), int(seconds)
 
 
+
+
 def run():
 
-    query = Medicao.objects.all()
-    query.delete()
-    query.update()
+    registros = []
+    erros = []
 
     qtdErros = 0
     colPtosErrados = []
     colPontos = []
-    col = []
 
     objMatriz = matriz()
 
     ROW_INICIAL = 6
 
-    objProjeto = Projeto.objects.get(pk=1)
-
-    campos = ('Campanha_FK', 'PtoMonit_FK'
-              'Parametro_FK', 'controle'
-              'data', 'dataInc'
-              'vlr', 'vlrLbl')
-
     workbook = xlrd.open_workbook(PLANILHA, formatting_info=True)
     sheet = workbook.sheet_by_index(0)
     for linha in range(ROW_INICIAL, sheet.nrows):
 
-        data = lerDataExcel(sheet.cell(linha,3).value)
+        data = Converte_Data(sheet.cell(linha,3).value)
         hora, minuto, segundo = convert_excel_time(sheet.cell(linha,4).value, False)
 
-        data1 = datetime.datetime(data.year, data.month, data.day, hora, minuto, segundo)
+        data1 = datetime(data.year, data.month, data.day, hora, minuto, segundo)
         dataHora = pytz.timezone(django.utils.timezone.get_default_timezone_name()).localize(data1)
 
-        """
-        Campanha
-        """
-        colCampanha = Campanha.objects.\
-                      filter(Projeto_FK_id = objProjeto.id,\
-                             ano = dataHora.year,\
-                             mes = dataHora.month)
+        keyPto = u'{0}'.format(sheet.cell(linha,8).value)
 
-        if len(colCampanha)  == 0:
-            nmCamp = 'Campanha {0}/{1}'.format(dataHora.month, dataHora.year)
-            objCampanha = Campanha( nome = nmCamp,
-                                    mes  =  dataHora.month,
-                                    ano  =  dataHora.year,
-                                    Projeto_FK = objProjeto)
-            objCampanha.save()
-        else:
-            objCampanha = colCampanha[0]
 
-        """
-        Ponto de monitoramento
-        """
-        keyPto = u'{0}'.format(sheet.cell(linha,1).value)
         objPonto, keyPto1 = pesquisa(keyPto)
 
         if keyPto1 == 'XXXX':
@@ -216,17 +173,19 @@ def run():
             qtdErros += 1
             continue
 
+
+
+
+
         for coluna in objMatriz:
             keyParam = objMatriz[coluna]
             if '-' in str(keyParam) or str(keyParam).strip() == '':
                 continue
             objParam = Param.objects.filter(id=keyParam)
             if len(objParam) == 0:
-                print 'não achou parametro', keyParam
-                qtdErros += 1
+                erros.append(keyParam)
+                #print('não achou parametro', keyParam)
                 continue
-
-
 
             #Verifica sinal
             sinal = ''
@@ -248,21 +207,34 @@ def run():
                     vlr_grava = 0
                     lbl_grava = vlr
 
-                lbl_grava = lbl_grava.replace('.',',')
-                obj = Medicao(  Campanha_FK  = objCampanha,
-                                PtoMonit_FK  = objPonto[0],
-                                Parametro_FK = objParam[0],
-                                controle     = '{0}'.format(linha),
-                                data         = dataHora,
-                                vlr          = vlr_grava,
-                                vlrLbl       = lbl_grava )
-                obj.save()
+                registro = ( 'CEM{0}'.format(linha),
+                            data1,
+                            objPonto[0].sigla,
+                            lbl_grava,
+                            objParam[0].nome,
+                            '-',
+                            'Planilha Sisagua' )
+                registros.append(registro)
 
-    print qtdErros
-    print colPtosErrados
 
-    print '-------------------------------------'
-    for item in colPontos:
-        print u'linha[{0}] de:[{1}] para:[{2}]'\
-            .format(item[0], item[1], item[2])
+
+
+
+
+    book = xlwt.Workbook(encoding='utf-8')
+    sheet1 = book.add_sheet("SAIDA")
+    index = 0
+    arq = "/media/projeto_cemig/01_SOFTWARE/consolidado_sisagua.xls"
+    indice = 0
+    for reg in registros:
+        row = sheet1.row(indice)
+        col = 0
+        for vlr in range(len(reg)):
+            row.write(col, reg[vlr])
+            col += 1
+        indice += 1
+
+    book.save(arq)
+
+    print('Fim..')
 

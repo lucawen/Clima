@@ -16,8 +16,12 @@ from xlwt import Workbook
 import os
 import time
 
-PATH_ARQUIVO     = '/media/projeto_cemig/01_SOFTWARE/procmedicao.xls'
-#PATH_ARQUIVO     = '/home/wbeirigo/Clima/dados/bioagri/consolidado.xls'
+
+PROCESSO_ANTIGO = True
+
+#PATH_ARQUIVO     = '/media/projeto_cemig/01_SOFTWARE/procmedicao.xls'
+#PATH_ARQUIVO     = '/media/projeto_cemig/01_SOFTWARE/consolidado_bioagri.xls'
+PATH_ARQUIVO     = '/media/projeto_cemig/01_SOFTWARE/consolidado_sisagua.xls'
 PATH_FERRAMENTA  = '/media/projeto_cemig/01_PROJETO SOFTWARE/converte.xls'
 
 
@@ -61,7 +65,6 @@ class ProcMedicao:
             sheet.write(y, 1, u'{0}'.format(item['valor']) )
             sheet.write(y, 2, u'{0}'.format(item['planilha']) )
             y +=1
-            print(y)
 
         novodir = '{0}{1}/'.format(PATH_SAIDA, datetime.datetime.now() )
         os.makedirs(novodir)
@@ -225,10 +228,10 @@ class ProcMedicao:
                 self.__adderro(u'Foram encontrados mais de um parametro nesta faixa',
                     u'{0} {1}'.format(objLocal.sigla, item.data), item.caminho )
         else:
-            self.__adderro(u'Não foi encontrado dados de campo para processar a planilha',
-                    u'{0} {1}'.format(objLocal.sigla, item.data), item.caminho )
-            return False
-
+            if not PROCESSO_ANTIGO:
+                self.__adderro(u'Não foi encontrado dados de campo para processar a planilha',
+                        u'{0} {1}'.format(objLocal.sigla, item.data), item.caminho )
+                return False
 
         """
         Medicao
@@ -274,3 +277,4 @@ class ProcMedicao:
 
 def run():
    obj = ProcMedicao()
+   print('Fim')

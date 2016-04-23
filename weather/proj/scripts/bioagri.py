@@ -20,7 +20,7 @@ def xlsDate_as_datetime(xldate, datemode):
 def run():
 
 
-    caminho = '/media/projeto_cemig/01_PLANILHAS/EXCELBIOAGRI/ '
+    caminho = '/media/projeto_cemig/01_PLANILHAS/EXCELBIOAGRI/'
 
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet('Plan1')
@@ -36,30 +36,30 @@ def run():
 
 
     for e in os.walk(caminho):
+        print(e)
         for file in e[2]:
             arquivo  = caminho + file
             workbook = xlrd.open_workbook(arquivo)
             sheet = workbook.sheet_by_index(0)
             for row in range(1, sheet.nrows):
-		_contrato = sheet.cell(row,1).value
-		_data = sheet.cell(row,15).value
-		_ponto = sheet.cell(row,8).value
-		_valor = sheet.cell(row,20).value
-		_param = sheet.cell(row,19).value
-		_unidade = sheet.cell(row,21).value
+                _contrato = sheet.cell(row,1).value
+                _data = sheet.cell(row,15).value
+                _ponto = sheet.cell(row,8).value
+                _valor = sheet.cell(row,20).value
+                _param = sheet.cell(row,19).value
+                _unidade = sheet.cell(row,21).value
 
-		if u'RESULTADO' in u'{0}'.format(_valor).upper():
-		    continue
+                if u'RESULTADO' in u'{0}'.format(_valor).upper():
+                    continue
 
-		print _valor
-  		ln += 1
+                ln += 1
                 ws.write(ln,0, _contrato)
                 ws.write(ln,1, _data)
                 ws.write(ln,2, _ponto)
                 ws.write(ln,3, _valor)
                 ws.write(ln,4, _param)
                 ws.write(ln,5, _unidade)
-
-    wb.save(caminho+'consolidado.xls')
+    arq = "/media/projeto_cemig/01_SOFTWARE/consolidado_bioagri.xls"
+    wb.save(arq)
 
 

@@ -378,9 +378,6 @@ def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
         if not saida:
             continue
         r = requests.post(URL_PHANTOM, data=saida, headers=headers)
-        print('-------------------------------------------------------------')
-        print(r.content)
-        print('-------------------------------------------------------------')
         png_recovered = base64.decodestring(r.content)
         path = "/tmp/{0}.png".format(int(time.time()*1000))
         f = open(path, "w")
@@ -403,7 +400,8 @@ def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
         last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
         document.add_page_break()
         os.remove(path)
-    path = "/tmp/{0}.docx".format(int(time.time()*1000))
+    caminho = '/media/projeto_cemig/01_SOFTWARE/rel/'
+    path = caminho + "{0}.docx".format(int(time.time()*1000))
     document.save(path)
     return path
 
