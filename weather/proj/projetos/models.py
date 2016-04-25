@@ -70,7 +70,7 @@ class Campanha(models.Model):
     class Meta:
         verbose_name = 'Campanha'
         verbose_name_plural = 'Campanhas'
-        ordering = ['nome',]
+        ordering = ['ano','mes',]
 
     def __unicode__(self):
         return u'{0}'.format(self.nome)

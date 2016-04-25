@@ -47,23 +47,22 @@ def viewGrafico(request):
     grafJson = ''
     link = ''
     if request.method == 'POST':
-	form = frmGrafico(request.POST)
-	if form.is_valid():
-            colusinas = [ vlr.id for vlr in form.cleaned_data['usinas'] ]
-            colcampanha =  [ vlr.id for vlr in form.cleaned_data['campanhas'] ]
+            form = frmGrafico(request.POST)
+            if form.is_valid():
+                colusinas = [ vlr.id for vlr in form.cleaned_data['usinas'] ]
+                colcampanha =  [ vlr.id for vlr in form.cleaned_data['campanhas'] ]
 
-            classe     = request.POST['classe']
-            sufixo  = request.POST['sufixo']
-            legislacao = request.POST['legislacao']
+                classe     = request.POST['classe']
+                sufixo  = request.POST['sufixo']
+                legislacao = request.POST['legislacao']
 
-            (parametros, pontos) = proc_medicao(sufixo,
-                                      colusinas,
-                                      colcampanha)
+                (parametros, pontos) = proc_medicao(sufixo,
+                                          colusinas,
+                                          colcampanha)
 
-            link = prograph.processa(pontos, colcampanha, parametros, legislacao, classe )
-
+                link = prograph.processa(pontos, colcampanha, parametros, legislacao, classe )
     else:
-	form = frmGrafico()
+        form = frmGrafico()
 
     return render(request, 'frmGrafico.html', {'form': form, 'grafJson': grafJson, 'link': link} )
 

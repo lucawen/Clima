@@ -1,45 +1,18 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
-import django
-from monitor import firms, wfabba, alarme
-from  toolbox.maillib import Email
+from projetos import prograph
+from datetime import datetime
 
 def run():
+    col_pontos = [2315, 2316, 2317, 2318]
+    col_campanha = [72, 110]
+    parametro =  [604, 785, 784, 709, 781, 569, 618, 783, 602, 574, 700, 782, 567, 573, 715, 598, 588, 563, 701, 703, 726]
+    idclasse = 2
+    idleg = 0
 
-    msgs = []
-
-    try:
-	obj = firms.FIRMS()
-	obj.processa()
-    except:
-	msgs.append('FIRMS: Erro ao processar FIRM')
-    finally:	
-	del obj
-
-    try: 
-        obj = wfabba.WFABBA()
-	obj.processa()
-    except:
-	msgs.append('WFABB: Erro ao processar WFABBA')
-    finally:	
-	del obj
-
-
-
-    try:
-        obj = alarme.AlarmeProc()
-        obj.processa()
-    except:
-	msgs.append('ALARME: Erro ao processar ALARME')
-    finally:	
-	del obj
-
-    if msgs:
-        msg = ''.join(str(e) for e in msgs)
-	objMail = Email()
-	objMail.EnviaMSG('Fire Monitor',
-		         'ROTINA DE PROCESSAMENTO FIREMONITOR,' + msg,
-                         [ 'wbeirigo@terravisiongeo.com.br', ])
-
+    print(datetime.now())
+    prograph.processa(col_pontos, col_campanha, parametro,  idleg, idclasse)
+    print(datetime.now())
+    print("Fim")
 

@@ -108,12 +108,11 @@ series: [ {% for item in series %}
         obj_limite = col_limite[0]
         if obj_limite.vlr_max != 0:
             linha = [ float(obj_limite.vlr_max) for it in ptomonit ]
-            lim_max = { 'name':'VMP', 'type':'line', 'color':'red', 'data':linha }
+            lim_max = { 'name':'VMP (máximo)', 'type':'line', 'color':'#560002', 'data':linha }
 
         if obj_limite.vlr_min != 0:
-            color = 'blue' if lim_max  else 'red'
             linha = [ float(obj_limite.vlr_min) for it in ptomonit ]
-            lim_min = { 'name':'VMP', 'type':'line', 'color':color, 'data':linha }
+            lim_min = { 'name': 'VMP (mínimo)', 'type':'line', 'color':'#F70206', 'data':linha }
 
     """
     Cria cria categorias
