@@ -17,7 +17,6 @@ def proc_medicao(tipo, colusinas, colcampanha):
 
     for item in PtoMonit.objects.filter(level=2):
 
-        zona = ''
         sigla = item.sigla.upper()
         if sigla.endswith('ZF'):
             zona = 'ZF'

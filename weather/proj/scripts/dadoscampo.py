@@ -16,6 +16,26 @@ import time
 
 PARAMETRO_DATA = 840
 
+PATH_FERRAMENTA  = '/media/projeto_cemig/01_PROJETO SOFTWARE/converte.xls'
+
+
+def converte(folha=0):
+
+    """ Pontos de monitoramento """
+    workbook = xlrd.open_workbook(PATH_FERRAMENTA)
+    pontoConv = {}
+    sheet = workbook.sheet_by_index(folha)
+    for row in range(1, sheet.nrows):
+       _de   = sheet.cell(row,0).value
+       _de   = _de.strip()
+       _para = sheet.cell(row,1).value
+       _para = u'{0}'.format(_para).strip()
+
+       pontoConv[_de] = _para
+
+    return pontoConv
+
+
 def getCampanha(idProjeto, dataHora):
 
     colCampanha = Campanha.objects.\
@@ -56,6 +76,8 @@ def run():
     sheet = workbook.sheet_by_index(0)
     inLancto = False
 
+    pontoConv = converte()
+
     colPos = [5,6,7,8,9,10,11,12]
     colMedicao = []
 
@@ -74,8 +96,16 @@ def run():
             errosParam = len(erros)
 
         if row >= 2 and errosParam == 0 :
-
             codEstacao = sheet.cell(row, 1).value
+            codEstacao = codEstacao.replace(' ','').replace('-','').strip()
+            old = codEstacao
+
+            if codEstacao in pontoConv:
+                codEstacao = pontoConv[codEstacao].strip()
+                codEstacao  = codEstacao.replace(' ','').replace('-','').strip()
+
+            if codEstacao == u'excluir' or codEstacao == u'EXCLUIR' or codEstacao == u'Excluir' :
+                return False
 
             objEstacao = PtoMonit.objects.filter(sigla= codEstacao)
 

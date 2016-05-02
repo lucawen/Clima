@@ -198,17 +198,12 @@ class ProcMedicao:
         if type(item.valor) == type(float(0)):
             item.valor = u'{0}'.format(item.valor)
 
-        if item.valor.strip() == 'L.T.':
-            return False
-
         _vl = item.valor.replace('<','').replace(',','.')
         try:
             float_vlr = float(_vl)
         except:
-           self.__adderro(u'Erro ao converter valor',
-                            item.valor,
-                            item.caminho )
-           return False
+            float_vlr = 0
+
 
         """
         A data considerada é a data da planilha de dados em campoq

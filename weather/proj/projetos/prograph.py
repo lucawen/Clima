@@ -49,15 +49,16 @@ series: [ {% for item in series %}
     Seleciona no banco os registros a serem tratados
     """
     col0 = Medicao.\
-          objects.\
+          objects. \
           filter( Parametro_FK_id=_parametro).\
           values("Parametro_FK_id",
                  "Campanha_FK_id",
                  "PtoMonit_FK_id",
                  "vlrLbl",
                  "vlr").\
-          order_by("Parametro_FK_id",
-                   "Campanha_FK_id",
+          order_by("Parametro_FK_id",\
+                   "Campanha_FK__ano",\
+                   "Campanha_FK__mes",\
                    "PtoMonit_FK_id")
 
     col = []
@@ -130,15 +131,22 @@ series: [ {% for item in series %}
     series = []
     pos = 0
     for item in grade:
+        obj_campanha = Campanha.objects.get(pk=item)
+        nome = obj_campanha.nome
+        order = (obj_campanha.ano*12) + obj_campanha.mes
         obj_campanha = Campanha.objects.get(pk=item).nome
         dados = [ float(it) for it in grade[item] ]
         if sum(dados) != 0:
             registro = {'name': '{0}'.format(obj_campanha),
                         'type':'column',
                         'data':dados,
-                        'color': cores[pos]}
+                        'color': cores[pos],
+                        'order': order}
             series.append(registro)
             pos += 1
+
+    series = sorted(series, key=lambda k: int(k['order']))
+
 
     if len(series) == 0:
         return None
@@ -176,24 +184,50 @@ series: [ {% for item in series %}
 
 
 
+
+
+
+
+
 def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
 
 
     query = Medicao.objects.values('Parametro_FK_id', 'PtoMonit_FK_id', 'Campanha_FK_id', 'id')
-
     col = []
-    qs = []
+
     for item in query:
         if item["PtoMonit_FK_id"] in _col_pontos and \
-           item["Campanha_FK_id"] in _col_campanha:
+                        item["Campanha_FK_id"] in _col_campanha:
+            col.append(item)
 
-            reg = (item['Parametro_FK_id'], item['PtoMonit_FK_id'])
-            if reg not in col:
-                col.append(reg)
-                qs.append(item)
 
-    df = pd.DataFrame.from_records(qs)
-    saida = pd.pivot_table(df, index=[ 'Parametro_FK_id'], columns=['PtoMonit_FK_id'], values=['id'], fill_value=0)
+
+
+    ptos = set([item['PtoMonit_FK_id'] for item in col])
+    camp = set([item['Campanha_FK_id'] for item in col])
+    param = set([item['Parametro_FK_id'] for item in col])
+
+    col_ptos = [ {'idpto': item, 'id': 0 } for item in ptos]
+    col_camp = [{'idcamp': item, 'ptos': col_ptos, } for item in camp]
+    col_param = [{'params': item, 'camps': col_camp } for item in param]
+
+    for item in col:
+        key_param = item['Parametro_FK_id']
+        key_camp = item['Campanha_FK_id']
+        key_pto = item['PtoMonit_FK_id']
+        reg_param = [ item for item in col_param if item['params'] == key_param ][0]['camps']
+        reg_camp = [ item for item in reg_param if item['idcamp'] == key_camp ][0]
+        reg_pto = [item for item in reg_camp['ptos'] if item['idpto'] == key_pto][0]
+        reg_pto['id'] = item['id']
+
+
+    print(col_param)
+
+    col = []
+
+
+    df = pd.DataFrame.from_records(col)
+    saida = pd.pivot_table(df, index=['Parametro_FK_id'], columns=['PtoMonit_FK_id'], values=['id'], fill_value=0)
 
     db_param  =  list(Param.objects.all().values('id', 'nome', 'unidade_FK__sigla', 'decimais').order_by('nome'))
     db_pontos  = list(PtoMonit.objects.all().values('id', 'sigla').order_by('sigla'))
@@ -290,9 +324,6 @@ def geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse):
                     vlr = vlr_min
                 elif vlr_max:
                     vlr = vlr_max
-
-
-
             else:
                 vlr = ''
 
@@ -363,7 +394,7 @@ def processa(_col_pontos, _col_campanha, _col_parametro,  _idleg, _idclasse):
     document.add_paragraph('  ', style='Normal')
     document.add_paragraph('  ', style='Normal')
     document.add_heading(u'Quadro 6.{0} - - Resultados do monitoramento da qualidade da água'.format(indice, ''), level=2)
-    geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse)
+    #geraTabela(document, _col_pontos, _col_campanha, _idleg, _idclasse)
     document.add_paragraph('  ', style='Normal')
     section = document.add_section()
     section.orientation = WD_ORIENT.PORTRAIT
